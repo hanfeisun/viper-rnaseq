@@ -1,0 +1,13 @@
+FIleName,SampleName,Condition1,Condition2
+20151105-P4-1minus-DL2436_S1_R1_001.fastq.gz,P4_WT1,P4,minus
+20151105-P4-1plus-DL2436_S4_R1_001.fastq.gz,P4_OE1,P4,plus
+20151105-P4-2minus-DL2436_S2_R1_001.fastq.gz,P4_WT2,P4,minus
+20151105-P4-2plus-DL2436_S5_R1_001.fastq.gz,P4_OE2,P4,plus
+20151105-P4-3minus-DL2436_S3_R1_001.fastq.gz,P4_WT3,P4,minus
+20151105-P4-3plus-DL2436_S6_R1_001.fastq.gz,P4_OE3,P4,plus
+20151105-P7-1minus-DL2436_S7_R1_001.fastq.gz,P7_WT1,P7,minus
+20151105-P7-1plus-DL2436_S10_R1_001.fastq.gz,P7_OE1,P7,plus
+20151105-P7-2minus-DL2436_S8_R1_001.fastq.gz,P7_WT2,P7,minus
+20151105-P7-2plus-DL2436_S11_R1_001.fastq.gz,P7_OE2,P7,plus
+20151105-P7-3minus-DL2436_S9_R1_001.fastq.gz,P7_WT3,P7,minus
+20151105-P7-3plus-DL2436_S12_R1_001.fastq.gz,P7_OE3,P7,plus
