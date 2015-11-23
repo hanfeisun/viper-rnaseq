@@ -4,7 +4,7 @@
 import os
 from collections import defaultdict
 
-configfile: "/zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/snakemake/RNASeq.yaml"
+configfile: "/zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/snakemake/mm9.yaml"
 
 workdir: config["directory"]
 
