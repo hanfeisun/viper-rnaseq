@@ -11,7 +11,7 @@ data[,1] <- NULL
 x <- data.frame( Sample=names(data), Total_Reads=as.numeric(as.matrix(data["Number_of_input_reads",])), Unique_Reads=as.numeric(as.matrix(data["Uniquely_mapped_reads_number",])))
 x1 <- melt(x, id.var="Sample")
 
-png( args[2] )
+png( args[2], width = 8, height = 8, unit="in",res=300 )
 
 upper_limit <- max(x$Total_Reads)
 limits <- seq( 0, upper_limit, length.out=10)
