@@ -20,6 +20,7 @@ else:
 
 
 file_info = defaultdict(list)
+ordered_sample_list = []
 run_fusion = False
 
 with open( config["metasheet"], "r" ) as meta_fh:
@@ -27,6 +28,8 @@ with open( config["metasheet"], "r" ) as meta_fh:
     for line in meta_fh:
         info = line.strip().split(",")
         file_info[info[1]].append(info[0])
+        if info[1] not in ordered_sample_list:
+            ordered_sample_list.append(info[1])
         if ( not run_fusion and "_R2_" in info[0] ):
             run_fusion=True
 
@@ -46,7 +49,7 @@ def fusion_output(wildcards):
     if run_fusion:
         for sample in file_info.keys():
             fusion_out_files.append( "STAR_Fusion/" + sample + "/" + sample + ".fusion_candidates.final" )
-    return fusion_out_files 
+    return fusion_out_files
 
 def insert_size_output(wildcards):
     insert_size_out_files = []
@@ -61,23 +64,23 @@ def rRNA_metrics(wildcards):
 
 rule target:
     input:
-        expand( "cufflinks/{K}/{K}.genes.fpkm_tracking", K=file_info.keys() ),
+        expand( "cufflinks/{K}/{K}.genes.fpkm_tracking", K=ordered_sample_list ),
         "STAR_snakemake/STAR_Align_Report.csv",
         "STAR_snakemake/STAR_Align_Report.png",
         "STAR_snakemake/STAR_Gene_Counts.csv",
         "cufflinks/Cuff_Gene_Counts.csv",
-        expand( "RSeQC/read_distrib/{sample}.txt", sample=file_info.keys() ),
+        expand( "RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
         "RSeQC/read_distrib/read_distrib.png",
-        expand( "RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=file_info.keys() ),
+        expand( "RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
         "RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
-        expand( "RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=file_info.keys() ),
+        expand( "RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=ordered_sample_list ),
         fusion_output,
         insert_size_output,
         rRNA_metrics
 
 rule run_STAR:
     input:
-        get_fastq 
+        get_fastq
     output:
         bam="STAR_snakemake/{sample}/{sample}.sorted.bam",
         counts="STAR_snakemake/{sample}/{sample}.counts.tab",
@@ -94,13 +97,13 @@ rule run_STAR:
         "  --limitBAMsortRAM 45000000000 --quantMode GeneCounts"
         " && mv {params.prefix}.Aligned.sortedByCoord.out.bam {output.bam}"
         " && mv {params.prefix}.ReadsPerGene.out.tab {output.counts}"
-        " && /usr/bin/samtools index {output.bam}" 
+        " && /usr/bin/samtools index {output.bam}"
 
 
 rule generate_STAR_report:
     input:
-        star_log_files=expand( "STAR_snakemake/{sample}/{sample}.Log.final.out", sample=file_info.keys() ),
-        star_gene_count_files=expand( "STAR_snakemake/{sample}/{sample}.counts.tab", sample=file_info.keys() )
+        star_log_files=expand( "STAR_snakemake/{sample}/{sample}.Log.final.out", sample=ordered_sample_list ),
+        star_gene_count_files=expand( "STAR_snakemake/{sample}/{sample}.counts.tab", sample=ordered_sample_list )
     output:
         csv="STAR_snakemake/STAR_Align_Report.csv",
         png="STAR_snakemake/STAR_Align_Report.png",
@@ -110,7 +113,7 @@ rule generate_STAR_report:
         count_files = " -f ".join( input.star_gene_count_files )
         shell( "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/report_generation/STAR_reports.pl -l {log_files} 1>{output.csv}" )
         shell( "Rscript /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/report_generation/map_stats.R {output.csv} {output.png}" )
-        shell( "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/rna_seq/raw_and_fpkm_count_matrix.pl -f {count_files} 1>{output.gene_counts}" )  
+        shell( "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/rna_seq/raw_and_fpkm_count_matrix.pl -f {count_files} 1>{output.gene_counts}" )
 
 rule run_cufflinks:
     input:
@@ -125,7 +128,7 @@ rule run_cufflinks:
 
 rule generate_cuff_matrix:
     input:
-        cuff_gene_fpkms=expand( "cufflinks/{sample}/{sample}.genes.fpkm_tracking", sample=file_info.keys() )
+        cuff_gene_fpkms=expand( "cufflinks/{sample}/{sample}.genes.fpkm_tracking", sample=ordered_sample_list )
     output:
         "cufflinks/Cuff_Gene_Counts.csv"
     run:
@@ -155,7 +158,7 @@ rule read_distrib_qc:
 
 rule read_distrib_qc_matrix:
     input:
-        read_distrib_files=expand( "RSeQC/read_distrib/{sample}.txt", sample=file_info.keys() )
+        read_distrib_files=expand( "RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list )
     output:
         matrix="RSeQC/read_distrib/read_distrib.matrix.tab",
         png="RSeQC/read_distrib/read_distrib.png"
@@ -163,7 +166,7 @@ rule read_distrib_qc_matrix:
         file_list_with_flag = " -f ".join( input.read_distrib_files )
         shell( "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/RSeQC/read_distrib_matrix.pl -f {file_list_with_flag} 1>{output.matrix}" )
         shell( "/zfs/cores/mbcf/mbcf-storage/devel/umv/software/R/R-3.2.2/bin/Rscript /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/RSeQC/read_distrib.R {output.matrix} {output.png}" )
-        
+
 
 rule down_sample:
     input:
@@ -188,13 +191,13 @@ rule gene_body_cvg_qc:
 
 rule plot_gene_body_cvg:
     input:
-        expand("RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r", sample=file_info.keys() )
+        expand("RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r", sample=ordered_sample_list )
     output:
         rscript="RSeQC/gene_body_cvg/geneBodyCoverage.r",
         png="RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         png_curves="RSeQC/gene_body_cvg/geneBodyCoverage.curves.png"
     shell:
-        "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/RSeQC/plot_gene_body_cvg.pl --rfile {output.rscript} --png {output.png} --curves_png {output.png_curves} {input}"       
+        "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/RSeQC/plot_gene_body_cvg.pl --rfile {output.rscript} --png {output.png} --curves_png {output.png_curves} {input}"
         " && /zfs/cores/mbcf/mbcf-storage/devel/umv/software/R/R-3.2.2/bin/Rscript {output.rscript}"
 
 rule junction_saturation:
@@ -219,7 +222,7 @@ rule collect_insert_size:
 
 rule run_rRNA_STAR:
     input:
-        get_fastq 
+        get_fastq
     output:
         bam="STAR_rRNA/{sample}/{sample}.sorted.bam",
         log_file="STAR_rRNA/{sample}/{sample}.Log.final.out"
@@ -235,11 +238,11 @@ rule run_rRNA_STAR:
         "  --limitBAMsortRAM 45000000000"
         " && mv {params.prefix}.Aligned.sortedByCoord.out.bam {output.bam}"
         " && /usr/bin/samtools index {output.bam}"
-        
+
 
 rule generate_rRNA_STAR_report:
     input:
-        star_log_files=expand( "STAR_rRNA/{sample}/{sample}.Log.final.out", sample=file_info.keys() )
+        star_log_files=expand( "STAR_rRNA/{sample}/{sample}.Log.final.out", sample=ordered_sample_list )
     output:
         csv="STAR_rRNA/STAR_rRNA_Align_Report.csv",
         png="STAR_rRNA/STAR_rRNA_Align_Report.png"
@@ -247,5 +250,3 @@ rule generate_rRNA_STAR_report:
         log_files = " -l ".join( input.star_log_files )
         shell( "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/report_generation/STAR_reports.pl -l {log_files} 1>{output.csv}" )
         shell( "Rscript /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/report_generation/map_stats.R {output.csv} {output.png}" )
-
-
