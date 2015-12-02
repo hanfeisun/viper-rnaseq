@@ -249,4 +249,4 @@ rule generate_rRNA_STAR_report:
     run:
         log_files = " -l ".join( input.star_log_files )
         shell( "perl /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/report_generation/STAR_reports.pl -l {log_files} 1>{output.csv}" )
-        shell( "Rscript /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/report_generation/map_stats.R {output.csv} {output.png}" )
+        shell( "Rscript /zfs/cores/mbcf/mbcf-storage/devel/umv/ROOT/bioifx/pipelines/QC/report_generation/map_stats_rRNA.R {output.csv} {output.png}" )
