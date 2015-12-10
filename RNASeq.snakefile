@@ -70,7 +70,7 @@ rule target:
         "analysis/STAR/STAR_Align_Report.png",
         "analysis/STAR/STAR_Gene_Counts.csv",
         "analysis/cufflinks/Cuff_Gene_Counts.csv",
-        expand( "analyis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
+        expand( "analysis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
         "analysis/RSeQC/read_distrib/read_distrib.png",
         expand( "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
         "analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
