@@ -75,6 +75,7 @@ rule target:
         expand( "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
         "analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         expand( "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=ordered_sample_list ),
+        expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
         fusion_output,
         insert_size_output,
         rRNA_metrics
@@ -253,3 +254,22 @@ rule generate_rRNA_STAR_report:
         log_files = " -l ".join( input.star_log_files )
         shell( "perl snakemake/scripts/STAR_reports.pl -l {log_files} 1>{output.csv}" )
         shell( "Rscript snakemake/scripts/map_stats_rRNA.R {output.csv} {output.png}" )
+
+rule get_chrom_size:
+    output:
+        "analysis/bam2bw/{config[reference]}.Chromsizes.txt"
+    script:
+        "fetchChromSizes {config[reference]} 1>{output}"
+
+rule bam_to_bigwig:
+    input:
+        bam="analysis/STAR/{sample}/{sample}.sorted.bam",
+        chrom_size="analysis/bam2bw/{config[reference]}.Chromsizes.txt"
+    output:
+        "analysis/bam2bw/{sample}/{sample}.bw"
+    prefix:
+        "analysis/bam2bw/{sample}/{sample}"
+    shell:
+        "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {prefix}.bg"
+        " && bedSort {prefix}.bg {prefix}.sorted.bg"
+        " && bedGraphToBigWig {prefix}.sorted.bg {input.chrom_size} {output}"

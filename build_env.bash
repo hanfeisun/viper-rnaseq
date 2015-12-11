@@ -10,7 +10,10 @@ echo y | conda install -c https://conda.anaconda.org/bioconda \
 	star=2.5 \
 	star-fusion=0.5 \
 	cufflinks=2.2 \
-	samtools=1.2
+	samtools=1.2 \
+	bedtools=2.25
+
+echo y | conda install -c https://conda.anaconda.org/hcc ucsc-tools
 
 echo y | conda install -c r r-essentials
 

@@ -20,6 +20,9 @@ bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UC
 ref_fasta: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_with_ERCC.fa
 star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STAR_index/
 
+#Reference organism; possible value - hg19, mm9 etc.
+reference: hg19
+
 #software source paths required from user
 python2: /apps/python-2.7.9/bin/python
 rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/scripts 
