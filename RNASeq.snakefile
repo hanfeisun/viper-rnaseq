@@ -261,7 +261,7 @@ rule generate_rRNA_STAR_report:
 rule get_chrom_size:
     output:
         "analysis/bam2bw/{config[reference]}.Chromsizes.txt"
-    script:
+    shell:
         "fetchChromSizes {config[reference]} 1>{output}"
 
 rule bam_to_bigwig:
@@ -270,9 +270,9 @@ rule bam_to_bigwig:
         chrom_size="analysis/bam2bw/{config[reference]}.Chromsizes.txt"
     output:
         "analysis/bam2bw/{sample}/{sample}.bw"
-    prefix:
+    params:
         "analysis/bam2bw/{sample}/{sample}"
     shell:
-        "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {prefix}.bg"
-        " && bedSort {prefix}.bg {prefix}.sorted.bg"
-        " && bedGraphToBigWig {prefix}.sorted.bg {input.chrom_size} {output}"
+        "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {params}.bg"
+        " && bedSort {params}.bg {params}.sorted.bg"
+        " && bedGraphToBigWig {params}.sorted.bg {input.chrom_size} {output}"
