@@ -5,7 +5,6 @@ import os
 from collections import defaultdict
 
 configfile: "snakemake/config.yaml"
-
 strand_command=""
 rRNA_strand_command=""
 
@@ -260,14 +259,16 @@ rule generate_rRNA_STAR_report:
 
 rule get_chrom_size:
     output:
-        "analysis/bam2bw/{config[reference]}.Chromsizes.txt"
+        "analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
+    params:
+        config['reference']
     shell:
-        "fetchChromSizes {config[reference]} 1>{output}"
+        "fetchChromSizes {params} 1>{output}"
 
 rule bam_to_bigwig:
     input:
         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
-        chrom_size="analysis/bam2bw/{config[reference]}.Chromsizes.txt"
+        chrom_size="analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
     output:
         "analysis/bam2bw/{sample}/{sample}.bw"
     params:
