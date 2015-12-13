@@ -147,7 +147,10 @@ rule run_STAR_fusion:
         "analysis/STAR_Fusion/{sample}/{sample}.star_fusion.log"
     shell:
         "STAR-Fusion --chimeric_junction analysis/STAR/{wildcards.sample}/{wildcards.sample}.Chimeric.out.junction "
-        "--chimeric_out_sam analysis/STAR/{wildcards.sample}/{wildcards.sample}.Chimeric.out.sam --out_prefix analysis/STAR_Fusion/{wildcards.sample}/{wildcards.sample} >& {log}"
+        "--genome_lib_dir {config[genome_lib_dir]} --output_dir analysis/STAR_Fusion/{wildcards.sample} >& {log}"
+        " && mv analysis/STAR_Fusion/{wildcards.sample}/star-fusion.fusion_candidates.final {output}"
+        " && mv analysis/STAR_Fusion/{wildcards.sample}/star-fusion.fusion_candidates.final.abridged"
+        " analysis/STAR_Fusion/{wildcards.sample}/{wildcards.sample}.fusion_candidates.final.abridged"
 
 
 rule read_distrib_qc:

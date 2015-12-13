@@ -13,6 +13,10 @@ metasheet: metasheet.csv
 paired_end: false
 stranded: true
 
+#STAR-Fusion
+#This is required only for PE data.
+genome_lib_dir: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/STAR_Fusion/Hg19_CTAT_resource_lib
+
 #Reference files required
 star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/STARIndex_with_ERCC/ 
 gtf_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/genes_with_ERCC.gtf
