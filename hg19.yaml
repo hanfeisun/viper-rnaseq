@@ -1,0 +1,33 @@
+# vim: syntax=python tabstop=4 expandtab
+# coding: utf-8
+
+#Absolute or relative path to folder containing fastq.gz files
+input_dir: concat_per_sample_fastq/
+
+#Metasheet with left or single mate, sample_name, condition1, condition2, ..., conditionN
+#Right mate has to follow the same name convention as that of it's left mate, except for _R2_ . This will be _R1_ in left mate file name.
+#Refer to https://github.com/vangalamaheshh/ROOT/blob/master/bioifx/pipelines/snakemake/metasheet.sample.csv
+metasheet: metasheet.csv
+
+#possible values are, true and false
+paired_end: true
+stranded: true
+
+#STAR-Fusion
+#This is required only for PE data.
+genome_lib_dir: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/STAR_Fusion/Hg19_CTAT_resource_lib
+
+#Reference files required
+star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/STARIndex_with_ERCC/ 
+gtf_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/genes_with_ERCC.gtf
+bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/hg19_genes.bed
+ref_fasta: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_with_ERCC.fa
+star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STAR_index/
+
+#Reference organism; possible value - hg19, mm9 etc.
+reference: hg19
+
+#software source paths required from user
+python2: /apps/python-2.7.9/bin/python
+rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/scripts 
+picard_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/picard-tools-1.115  #This dependency will be added to conda in the near future; temp fix 
