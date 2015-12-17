@@ -1,16 +1,12 @@
 # vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
 
-#Absolute or relative path to folder containing fastq.gz files
-input_dir: concat_per_sample_fastq/
-
 #Metasheet with left or single mate, sample_name, condition1, condition2, ..., conditionN
 #Right mate has to follow the same name convention as that of it's left mate, except for _R2_ . This will be _R1_ in left mate file name.
 #Refer to https://github.com/vangalamaheshh/ROOT/blob/master/bioifx/pipelines/snakemake/metasheet.sample.csv
 metasheet: metasheet.csv
 
 #possible values are, true and false
-paired_end: true
 stranded: true
 
 #STAR-Fusion

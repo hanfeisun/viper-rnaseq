@@ -11,7 +11,7 @@ my $yaml = YAML::Tiny -> read( $$options{ 'config' } );
 my $meta_info = undef;
 ($yaml, $meta_info ) = get_meta_info( $yaml, $$options{'metasheet'} );
 print_meta_info( "metasheet.csv", $meta_info );
-$yaml -> write( "snakemake/config.yaml" );
+$yaml -> write( "config.yaml" );
 exit $?;
 
 sub print_meta_info {
@@ -58,6 +58,6 @@ sub get_meta_info {
 		}
 	}
 	close FH or die "Error in closing the file, $meta_file, $!\n";
-	$yaml -> [scalar @$yaml ] -> {'samples'} = $$sample_info{ 'samples' };
+	$$yaml[0]->{'samples'} = $$sample_info{'samples'};
 	return ( $yaml, $meta_info );
 }

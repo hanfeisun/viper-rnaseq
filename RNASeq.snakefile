@@ -4,7 +4,7 @@
 import os
 from collections import defaultdict
 
-configfile: "snakemake/config.yaml"
+configfile: "config.yaml"
 strand_command=""
 rRNA_strand_command=""
 
@@ -20,18 +20,15 @@ file_info = defaultdict(list)
 ordered_sample_list = []
 run_fusion = False
 
-if( config["paired_end"] ):
-    run_fusion = True
-
 with open( config["metasheet"], "r" ) as meta_fh:
     next(meta_fh)
     for line in meta_fh:
         info = line.strip().split(",")
-        file_info[info[1]].append(info[0])
-        if( config["paired_end"] ):
-            file_info[info[1]].append(info[0].replace("_R1_", "_R2_"))
-        if info[1] not in ordered_sample_list:
-            ordered_sample_list.append(info[1])
+        file_info[info[0]] = config["samples"][info[0]]
+        if( len(file_info[info[0]]) == 2 ):
+            run_fusion = True
+        if info[0] not in ordered_sample_list:
+            ordered_sample_list.append(info[0])
 
 if( run_fusion ):
     if( config["stranded"] ):
@@ -41,7 +38,7 @@ if( run_fusion ):
 
 
 def get_fastq(wildcards):
-    return [os.path.join(config["input_dir"], f) for f in file_info[wildcards.sample]]
+    return file_info[wildcards.sample]
 
 
 def fusion_output(wildcards):
