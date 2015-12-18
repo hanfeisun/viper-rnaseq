@@ -78,6 +78,53 @@ rule target:
         insert_size_output,
         rRNA_metrics
 
+rule report:
+    input:
+        Unique_Reads="analysis/STAR/STAR_Align_Report.png",
+        rRNA_Metrics="analysis/STAR_rRNA/STAR_rRNA_Align_Report.png",
+        Read_Distribution="analysis/RSeQC/read_distrib/read_distrib.png",
+        Genebody_Coverage_Heatmap="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
+        Genebody_Coverage_Curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png"
+    output:
+        "report.html"
+    run:
+        from snakemake.utils import report
+        report("""
+=======================
+RNA-Seq Pipeline Report
+=======================
+
+Alignment
+=========
+    Samples are aligned against reference organism, using `STAR software`_.
+    
+    .. _STAR software: https://github.com/alexdobin/STAR
+
+    The **uniquely mapped read counts** and the **total read counts** for all the samples are summarized in the following image.
+
+    .. image:: analysis/STAR/STAR_Align_Report.png
+
+    Further, the input reads are aligned against **non-coding RNA** to further quality check the data. The noncoding RNA metrics are as follows.
+
+    .. image:: analysis/STAR_rRNA/STAR_rRNA_Align_Report.png
+
+Quality Metrics
+===============
+Read Distribution Metrics
+=========================
+
+    .. image:: analysis/RSeQC/read_distrib/read_distrib.png
+
+Genebody Coverage
+=================
+ 
+    .. image:: analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png
+
+    .. image:: analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png
+
+        """, output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
+
+
 rule run_STAR:
     input:
         get_fastq
