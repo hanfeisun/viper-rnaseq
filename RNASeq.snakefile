@@ -6,10 +6,12 @@ from collections import defaultdict
 
 configfile: "config.yaml"
 strand_command=""
+cuff_command=""
 rRNA_strand_command=""
 
 if( config["stranded"] ):
     strand_command="--outFilterIntronMotifs RemoveNoncanonical"
+    cuff_command="--library-type " + config["library_type"]
     rRNA_strand_command="--outFilterIntronMotifs RemoveNoncanonical"
 else:
     strand_command="--outSAMstrandField intronMotif"
@@ -119,8 +121,10 @@ rule run_cufflinks:
     output:
         "analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking"
     threads: 4
+    params:
+        library_command=cuff_command
     shell:
-        "cufflinks -o analysis/cufflinks/{wildcards.sample} -p {threads} -G {config[gtf_file]} {input}"
+        "cufflinks -o analysis/cufflinks/{wildcards.sample} -p {threads} -G {config[gtf_file]} {params.library_command} {input}"
         " && mv analysis/cufflinks/{wildcards.sample}/genes.fpkm_tracking {output}"
         " && mv analysis/cufflinks/{wildcards.sample}/isoforms.fpkm_tracking analysis/cufflinks/{wildcards.sample}/{wildcards.sample}.isoforms.fpkm_tracking"
 
