@@ -8,6 +8,9 @@ metasheet: metasheet.csv
 
 #possible values are, true and false
 stranded: true
+# if stranded true, library_type is a required argument
+# Possible values are [ff-firststrand, ff-secondstrand, ff-unstranded, fr-firststrand, fr-secondstrand, fr-unstranded (default), transfrags]
+library_type: fr-firststrand
 
 #STAR-Fusion
 #This is required only for PE data.

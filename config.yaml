@@ -11,6 +11,7 @@ rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/sc
 star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/STARIndex_with_ERCC/
 star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STAR_index/
 stranded: 'true'
+library_type: 'fr-firststrand'
 ---
 samples:
   P4_OE1:
