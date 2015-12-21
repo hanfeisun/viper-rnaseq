@@ -89,6 +89,13 @@ rule report:
         "report.html"
     run:
         from snakemake.utils import report
+        from snakemake.report import data_uri
+        unique_reads_en = data_uri( input.Unique_Reads )
+        rRNA_metrics_en = data_uri( input.rRNA_Metrics )
+        read_distrib_en = data_uri( input.Read_Distribution )
+        genebody_hm_en = data_uri( input.Genebody_Coverage_Heatmap )
+        genebody_cv_en = data_uri( input.Genebody_Coverage_Curves )
+
         report("""
 =======================
 RNA-Seq Pipeline Report
@@ -102,27 +109,28 @@ Alignment
 
     The **uniquely mapped read counts** and the **total read counts** for all the samples are summarized in the following image.
 
-    .. image:: analysis/STAR/STAR_Align_Report.png
+    .. image:: {unique_reads_en}
 
     Further, the input reads are aligned against **non-coding RNA** to further quality check the data. The noncoding RNA metrics are as follows.
 
-    .. image:: analysis/STAR_rRNA/STAR_rRNA_Align_Report.png
+    .. image:: {rRNA_metrics_en}
 
 Quality Metrics
 ===============
 Read Distribution Metrics
 =========================
 
-    .. image:: analysis/RSeQC/read_distrib/read_distrib.png
+    .. image:: {read_distrib_en}
 
 Genebody Coverage
 =================
  
-    .. image:: analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png
+    .. image:: {genebody_hm_en}
 
-    .. image:: analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png
+    .. image:: {genebody_cv_en}
 
-        """, output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
+        """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
+        , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
 
 
 rule run_STAR:
