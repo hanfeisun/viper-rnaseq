@@ -12,7 +12,6 @@ star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/
 star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STAR_index/
 stranded: 'true'
 library_type: 'fr-firststrand'
----
 samples:
   P4_OE1:
     - /zfs/cores/mbcf/mbcf-storage/devel/umv/snakemake/20151105-P4-1plus-DL2436_S4_R1_001.fastq.gz
