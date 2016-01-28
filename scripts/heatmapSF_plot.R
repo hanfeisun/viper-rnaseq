@@ -73,7 +73,8 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
     #CONSTANTS
     RPKM_THRESHOLD <- 2.0
     MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
-    NUM_GENES_TO_CLUSTER <- 150#250
+    NUM_GENES <- 22000 #roughly how many human genes there are
+    NUM_GENES_TO_CLUSTER <- NUM_GENES * 0.05 #cluster top 5%
 
     #readin and process newdata
     #newdata <- read.table(rawRPKM_file, header=T, row.names=1, sep=",")
@@ -108,33 +109,16 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
     mi_nolym <- min(Exp_data)
     my.breaks_nolym<-c(-3,seq(-2.5,2.5,length.out=99),3)
     param_text <- paste(RPKM_THRESHOLD, MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD, NUM_GENES_TO_CLUSTER, sep=",")
-
-    #LEN: DROP this!
-    ## test<-heatmap.2(as.matrix(Exp_data),
-    ##                 distfun = function(x) dist(x,method = 'euclidean'),
-    ##                 hclustfun = function(x) hclust(x,method = 'ward.D2'),
-    ##                 breaks=my.breaks_nolym,trace="none",scale="none",
-    ##                 col=greenred(100),
-    ##                 #ALLOW default of printing colum labels! labCol=F,
-    ##                 cexRow=0.5,
-    ##                 cexCol=0.5,
-    ##                 lwid=c(0.15,0.75),
-    ##                 key=FALSE, margins=c(3,7),
-    ##                 #main = paste(Project_Name,"Sample-Feature Correlation"),
-    ##                 main = "Sample-Feature Correlation",
-    ##                 #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
-    ##                 xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
-    ##                 )
     
     graph2 <-Heatmap(as.matrix(Exp_data),
-                     col = colorRamp2(my.breaks_nolym,  greenred(101), transparency = 0),
+                     col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
               #         column_dend_height = unit(2, "cm"),
                        heatmap_legend_param = list(title = "exp. level"),
                        column_title = "Sample-Feature Correlation",
                        #REMOVErow_title = "Samples",
-                       show_row_names = TRUE,show_column_names = TRUE,
-                       row_names_max_width = unit(3, "mm"),
-                       row_names_gp = gpar(fontsize = 4),
+                       show_row_names = TRUE,show_column_names = FALSE,
+                       #row_names_max_width = unit(3, "mm"),
+                       row_names_gp = gpar(fontsize = 12),
                        column_names_gp = gpar(fontsize = 5),
                        cluster_rows = TRUE, cluster_columns=TRUE,
                      clustering_method_rows="ward.D2",
@@ -147,30 +131,30 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
                         )
     draw(graph2)
     
-    #LEN:
-    #output<-as.matrix(Exp_data)[rev(test$rowInd), test$colInd]
-    output<-graph2@matrix
-    #data.matrix.filename <- "XXX_bar.txt"
-    #write.table(output, file=data.matrix.filename, quote=F, col.names = NA, sep="\t")
-    write.table(output, file=sfCorr_out, quote=F, col.names = NA, sep="\t")
-    ht_list <- Heatmap(t(as.matrix(Exp_data)),
-                       col = colorRamp2(my.breaks_nolym,  greenred(101), transparency = 0),
-              #         column_dend_height = unit(2, "cm"),
-                       heatmap_legend_param = list(title = "exp. level"),
-                       #column_title = "Sample-Feature Correlation",
-                       #REMOVErow_title = "Samples",
-                       show_row_names = TRUE, show_column_names = TRUE,
-                       row_names_max_width = unit(3, "mm"),
-                       row_names_gp = gpar(fontsize = 4),
-                       #column_names_gp = gpar(fontsize = 5),
-                       cluster_rows = TRUE, cluster_columns=TRUE,
-                       show_heatmap_legend=FALSE,
-                        )
+    ## #LEN:
+    ## #output<-as.matrix(Exp_data)[rev(test$rowInd), test$colInd]
+    ## output<-graph2@matrix
+    ## #data.matrix.filename <- "XXX_bar.txt"
+    ## #write.table(output, file=data.matrix.filename, quote=F, col.names = NA, sep="\t")
+    ## write.table(output, file=sfCorr_out, quote=F, col.names = NA, sep="\t")
+    ## ht_list <- Heatmap(t(as.matrix(Exp_data)),
+    ##                    col = colorRamp2(my.breaks_nolym,  greenred(101), transparency = 0),
+    ##           #         column_dend_height = unit(2, "cm"),
+    ##                    heatmap_legend_param = list(title = "exp. level"),
+    ##                    #column_title = "Sample-Feature Correlation",
+    ##                    #REMOVErow_title = "Samples",
+    ##                    show_row_names = TRUE, show_column_names = TRUE,
+    ##                    row_names_max_width = unit(3, "mm"),
+    ##                    row_names_gp = gpar(fontsize = 4),
+    ##                    #column_names_gp = gpar(fontsize = 5),
+    ##                    cluster_rows = TRUE, cluster_columns=TRUE,
+    ##                    show_heatmap_legend=FALSE,
+    ##                     )
 
-    #LEN: not even sure if this heatmap graph is helpful!--it's super complex!
-    #TURNING OFF for now!
-    #ht_list <- make_complexHeatmap_annotation(ht_list, annotation)
-    draw(ht_list)    
+    ## #LEN: not even sure if this heatmap graph is helpful!--it's super complex!
+    ## #TURNING OFF for now!
+    ## #ht_list <- make_complexHeatmap_annotation(ht_list, annotation)
+    ## draw(ht_list)    
 
     #SAVE graphics
     dev.off()
