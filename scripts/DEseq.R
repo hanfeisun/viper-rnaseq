@@ -1,5 +1,5 @@
 library(limma)
-library(DESeq)
+library(DESeq2)
 library(edgeR)
 
 limma_and_deseq_f <- function(counts, s1,s2, limma,deseq) {
@@ -38,7 +38,7 @@ limma_and_deseq_f <- function(counts, s1,s2, limma,deseq) {
         #dataPack<- data.frame(row.names= colnames(countTable), condition = c(rep('treat',ntreat),rep('control',nctrl)))
         conds <- factor(c(rep('treat',ntreat),rep('control',nctrl)))
         rownames(countTable) = make.names(rownames(countTable), unique=TRUE)
-        cds <- newCountDataSet(countTable, conds)
+        cds <- DESeqDataSetFromMatrix(countTable, DataFrame(conds), ~ conds)
         #newCountDataSet() default:
         #newCountDataSet(countData, conditions, sizeFactors = NULL, phenoData = NULL, featureData = NULL)
         cds <- estimateSizeFactors (cds)
@@ -61,7 +61,14 @@ limma_and_deseq_f <- function(counts, s1,s2, limma,deseq) {
         #modelFrame = NULL, modelFormula = count ~ condition, ... )
         #print(str(fitInfo(cds)))
         #################### swapped control and treat, now it gives consistent results as limma
-        res <- nbinomTest(cds, "control", "treat")
+        cds <- DESeq(cds)
+        res <- results(cds)
+        
+        #ORDER results by XXX
+        #res <- results[order(res$padj)]
+        #summarize data
+        #sum(res$padj < 0.1, na.rm=TRUE)
+
         #nbinomTest() default:
         #nbinomTest(cds, condA, condB, pvals_only = FALSE)
         return (res)
@@ -96,6 +103,8 @@ limma_and_deseq_f <- function(counts, s1,s2, limma,deseq) {
         limma_result <- cbind(ID=rownames(limma_result), limma_result)
         write.table(limma_result,limma,sep='\t',col.names=T,row.names=F,quote=F)
     }
+    #LEN: setting the first column name to 'id'
+    deseq_result <- cbind(id=rownames(deseq_result), as.matrix(deseq_result))
     write.table(deseq_result,deseq,sep='\t',col.names=T,row.names=F,quote=F)
 }
 
