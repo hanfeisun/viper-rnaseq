@@ -64,10 +64,12 @@ pca_plot <- function(rpkmTable, annotation, plot_out) {
         }
     }
 
+    #GET percent variances
+    pc_var <- signif(100.0 * summary(pca_output)[[6]][2,], digits = 3)
     #scree plot
-    plot(pca_output)
+    barplot(pc_var, ylim=c(0,100),ylab="% variance")
     #Short Summary
-    summary(pca_output)[[6]][,1:3]
+    #summary(pca_output)[[6]][,1:3]
 
     #SAVE graphics
     dev.off()
@@ -87,6 +89,8 @@ for (n in names(rpkmTable)) {
 
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
+#REMOVE comp_ columns
+tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
