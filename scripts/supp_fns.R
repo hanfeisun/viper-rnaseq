@@ -24,16 +24,13 @@ make_complexHeatmap_annotation <- function(ht_list, annotation){
     MIN_UNIQUE <- 6
     global_gp = gpar(fontsize = 8)
     title_gp = gpar(fontsize = 8, fontface = "bold")
-    
+
     for(c in colnames(annotation)) {
         ann <- as.matrix(annotation[, c])
         if(length(sort(unique(na.omit(as.vector(ann))))) < MIN_UNIQUE) {
             col <- cmap(ann)
         } else {
-            #LEN: change this!
-            col <- cmap(ann)
-            #BELOW causes a bug!--a not a range bug
-            #col <- colorRamp2(c(min(ann, na.rm = TRUE), max(ann, na.rm = TRUE)), c("white", "red"))
+            col <- colorRamp2(seq(min(ann, na.rm = TRUE), max(ann, na.rm = TRUE), length = 3), c("blue","white","red"))
         }
         jj<- NULL
         

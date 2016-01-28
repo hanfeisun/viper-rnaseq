@@ -73,7 +73,8 @@ heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
                     #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
                     xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
                     )
-    
+
+    #LEN: HYP- This is generating matrix_1
     ht_list <- Heatmap(cordata,
                        col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
                        )
@@ -101,6 +102,8 @@ for (n in names(rpkmTable)) {
 
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
+#REMOVE comp_ columns
+tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1:-3]
