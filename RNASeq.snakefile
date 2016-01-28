@@ -3,8 +3,9 @@
 
 import os
 from collections import defaultdict
+import pandas as pd
 
-configfile: "config.yaml"
+configfile: "snakemake/config.yaml"
 strand_command=""
 cuff_command=""
 rRNA_strand_command=""
@@ -61,6 +62,10 @@ def rRNA_metrics(wildcards):
     if config["star_rRNA_index"] is not None:
         return "analysis/STAR_rRNA/STAR_rRNA_Align_Report.csv"
 
+#LEN: read in comparisons
+metadata = pd.read_table(config['metasheet'], index_col=0, sep=',')
+comparisons = comparison=[c[5:] for c in metadata.columns if c.startswith("comp_")]
+
 rule target:
     input:
         expand( "analysis/cufflinks/{K}/{K}.genes.fpkm_tracking", K=ordered_sample_list ),
@@ -68,12 +73,19 @@ rule target:
         "analysis/STAR/STAR_Align_Report.png",
         "analysis/STAR/STAR_Gene_Counts.csv",
         "analysis/cufflinks/Cuff_Gene_Counts.csv",
+        "analysis/plots/pca_plot.pdf",
+        "analysis/plots/heatmapSS_plot.pdf",
+        "analysis/plots/heatmapSF_plot.pdf",
         expand( "analysis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
         "analysis/RSeQC/read_distrib/read_distrib.png",
         expand( "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
         "analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         expand( "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=ordered_sample_list ),
         expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
+        expand( "analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=ordered_sample_list ),
+        expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
+
         fusion_output,
         insert_size_output,
         rRNA_metrics
@@ -147,7 +159,9 @@ rule run_STAR:
     threads: 8
     shell:
         "STAR --runMode alignReads --runThreadN {threads} --genomeDir {config[star_index]}"
+	" --sjdbGTFfile {config[gtf_file]}"
         " --readFilesIn {input} --readFilesCommand zcat --outFileNamePrefix {params.prefix}."
+	"  --outSAMstrandField intronMotif"
         "  --outSAMmode Full --outSAMattributes All {params.stranded} --outSAMattrRGline {params.readgroup} --outSAMtype BAM SortedByCoordinate"
         "  --limitBAMsortRAM 45000000000 --quantMode GeneCounts"
         " && mv {params.prefix}.Aligned.sortedByCoord.out.bam {output.bam}"
@@ -321,6 +335,7 @@ rule get_chrom_size:
     shell:
         "fetchChromSizes {params} 1>{output}"
 
+#MAHESH's
 rule bam_to_bigwig:
     input:
         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
@@ -333,3 +348,114 @@ rule bam_to_bigwig:
         "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {params}.bg"
         " && bedSort {params}.bg {params}.sorted.bg"
         " && bedGraphToBigWig {params}.sorted.bg {input.chrom_size} {output}"
+
+#LEN:
+# rule bam_to_bg:
+#     input:
+#         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
+#         chrom_size="analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
+#     output:
+#         "analysis/bam2bw/{sample}/{sample}.bg"
+#     shell:
+#         "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {output}"
+
+# rule sort_bg:
+#     input:
+#         "analysis/bam2bw/{sample}/{sample}.bg"
+#     output:
+#         "analysis/bam2bw/{sample}/{sample}.sorted.bg"
+#     shell:
+#         "bedSort {input} {output}"
+
+# rule bg_to_bw:
+#     input:
+#         bg="analysis/bam2bw/{sample}/{sample}.sorted.bg",
+#         chrom_size="analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
+#     output:
+#         "analysis/bam2bw/{sample}/{sample}.bw"
+#     shell:
+#         "bedGraphToBigWig {input.bg} {input.chrom_size} {output}"
+
+#LEN:
+rule pca_plot:
+    input:
+        rpkmFile="analysis/cufflinks/Cuff_Gene_Counts.csv",
+        annotFile=config['metasheet']
+    output:
+        pca_plot_out="analysis/plots/pca_plot.pdf"
+#    shell:
+#        "scripts/pca_plot.R"
+    run:
+        shell("Rscript snakemake/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {output.pca_plot_out}")
+
+rule heatmapSS_plot:
+    input:
+        rpkmFile="analysis/cufflinks/Cuff_Gene_Counts.csv",
+        annotFile=config['metasheet']
+    output:
+        ss_plot_out="analysis/plots/heatmapSS_plot.pdf",
+        ss_txt_out="analysis/plots/heatmapSS.txt"
+    run:
+        shell("Rscript snakemake/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {output.ss_plot_out} {output.ss_txt_out}")
+
+rule heatmapSF_plot:
+    input:
+        rpkmFile="analysis/cufflinks/Cuff_Gene_Counts.csv",
+        annotFile=config['metasheet']
+    output:
+        sf_plot_out="analysis/plots/heatmapSF_plot.pdf",
+        sf_txt_out="analysis/plots/heatmapSF.txt"
+    run:
+        shell("Rscript snakemake/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {output.sf_plot_out} {output.sf_txt_out}")
+
+#PART 2.2- diffexp w/ DEseq
+#based on tosh's coppRhead/Snakefile
+
+## Get the raw counts for each sample
+rule gfold_count:
+    input:
+        bam="analysis/STAR/{sample}/{sample}.sorted.bam",
+        reference_genes=config["gtf_file"],
+    output:
+        "analysis/gfold/{sample}/{sample}.read_cnt.txt"
+    shell:
+        "samtools view {input.bam} | "
+        "gfold count -ann {input.reference_genes} -tag stdin -o {output}"
+
+## Extract comparisons from the metadata file and perform gfold diff
+def get_column(comparison):
+    return metadata["comp_{}".format(comparison)]
+
+def get_comparison(name, group):
+    comp = get_column(name)
+    return metadata[comp == group].index
+
+def get_samples(wildcards):
+    comp = get_column(wildcards.comparison)
+    return comp.dropna().index
+
+## Perform Limma and DEseq on comparisons
+rule limma_and_deseq:
+    input:
+        counts = lambda wildcards: expand("analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=get_samples(wildcards))
+    output:
+        limma = "analysis/diffexp/{comparison}/{comparison}.limma.txt",
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt"
+    params:
+        s1=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 1)),
+        s2=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 2))
+#    script:
+#        "scripts/DEseq.R"
+
+    run:
+        counts = " ".join(input.counts)
+        shell("Rscript snakemake/scripts/DEseq.R \"{counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq}")
+
+#Generate volcano plots for each comparison
+rule volcano_plot:
+    input:
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt",
+    output:
+        plot = "analysis/diffexp/{comparison}/{comparison}_volcano.pdf"
+    run:
+        shell("Rscript snakemake/scripts/volcano_plot.R {input.deseq} {output.plot}")

@@ -45,7 +45,8 @@ sub get_matrix {
 			chomp $line;
 			if( $$options{ 'cufflinks' } ) {
 				my @array_of_vals = split( "\t", $line );
-				my( $gene_id, $fpkm ) = ( $array_of_vals[ 0 ], $array_of_vals[ 9 ] );
+				#my( $gene_id, $fpkm ) = ( $array_of_vals[ 0 ], $array_of_vals[ 9 ] );
+				my( $gene_id, $fpkm ) = ( $array_of_vals[ 4 ], $array_of_vals[ 9 ] );
 				if( not substr( $gene_id, 0, 2 ) eq '__' ) {
 					if( $$options{ 'remove_ERCC_ids' } && $gene_id =~ /ERCC\-00\d\d\d/ ) {
 						# do nothing
