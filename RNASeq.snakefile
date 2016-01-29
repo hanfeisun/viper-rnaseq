@@ -440,7 +440,8 @@ rule limma_and_deseq:
         counts = lambda wildcards: expand("analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=get_samples(wildcards))
     output:
         limma = "analysis/diffexp/{comparison}/{comparison}.limma.txt",
-        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt"
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt",
+        deseqSum = "analysis/diffexp/{comparison}/{comparison}.deseq.sum.csv"
     params:
         s1=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 1)),
         s2=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 2))
@@ -449,7 +450,7 @@ rule limma_and_deseq:
 
     run:
         counts = " ".join(input.counts)
-        shell("Rscript snakemake/scripts/DEseq.R \"{counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq}")
+        shell("Rscript snakemake/scripts/DEseq.R \"{counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.deseqSum}")
 
 #Generate volcano plots for each comparison
 rule volcano_plot:

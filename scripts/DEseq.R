@@ -2,7 +2,7 @@ library(limma)
 library(DESeq2)
 library(edgeR)
 
-limma_and_deseq_f <- function(counts, s1,s2, limma,deseq) {
+limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out) {
     treatlist = strsplit(s2,',')[[1]]
     ctrllist = strsplit(s1,',')[[1]]
 
@@ -68,6 +68,18 @@ limma_and_deseq_f <- function(counts, s1,s2, limma,deseq) {
         #res <- results[order(res$padj)]
         #summarize data
         #sum(res$padj < 0.1, na.rm=TRUE)
+        #LEN: get summary stats
+        summary <- c(sum(res$padj < 0.05, na.rm=TRUE),
+                     sum(res$padj < 0.01, na.rm=TRUE),
+                     sum(res$log2FoldChange > 0.0, na.rm=TRUE),
+                     sum(res$log2FoldChange > 0.5, na.rm=TRUE),
+                     sum(res$log2FoldChange > 1.0, na.rm=TRUE))
+        sumTable <- matrix(summary, nrow=5, ncol=1)
+        rownames(sumTable)<-c('padj < 0.05','padj < 0.01',
+                              'log2FC > 0.0','log2FC > 0.5', 'log2FC > 1.0')
+        colnames(sumTable)<-c('num genes')
+        #LEN: write/output summary stats
+        write.table(sumTable, deseqSum_out, quote=FALSE, sep=",")
 
         #nbinomTest() default:
         #nbinomTest(cds, condA, condB, pvals_only = FALSE)
@@ -116,7 +128,8 @@ arg_s1 = args[2]
 arg_s2 = args[3]
 limma_out=args[4]
 deseq_out=args[5]
+deseqSum_out=args[6]
 
-limma_and_deseq_f(arg_counts, arg_s1, arg_s2, limma_out, deseq_out)
+limma_and_deseq_f(arg_counts, arg_s1, arg_s2, limma_out, deseq_out, deseqSum_out)
 
         
