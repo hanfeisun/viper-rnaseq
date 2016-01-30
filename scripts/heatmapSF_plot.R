@@ -19,56 +19,6 @@ source('snakemake/scripts/supp_fns.R')
 #enable stack trace
 options(error = function() traceback(2))
 
-make_complexHeatmap_annotation <- function(ht_list, annotation){
-    MIN_UNIQUE <- 6
-    global_gp = gpar(fontsize = 8)
-    title_gp = gpar(fontsize = 8, fontface = "bold")
-    
-    for(c in colnames(annotation)) {
-        ann <- as.matrix(annotation[, c])
-        if(length(sort(unique(na.omit(as.vector(ann))))) < MIN_UNIQUE) {
-            col <- cmap(ann)
-        } else {
-            #LEN: change this!
-            col <- cmap(ann)
-            #BELOW causes a bug!--a not a range bug
-            #col <- colorRamp2(c(min(ann, na.rm = TRUE), max(ann, na.rm = TRUE)), c("white", "red"))
-        }
-        jj<- NULL
-        #INSTEAD of heatmaps, we are going to add heatmapAnnotations!
-        ## foo <- Heatmap(
-        ##     t(as.matrix(ann)),
-        ##     na_col = "black",
-        ##     name = gsub("_", " ", c),
-        ##     col = col,
-        ##     width = unit(3, "mm"),
-        ##     column_names_gp = global_gp,
-        ##     column_title_gp = global_gp
-        ## #   heatmap_legend_param = list(title_gp = title_gp, labels_gp = global_gp)
-        ##     )
-
-        #HANDLE NA values: NA goes to 0
-        tmp <- as.vector(annotation[,c])
-        tmp[is.na(tmp)] <- 0
-
-        #DOUBLE ## means the param causes errors!
-        foo <- HeatmapAnnotation(
-            df=as.data.frame(tmp),
-            ##na_col = "black",
-            name = gsub("_", " ", c),
-            ##col = col,            
-            which='row',
-            #show_legend = FALSE,
-            width = unit(3, "mm"),
-            ##column_names_gp = global_gp,
-            ##column_title_gp = global_gp
-            )
-        
-        ht_list <- ht_list + foo
-    }
-    return(ht_list)
-}
-
 heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
     #CONSTANTS
     RPKM_THRESHOLD <- 2.0
@@ -109,18 +59,20 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
     mi_nolym <- min(Exp_data)
     my.breaks_nolym<-c(-3,seq(-2.5,2.5,length.out=99),3)
     param_text <- paste(RPKM_THRESHOLD, MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD, NUM_GENES_TO_CLUSTER, sep=",")
+
+    ha1 <- make_complexHeatmap_annotation(ht_list, annotation)
     
-    graph2 <-Heatmap(as.matrix(Exp_data),
+    graph2 <-Heatmap(t(as.matrix(Exp_data)),
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
-              #         column_dend_height = unit(2, "cm"),
-                       heatmap_legend_param = list(title = "exp. level"),
-                       column_title = "Sample-Feature Correlation",
-                       #REMOVErow_title = "Samples",
-                       show_row_names = TRUE,show_column_names = FALSE,
-                       #row_names_max_width = unit(3, "mm"),
-                       row_names_gp = gpar(fontsize = 12),
-                       column_names_gp = gpar(fontsize = 5),
-                       cluster_rows = TRUE, cluster_columns=TRUE,
+           #         column_dend_height = unit(2, "cm"),
+                     heatmap_legend_param = list(title = "exp. level"),
+                     column_title = "Sample-Feature Correlation",
+                     #REMOVErow_title = "Samples",
+                     show_row_names = FALSE, show_column_names = TRUE,
+                     #row_names_max_width = unit(3, "mm"),
+                     row_names_gp = gpar(fontsize = 12),
+                     column_names_gp = gpar(fontsize = 12),
+                     cluster_rows = TRUE, cluster_columns=TRUE,
                      clustering_method_rows="ward.D2",
                      clustering_method_columns="ward.D2",
                      clustering_distance_rows="euclidean",
@@ -128,11 +80,12 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
                      show_heatmap_legend = FALSE,
                      #row_dend_width = unit(5, "mm"),
                      #width=unit(60,"cm"),
+                     top_annotation=ha1,
                         )
     draw(graph2)
 
     #WRITE output to file
-    output<-as.matrix(Exp_data)[rev(test$rowInd), test$colInd]
+    output<-as.matrix(Exp_data)#[rev(Exp_data$rowInd), Exp_data$colInd]
     write.table(output, file=sfCorr_out, quote=F, col.names = NA, sep="\t")
     
     ## #LEN:
@@ -181,8 +134,20 @@ for (n in names(rpkmTable)) {
 
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
+#REMOVE comp_ columns
+tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+
+#convert numerical annotations to numbers/floats
+for (col in colnames(tmp_ann)) {
+    #IS it a valid number?--test first value in col
+    if(attr(regexpr("^\\-?\\d+\\.\\d+$",tmp_ann[1,col]), "match.length") > 0){
+        #print(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
+        tmp_ann[,col] <- as.vector(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
+    }
+}
+
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
-tmp_ann <- tmp_ann[samples,-1:-3]
-#print(str(tmp_ann))
+tmp_ann <- tmp_ann[samples,-1]
+print(str(tmp_ann))
 heatmapSF_plot(rpkmTable, tmp_ann, sf_plot_out, sf_txt_out)
