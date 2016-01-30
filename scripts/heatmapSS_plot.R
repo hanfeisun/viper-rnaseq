@@ -76,8 +76,9 @@ heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
 
     #LEN: HYP- This is generating matrix_1
     ss_col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
-    ht_list <- Heatmap(cordata, name="sprmanCorr", col = ss_col)
-    ht_list <- make_complexHeatmap_annotation(ht_list, annotation)
+    ha1 <- make_complexHeatmap_annotation(ht_list, annotation)
+    ht_list <- Heatmap(cordata, name="sprmanCorr", col = ss_col, top_annotation=ha1)
+
     draw(ht_list)
     
     #SAVE graphics
@@ -103,6 +104,16 @@ for (n in names(rpkmTable)) {
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
 tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+
+#convert numerical annotations to numbers/floats
+for (col in colnames(tmp_ann)) {
+    #IS it a valid number?--test first value in col
+    if(attr(regexpr("^\\-?\\d+\\.\\d+$",tmp_ann[1,col]), "match.length") > 0){
+        #print(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
+        tmp_ann[,col] <- as.vector(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
+    }
+}
+
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]

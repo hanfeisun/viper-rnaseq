@@ -6,14 +6,13 @@ zscore = function(x){
     return(y)
 }
 
-cmap <- function(x, use_viridis=FALSE) {
+cmap <- function(x, colorstart=NULL, use_viridis=FALSE) {
     colors = c("#3182bd", "#e6550d", "#31a354", "#756bb1", "#636363", "#BD4931", "#6baed6", "#fd8d3c", "#74c476", "#9e9ac8", "#969696", "#D67D6B", "#9ecae1", "#fdae6b", "#a1d99b", "#bcbddc", "#bdbdbd", "#E0A89D", "#c6dbef", "#fdd0a2", "#c7e9c0", "#dadaeb", "#d9d9d9", "#F0CEC7")
-    
     x <- sort(unique(na.omit(as.vector(x))))
+    if(is.null(colorstart)) { colorstart = 0 }
+    col <- colors[(colorstart+1):(colorstart+length(x))]
     if(use_viridis) {
         col <- viridis(length(x))
-    } else {
-        col <- colors[1:length(x)]
     }
     
     names(col) <- x
@@ -25,27 +24,27 @@ make_complexHeatmap_annotation <- function(ht_list, annotation){
     global_gp = gpar(fontsize = 8)
     title_gp = gpar(fontsize = 8, fontface = "bold")
 
-    for(c in colnames(annotation)) {
-        ann <- as.matrix(annotation[, c])
+    colorlist <- list()
+    colorcount = 0
+    nn<-length(annotation)
+    for (i in 1:nn) {
+        ann <- as.matrix(annotation[,i])
+        #NEED a better way to distinguish between discrete and continuous
+        #something like:
+        #if(! is.numeric(ann[1]) or (is.integer and ! is.double #and less)) {
         if(length(sort(unique(na.omit(as.vector(ann))))) < MIN_UNIQUE) {
-            col <- cmap(ann)
+            colorlist[[i]] <- cmap(ann, colorstart=colorcount)
+            colorcount = colorcount + length(unique(ann))
         } else {
-            col <- colorRamp2(seq(min(ann, na.rm = TRUE), max(ann, na.rm = TRUE), length = 3), c("blue","white","red"))
+            #colorlist[[i]] <- colorRamp2(seq(min(ann, na.rm = TRUE), max(ann, na.rm = TRUE), length = 3), c("blue","white","orange"))
+            colorlist[[i]] <- colorRamp2(seq(min(ann, na.rm = TRUE), max(ann, na.rm = TRUE), length = 3), c("white","yellow", "red"))
         }
-        jj<- NULL
-        
-        ht_list <- ht_list + Heatmap(
-            ann,
-            na_col = "black",
-            name = gsub("_", " ", c),
-            col = col,
-            width = unit(3, "mm"),
-            column_names_gp = global_gp,
-            column_title_gp = global_gp
-        #   heatmap_legend_param = list(title_gp = title_gp, labels_gp = global_gp)
-            )
     }
-    return(ht_list)
+    names(colorlist) <- c(colnames(annotation)[1:nn])
+    
+    ha1 = HeatmapAnnotation(df = annotation[,1:nn,drop=FALSE], col = colorlist)
+
+    return(ha1)
 }
 
 #NOTE: LEN removed the threeD code
