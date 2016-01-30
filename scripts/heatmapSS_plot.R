@@ -76,7 +76,7 @@ heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
 
     #LEN: HYP- This is generating matrix_1
     ss_col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
-    ha1 <- make_complexHeatmap_annotation(ht_list, annotation)
+    ha1 <- make_complexHeatmap_annotation(annotation)
     ht_list <- Heatmap(cordata, name="sprmanCorr", col = ss_col, top_annotation=ha1)
 
     draw(ht_list)

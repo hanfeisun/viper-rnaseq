@@ -19,7 +19,7 @@ cmap <- function(x, colorstart=NULL, use_viridis=FALSE) {
     return(col)
 }
 
-make_complexHeatmap_annotation <- function(ht_list, annotation){
+make_complexHeatmap_annotation <- function(annotation){
     MIN_UNIQUE <- 6
     global_gp = gpar(fontsize = 8)
     title_gp = gpar(fontsize = 8, fontface = "bold")

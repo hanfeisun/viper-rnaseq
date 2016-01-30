@@ -60,7 +60,7 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
     my.breaks_nolym<-c(-3,seq(-2.5,2.5,length.out=99),3)
     param_text <- paste(RPKM_THRESHOLD, MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD, NUM_GENES_TO_CLUSTER, sep=",")
 
-    ha1 <- make_complexHeatmap_annotation(ht_list, annotation)
+    ha1 <- make_complexHeatmap_annotation(annotation)
     
     graph2 <-Heatmap(t(as.matrix(Exp_data)),
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
@@ -149,5 +149,5 @@ for (col in colnames(tmp_ann)) {
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
-print(str(tmp_ann))
+#print(str(tmp_ann))
 heatmapSF_plot(rpkmTable, tmp_ann, sf_plot_out, sf_txt_out)
