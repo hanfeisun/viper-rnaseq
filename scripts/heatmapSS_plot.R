@@ -75,9 +75,8 @@ heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
                     )
 
     #LEN: HYP- This is generating matrix_1
-    ht_list <- Heatmap(cordata,
-                       col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
-                       )
+    ss_col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
+    ht_list <- Heatmap(cordata, name="sprmanCorr", col = ss_col)
     ht_list <- make_complexHeatmap_annotation(ht_list, annotation)
     draw(ht_list)
     
@@ -106,6 +105,6 @@ tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
-tmp_ann <- tmp_ann[samples,-1:-3]
+tmp_ann <- tmp_ann[samples,-1]
 #print(str(tmp_ann))
 heatmapSS_plot(rpkmTable, tmp_ann, ss_plot_out, ss_txt_out)
