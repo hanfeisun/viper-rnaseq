@@ -130,6 +130,10 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
                      #width=unit(60,"cm"),
                         )
     draw(graph2)
+
+    #WRITE output to file
+    output<-as.matrix(Exp_data)[rev(test$rowInd), test$colInd]
+    write.table(output, file=sfCorr_out, quote=F, col.names = NA, sep="\t")
     
     ## #LEN:
     ## #output<-as.matrix(Exp_data)[rev(test$rowInd), test$colInd]
