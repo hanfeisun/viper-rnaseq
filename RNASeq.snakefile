@@ -5,7 +5,7 @@ import os
 from collections import defaultdict
 import pandas as pd
 
-configfile: "snakemake/config.yaml"
+configfile: "config.yaml"
 strand_command=""
 cuff_command=""
 rRNA_strand_command=""

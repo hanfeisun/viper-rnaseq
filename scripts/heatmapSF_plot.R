@@ -65,7 +65,7 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
     graph2 <-Heatmap(t(as.matrix(Exp_data)),
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
            #         column_dend_height = unit(2, "cm"),
-                     heatmap_legend_param = list(title = "exp. level"),
+           #          heatmap_legend_param = list(title = "exp. level"),
                      column_title = "Sample-Feature Correlation",
                      #REMOVErow_title = "Samples",
                      show_row_names = FALSE, show_column_names = TRUE,
