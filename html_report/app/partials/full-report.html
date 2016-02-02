@@ -14,13 +14,13 @@
     <div class="col-md-10">
       <!--Body content-->
 
-      <ul class="full-report">
-        <li ng-repeat="section in report | filter:query | orderBy:orderProp" class="thumbnail">
-          <a href="#/full-report/{{section.sectionId}}" class="thumb"><img ng-src="{{section.imageUrl}}" alt="{{section.name}}"></a>
+      <div ng-repeat="section in report | filter:query | orderBy:orderProp">
+	<div class="col-md-4 thumb" ng-repeat="imageUrl in section.imageUrls">
+          <a href="#/full-report/{{section.sectionId}}"><img ng-src="{{imageUrl}}" alt="{{section.name}}"></a>
           <a href="#/full-report/{{section.sectionId}}">{{section.name}}</a>
           <p>{{section.desc}}</p>
-        </li>
-      </ul>
+	</div>
+      </div>
 
     </div>
   </div>

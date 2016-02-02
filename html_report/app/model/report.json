@@ -2,12 +2,12 @@
 	{
 		"sectionId": 0,
 		"sectionName": "STAR-Align-Report",
-		"imageUrl": "img/STAR_Align_Report.png",
+		"imageUrls": ["img/STAR_Align_Report.png","img/STAR_Align_Report_1.png","img/STAR_Align_Report_2.png"],
 		"desc":""
 	}, {
 		"sectionId": 1,
 		"sectionName": "Read-Distribution",
-		"imageUrl": "img/read_distrib.png",
+		"imageUrls": ["img/read_distrib.png","img/read_distrib_1.png","img/read_distrib_2.png"],
 		"desc": ""
 	}
 ]

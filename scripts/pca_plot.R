@@ -81,7 +81,8 @@ annotFile=args[2]
 pca_plot_out=args[3]
 
 #process RPKM file
-rpkmTable <- read.table(rpkmFile, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
+# Mahesh adding check.names=F so that if there is any - or _ characters, they won't be turned to default '.'
+rpkmTable <- read.table(rpkmFile, header=T, check.names=F, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
 #CONVERT to numeric!
 for (n in names(rpkmTable)) {
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
@@ -90,7 +91,8 @@ for (n in names(rpkmTable)) {
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
-tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+#previous Len's code was returning 0 columns if metasheet doesn't contain 'comp_' column 
+tmp_ann <- tmp_ann[ , !grepl('comp_*', names(tmp_ann))]
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
