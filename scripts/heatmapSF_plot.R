@@ -124,7 +124,7 @@ sf_plot_out=args[3]
 sf_txt_out=args[4]
 
 #process RPKM file
-rpkmTable <- read.table(rpkmFile, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
+rpkmTable <- read.table(rpkmFile, check.names=F, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
 for (n in names(rpkmTable)) {
     #CONVERT to numeric!
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
@@ -135,7 +135,7 @@ for (n in names(rpkmTable)) {
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
-tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+tmp_ann <- tmp_ann[ , !grepl('comp_*', names(tmp_ann))]
 
 #convert numerical annotations to numbers/floats
 for (col in colnames(tmp_ann)) {
