@@ -74,11 +74,26 @@ heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
                     xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
                     )
 
+    png(file="analysis/plots/images/heatmapSS_cluster.png")
+    test<-heatmap.2(as.matrix(cordata), Colv = "Rowv", revC = T,
+                    distfun = function(x) dist(x,method = 'euclidean'),
+                    hclustfun = function(x) hclust(x,method = 'ward.D2'),
+                    breaks=my.breaks_nolym,trace="none",scale="none",
+                    col=bluered(100),labCol=F, cexRow=0.75,
+                    key=TRUE, margins=c(2,6),
+                    #main = paste(Project_Name,"Sample-Sample Correlation"),
+                    main = "Sample-Sample Correlation",
+                    #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
+                    xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
+                    )
+    dev.off()
     #LEN: HYP- This is generating matrix_1
     ss_col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
     ha1 <- make_complexHeatmap_annotation(annotation)
     ht_list <- Heatmap(cordata, name="sprmanCorr", col = ss_col, top_annotation=ha1)
-
+    png(file="analysis/plots/images/heatmapSS_plot.png")
+    draw(ht_list)
+    dev.off()
     draw(ht_list)
     
     #SAVE graphics

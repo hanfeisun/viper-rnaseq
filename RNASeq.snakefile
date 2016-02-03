@@ -81,7 +81,7 @@ rule target:
         expand( "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
         "analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         expand( "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=ordered_sample_list ),
-        expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
+#        expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
         expand( "analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=ordered_sample_list ),
         expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
@@ -96,7 +96,10 @@ rule report:
         rRNA_Metrics="analysis/STAR_rRNA/STAR_rRNA_Align_Report.png",
         Read_Distribution="analysis/RSeQC/read_distrib/read_distrib.png",
         Genebody_Coverage_Heatmap="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
-        Genebody_Coverage_Curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png"
+        Genebody_Coverage_Curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png",
+        pca_plot="analysis/plots/pca_plot.pdf",
+        heatmapSF_plot="analysis/plots/heatmapSF_plot.pdf",
+        heatmapSS_plot="analysis/plots/heatmapSS_plot.pdf"
     output:
         "report.html"
     run:
@@ -107,7 +110,9 @@ rule report:
         read_distrib_en = data_uri( input.Read_Distribution )
         genebody_hm_en = data_uri( input.Genebody_Coverage_Heatmap )
         genebody_cv_en = data_uri( input.Genebody_Coverage_Curves )
-
+        pca_en = data_uri( input.pca_plot )
+        heatmapSF_en = data_uri( input.heatmapSF_plot )
+        heatmapSS_en = data_uri( input.heatmapSS_plot )
         report("""
 =======================
 RNA-Seq Pipeline Report
@@ -141,8 +146,17 @@ Genebody Coverage
 
     .. image:: {genebody_cv_en}
 
+Differential Gene Exppression
+=============================
+    
+    .. image:: {pca_en}
+
+    .. image:: {heatmapSF_en}
+
+    .. image:: {heatmapSS_en}
+
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
-        , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
+        , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en, pca_en=pca_en, heatmapSF_en=heatmapSF_en, heatmapSS_en=heatmapSS_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
 
 
 rule run_STAR:
@@ -382,11 +396,12 @@ rule pca_plot:
         rpkmFile="analysis/cufflinks/Cuff_Gene_Counts.csv",
         annotFile=config['metasheet']
     output:
-        pca_plot_out="analysis/plots/pca_plot.pdf"
+        pca_plot_out="analysis/plots/pca_plot.pdf",
+        png_dir="analysis/plots/images/"
 #    shell:
 #        "scripts/pca_plot.R"
     run:
-        shell("Rscript snakemake/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {output.pca_plot_out}")
+        shell("Rscript snakemake/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {output.pca_plot_out} {output.png_dir}")
 
 rule heatmapSS_plot:
     input:
@@ -457,6 +472,7 @@ rule volcano_plot:
     input:
         deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt",
     output:
-        plot = "analysis/diffexp/{comparison}/{comparison}_volcano.pdf"
+        plot = "analysis/diffexp/{comparison}/{comparison}_volcano.pdf",
+        png = "analysis/plots/images/{comparison}_volcano.png"
     run:
-        shell("Rscript snakemake/scripts/volcano_plot.R {input.deseq} {output.plot}")
+        shell("Rscript snakemake/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")

@@ -83,6 +83,9 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
                      top_annotation=ha1,
                         )
     draw(graph2)
+    png(file="analysis/plots/images/heatmapSF_plot.png")
+    draw(graph2)
+    dev.off()
 
     #WRITE output to file
     output<-as.matrix(Exp_data)#[rev(Exp_data$rowInd), Exp_data$colInd]
