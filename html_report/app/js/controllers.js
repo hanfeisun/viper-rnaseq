@@ -13,9 +13,9 @@ rnaAppControllers.controller('FullReportCtrl', ['$scope', '$http',
     $scope.orderProp = 'sectionId';
   }]);
 
-rnaAppControllers.controller('SectionReportCtrl', ['$scope', '$http',
-  function($scope, $http) {
-    $http.get('model/' + $routeParams.sectionId + '.json').success(function(data) {
+rnaAppControllers.controller('SectionReportCtrl', ['$scope', '$http', '$routeParams',
+  function($scope, $http, $routeParams) {
+    $http.get('model/' + $routeParams.sectionName + '.json').success(function(data) {
       $scope.report = data;
     });
   }]);

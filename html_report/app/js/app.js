@@ -14,7 +14,7 @@ rnaApp.config(['$routeProvider',
         templateUrl: 'partials/full-report.html',
         controller: 'FullReportCtrl'
       }).
-      when('/full-report/:sectionId', {
+      when('/full-report/:sectionName', {
         templateUrl: 'partials/section-report.html',
         controller: 'SectionReportCtrl'
       }).

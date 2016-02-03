@@ -1,1 +1,18 @@
-<h1>Still need to be implemented</h1>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2">
+      <!--Sidebar content-->
+      <a href="#/full-report">Home</a>
+    </div>
+    <div class="col-md-10">
+      <!--Body content-->
+
+	<div class="col-md-12 thumb" ng-repeat="imageUrl in report.imageUrls">
+          <a href="#/full-report/{{report.sectionName}}"><img ng-src="{{imageUrl}}" alt="{{report.name}}"></a>
+          <a href="#/full-report/{{report.sectionName}}">{{report.sectionName}}</a>
+          <p>{{report.desc}}</p>
+	</div>
+
+    </div>
+  </div>
+</div>

@@ -1,13 +1,28 @@
 [
 	{
 		"sectionId": 0,
-		"sectionName": "STAR-Align-Report",
-		"imageUrls": ["img/STAR_Align_Report.png","img/STAR_Align_Report_1.png","img/STAR_Align_Report_2.png"],
+		"sectionName": "Alignment-Report",
+		"imageUrls": ["img/STAR_Align_Report.png","img/STAR_rRNA_Align_Report.png"],
 		"desc":""
 	}, {
 		"sectionId": 1,
-		"sectionName": "Read-Distribution",
-		"imageUrls": ["img/read_distrib.png","img/read_distrib_1.png","img/read_distrib_2.png"],
+		"sectionName": "Read-Distribution-Report",
+		"imageUrls": ["img/read_distrib.png","img/geneBodyCoverage.curves.png","img/geneBodyCoverage.heatMap.png"],
 		"desc": ""
+	}, {
+		"sectionId": 2,
+                "sectionName": "PCA-Plots",
+                "imageUrls": ["img/pca_plot_1.png","img/pca_plot_2.png","img/pca_plot_3.png"],
+                "desc": ""
+	}, {
+		"sectionId": 3,
+                "sectionName": "Heatmaps",
+                "imageUrls": ["img/heatmapSS_plot.png","img/heatmapSS_cluster.png","img/heatmapSF_plot.png"],
+                "desc": ""
+	}, {
+		"sectionId": 4,
+                "sectionName": "Volcano-Plots",
+                "imageUrls": ["img/AlvMacsTreatvsVeh_volcano.png","img/CD8treatvsVeh_volcano.png","img/EpCamTreatvsVeh_volcano.png","img/NeutrophilsTreatvsVeh_volcano.png","img/TRegsTreatvsVeh_volcano.png"],
+                "desc": ""
 	}
 ]
