@@ -65,7 +65,7 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
     graph2 <-Heatmap(t(as.matrix(Exp_data)),
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
            #         column_dend_height = unit(2, "cm"),
-                     heatmap_legend_param = list(title = "exp. level"),
+           #          heatmap_legend_param = list(title = "exp. level"),
                      column_title = "Sample-Feature Correlation",
                      #REMOVErow_title = "Samples",
                      show_row_names = FALSE, show_column_names = TRUE,
@@ -83,6 +83,9 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
                      top_annotation=ha1,
                         )
     draw(graph2)
+    png(file="analysis/plots/images/heatmapSF_plot.png")
+    draw(graph2)
+    dev.off()
 
     #WRITE output to file
     output<-as.matrix(Exp_data)#[rev(Exp_data$rowInd), Exp_data$colInd]
@@ -124,7 +127,7 @@ sf_plot_out=args[3]
 sf_txt_out=args[4]
 
 #process RPKM file
-rpkmTable <- read.table(rpkmFile, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
+rpkmTable <- read.table(rpkmFile, check.names=F, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
 for (n in names(rpkmTable)) {
     #CONVERT to numeric!
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
@@ -135,7 +138,7 @@ for (n in names(rpkmTable)) {
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
-tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+tmp_ann <- tmp_ann[ , !grepl('comp_*', names(tmp_ann))]
 
 #convert numerical annotations to numbers/floats
 for (col in colnames(tmp_ann)) {

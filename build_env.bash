@@ -20,3 +20,7 @@ echo y | conda install -c https://conda.anaconda.org/hcc \
 echo y | conda install -c r \
 	r-essentials
 
+# node js installation
+echo y | conda install -c https://conda.anaconda.org/quasiben nodejs
+
+

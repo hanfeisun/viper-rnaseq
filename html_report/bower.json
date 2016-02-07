@@ -1,0 +1,17 @@
+{
+  "name": "RNASeqApp",
+  "description": "HTML report for Snakemake RNASeq pipeline",
+  "version": "0.0.0",
+  "homepage": "https://bitbucket.org/vangalamaheshh/snakemake",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.4.0",
+    "angular-route": "~1.4.0",
+    "angular-loader": "~1.4.0",
+    "angular-mocks": "~1.4.0",
+    "html5-boilerplate": "~5.2.0",
+    "jquery": "~2.1.1",
+    "bootstrap": "~3.1.1"
+  }
+}

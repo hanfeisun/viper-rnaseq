@@ -1,0 +1,27 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2">
+      <!--Sidebar content-->
+
+      Search: <input ng-model="query"></br>
+      Sort by:
+      <select ng-model="orderProp">
+        <option value="sectionName">Name</option>
+        <option value="sectionId">Pipeline order</option>
+      </select>
+
+    </div>
+    <div class="col-md-10">
+      <!--Body content-->
+
+      <div ng-repeat="section in report | filter:query | orderBy:orderProp">
+	<div class="col-md-4 thumb" ng-repeat="imageUrl in section.imageUrls">
+          <a href="#/full-report/{{section.sectionName}}"><img ng-src="{{imageUrl}}" alt="{{section.name}}"></a>
+          <a href="#/full-report/{{section.sectionName}}">{{section.name}}</a>
+          <p>{{section.desc}}</p>
+	</div>
+      </div>
+
+    </div>
+  </div>
+</div>

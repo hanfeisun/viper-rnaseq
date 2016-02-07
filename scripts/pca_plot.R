@@ -19,7 +19,7 @@ source('snakemake/scripts/supp_fns.R')
 #LEN:
 options(error = function() traceback(2))
 
-pca_plot <- function(rpkmTable, annotation, plot_out) {
+pca_plot <- function(rpkmTable, annotation, plot_out, png_dir) {
     #CONSTANTS
     RPKM_THRESHOLD <- 2.0
     MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
@@ -51,7 +51,8 @@ pca_plot <- function(rpkmTable, annotation, plot_out) {
 
     #SAVE plot
     pdf(file = plot_out)
-
+    png_counter <- 1
+    
     #Standard PCA analysis using all possible annotations
     for(c in colnames(annotation)) {
         ann <- as.matrix(annotation[, c])
@@ -60,13 +61,21 @@ pca_plot <- function(rpkmTable, annotation, plot_out) {
             
             myColors = ClassColors[ann]
             myColors[which(is.na(myColors))] <- "black"
+            png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""))
+            png_counter <- png_counter + 1
             pca_output <- make_pca_plots(t(Exp_data), threeD = FALSE, ClassColorings = myColors, pca_title = c, legend_title =  c)
+	    dev.off()
+	    pca_output <- make_pca_plots(t(Exp_data), threeD = FALSE, ClassColorings = myColors, pca_title = c, legend_title =  c)
+		
         }
     }
 
     #GET percent variances
     pc_var <- signif(100.0 * summary(pca_output)[[6]][2,], digits = 3)
     #scree plot
+    png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""))
+    barplot(pc_var, ylim=c(0,100),ylab="% variance")
+    dev.off()
     barplot(pc_var, ylim=c(0,100),ylab="% variance")
     #Short Summary
     #summary(pca_output)[[6]][,1:3]
@@ -79,9 +88,11 @@ args <- commandArgs( trailingOnly = TRUE )
 rpkmFile=args[1]
 annotFile=args[2]
 pca_plot_out=args[3]
+png_dir=args[4]
 
 #process RPKM file
-rpkmTable <- read.table(rpkmFile, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
+# Mahesh adding check.names=F so that if there is any - or _ characters, they won't be turned to default '.'
+rpkmTable <- read.table(rpkmFile, header=T, check.names=F, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
 #CONVERT to numeric!
 for (n in names(rpkmTable)) {
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
@@ -90,8 +101,9 @@ for (n in names(rpkmTable)) {
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
-tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+#previous Len's code was returning 0 columns if metasheet doesn't contain 'comp_' column 
+tmp_ann <- tmp_ann[ , !grepl('comp_*', names(tmp_ann))]
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
-pca_plot(rpkmTable, tmp_ann, pca_plot_out)
+pca_plot(rpkmTable, tmp_ann, pca_plot_out, png_dir)
