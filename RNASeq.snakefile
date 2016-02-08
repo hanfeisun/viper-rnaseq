@@ -103,6 +103,7 @@ rule report:
         heatmapSF_plot="analysis/plots/images/heatmapSF_plot.png",
         heatmapSS_plot="analysis/plots/images/heatmapSS_plot.png",
         heatmapSS_cluster="analysis/plots/images/heatmapSS_cluster.png",
+        DEsummary_plot="analysis/diffexp/de_summary.png",
         volcano_1="analysis/plots/images/AlvMacsTreatvsVeh_volcano.png",
         volcano_2="analysis/plots/images/EpCamTreatvsVeh_volcano.png",
         volcano_3="analysis/plots/images/TRegsTreatvsVeh_volcano.png",
@@ -124,6 +125,7 @@ rule report:
         heatmapSF_en = data_uri( input.heatmapSF_plot )
         heatmapSS_en = data_uri( input.heatmapSS_plot )
         heatmapSSC_en = data_uri(input.heatmapSS_cluster)
+        DEsummary_en = data_uri (input.DEsummary_plot)
         volcano_1_en = data_uri(input.volcano_1)
         volcano_2_en = data_uri(input.volcano_2)
         volcano_3_en = data_uri(input.volcano_3)
@@ -211,9 +213,11 @@ Sample-Feature Correlation Heatmap
 Differential Gene expression
 ============================
 
-Volcanos!
-^^^^^^^^^
-    Brief description goes here
+    .. image:: {DEsummary_en}
+
+Volcano Plot
+^^^^^^^^^^^^^
+    Graphical representations of differentially expressed genes and statistical significance.
 
     .. image:: {volcano_1_en}
 
@@ -227,7 +231,7 @@ Volcanos!
 
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
         , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en, heatmapSF_en=heatmapSF_en, heatmapSS_en=heatmapSS_en,
-        pca_1_en=pca_1_en,pca_2_en=pca_2_en,pca_3_en=pca_3_en,heatmapSSC_en=heatmapSSC_en,volcano_1_en=volcano_1_en,volcano_2_en=volcano_2_en,volcano_3_en=volcano_3_en,volcano_4_en=volcano_4_en,volcano_5_en=volcano_5_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
+        pca_1_en=pca_1_en,pca_2_en=pca_2_en,pca_3_en=pca_3_en,heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,volcano_1_en=volcano_1_en,volcano_2_en=volcano_2_en,volcano_3_en=volcano_3_en,volcano_4_en=volcano_4_en,volcano_5_en=volcano_5_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
 
 
 rule run_STAR:
@@ -546,8 +550,8 @@ rule fetch_DE_gene_list:
         png="analysis/diffexp/de_summary.png"
     run:
         deseq_file_string = ' -f '.join(input.deseq_file_list)
-        shell("perl snakemake/scripts/get_de_summary_table.pl -f {deseq_file_string} 1>{output.csv}") 
-        shell("Rscript snakemake/script/de_summary.R {output.csv} {output.png}")
+        shell("perl snakemake/scripts/get_de_summary_table.pl -f {deseq_file_string} 1>{output.csv}")
+        shell("Rscript snakemake/scripts/de_summary.R {output.csv} {output.png}")
 
 #Generate volcano plots for each comparison
 rule volcano_plot:
