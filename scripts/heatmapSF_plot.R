@@ -83,7 +83,7 @@ heatmapSF_plot <- function(rpkmTable, annotation, plot_out, sfCorr_out) {
                      top_annotation=ha1,
                         )
     draw(graph2)
-    png(file="analysis/plots/images/heatmapSF_plot.png")
+    png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300)
     draw(graph2)
     dev.off()
 

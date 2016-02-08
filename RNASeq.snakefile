@@ -85,7 +85,7 @@ rule target:
         expand( "analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=ordered_sample_list ),
         expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
-
+        "analysis/diffexp/de_summary.png",
         fusion_output,
         insert_size_output,
         rRNA_metrics
@@ -542,10 +542,12 @@ rule fetch_DE_gene_list:
     input:
         deseq_file_list=expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt",comparison=comparisons)
     output:
-        "analysis/diffexp/de_summary.csv"
+        csv="analysis/diffexp/de_summary.csv",
+        png="analysis/diffexp/de_summary.png"
     run:
         deseq_file_string = ' -f '.join(input.deseq_file_list)
-        shell("perl snakemake/scripts/get_de_summary_table.pl -f {deseq_file_string} 1>{output}") 
+        shell("perl snakemake/scripts/get_de_summary_table.pl -f {deseq_file_string} 1>{output.csv}") 
+        shell("Rscript snakemake/script/de_summary.R {output.csv} {output.png}")
 
 #Generate volcano plots for each comparison
 rule volcano_plot:

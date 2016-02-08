@@ -61,7 +61,7 @@ pca_plot <- function(rpkmTable, annotation, plot_out, png_dir) {
             
             myColors = ClassColors[ann]
             myColors[which(is.na(myColors))] <- "black"
-            png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""))
+            png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""), width = 8, height = 8, unit="in",res=300)
             png_counter <- png_counter + 1
             pca_output <- make_pca_plots(t(Exp_data), threeD = FALSE, ClassColorings = myColors, pca_title = c, legend_title =  c)
 	    dev.off()
@@ -73,7 +73,7 @@ pca_plot <- function(rpkmTable, annotation, plot_out, png_dir) {
     #GET percent variances
     pc_var <- signif(100.0 * summary(pca_output)[[6]][2,], digits = 3)
     #scree plot
-    png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""))
+    png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""), width = 8, height = 8, unit="in",res=300)
     barplot(pc_var, ylim=c(0,100),ylab="% variance")
     dev.off()
     barplot(pc_var, ylim=c(0,100),ylab="% variance")

@@ -35,7 +35,7 @@ volcano_plot_f <- function(deseq_results, plot_out, png_file) {
     with(head(topSig, 100), textxy(log2FoldChange, -log10(pvalue), labs=id, cex=.5))
     dev.off()
     #doing it for png
-    png(file=png_file)
+    png(file=png_file, width = 8, height = 8, unit="in",res=300)
     #FROM: http://www.gettinggeneticsdone.com/2014/05/r-volcano-plots-to-visualize-rnaseq-microarray.html
     res <- read.table(deseq_results, header=TRUE)
 
