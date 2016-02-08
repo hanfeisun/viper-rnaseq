@@ -12,7 +12,14 @@ echo y | conda install -c https://conda.anaconda.org/bioconda \
 	cufflinks=2.2 \
 	samtools=1.2 \
 	bedtools=2.25 \
-	gmap
+	gmap \
+        bioconductor-limma \
+        bioconductor-deseq2 \
+        bioconductor-edger \
+        bioconductor-complexheatmap \
+        r-dendextend \
+        r-viridis \
+        r-calibrate
 
 echo y | conda install -c https://conda.anaconda.org/hcc \
 	ucsc-tools

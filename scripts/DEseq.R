@@ -69,15 +69,15 @@ limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out) {
         #summarize data
         #sum(res$padj < 0.1, na.rm=TRUE)
         #LEN: get summary stats
-        summary <- c(sum(res$padj < 0.05, na.rm=TRUE),
-                     sum(res$padj < 0.01, na.rm=TRUE),
-                     sum(res$log2FoldChange > 0.0, na.rm=TRUE),
-                     sum(res$log2FoldChange > 0.5, na.rm=TRUE),
-                     sum(res$log2FoldChange > 1.0, na.rm=TRUE))
-        sumTable <- matrix(summary, nrow=5, ncol=1)
-        rownames(sumTable)<-c('padj < 0.05','padj < 0.01',
-                              'log2FC > 0.0','log2FC > 0.5', 'log2FC > 1.0')
-        colnames(sumTable)<-c('num genes')
+        summary <- c(sum(res$padj<0.05 & res$log2FoldChange>0.0, na.rm=TRUE),
+                     sum(res$padj<0.05 & res$log2FoldChange>0.5, na.rm=TRUE),
+                     sum(res$padj<0.05 & res$log2FoldChange>1.0, na.rm=TRUE),
+                     sum(res$padj<0.01 & res$log2FoldChange>0.0, na.rm=TRUE),
+                     sum(res$padj<0.01 & res$log2FoldChange>0.5, na.rm=TRUE),
+                     sum(res$padj<0.01 & res$log2FoldChange>1.0, na.rm=TRUE))
+        sumTable <- matrix(summary, nrow=3, ncol=2)
+        rownames(sumTable)<-c('log2FC > 0.0','log2FC > 0.5', 'log2FC > 1.0')
+        colnames(sumTable)<-c('padj < 0.05','padj < 0.01')
         #LEN: write/output summary stats
         write.table(sumTable, deseqSum_out, quote=FALSE, sep=",")
 
