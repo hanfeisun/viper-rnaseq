@@ -16,8 +16,10 @@ echo y | conda install -c https://conda.anaconda.org/bioconda \
         bioconductor-limma \
         bioconductor-deseq2 \
         bioconductor-edger \
+        bioconductor-complexheatmap \
         r-dendextend \
-        r-viridis
+        r-viridis \
+        r-calibrate
 
 echo y | conda install -c https://conda.anaconda.org/hcc \
 	ucsc-tools
