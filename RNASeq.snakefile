@@ -130,57 +130,95 @@ rule report:
         volcano_4_en = data_uri(input.volcano_4)
         volcano_5_en = data_uri(input.volcano_5)
         report("""
-=======================
-RNA-Seq Pipeline Report
-=======================
+==============================================
+VIPER: Visualization Pipeline for RNAseq
+==============================================
 
-Alignment
-=========
+
+Alignment Summary
+=================
     Samples are aligned against reference organism, using `STAR software`_.
-    
+
     .. _STAR software: https://github.com/alexdobin/STAR
+
 
     The **uniquely mapped read counts** and the **total read counts** for all the samples are summarized in the following image.
 
     .. image:: {unique_reads_en}
 
-    Further, the input reads are aligned against **non-coding RNA** to further quality check the data. The noncoding RNA metrics are as follows.
-
-    .. image:: {rRNA_metrics_en}
-
-Quality Metrics
-===============
-Read Distribution Metrics
-=========================
+Library Prep Quality Metrics
+=============================
+Read Distribution
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Percentage of reads/sample mapping to specific genomic features
 
     .. image:: {read_distrib_en}
 
+rRNA removal
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Percentage of reads mapping to rRNA sequences. For mRNAseq prep methods ~5% rRNA read mapping is typical. It should be <10% for totalRNAseq. Higher percentages may indicate poor mRNA enrichment or rRNA depletion.
+
+    .. image:: {rRNA_metrics_en}
+
+
 Genebody Coverage
-=================
- 
-    .. image:: {genebody_hm_en}
+^^^^^^^^^^^^^^^^^
+    For accurate gene expression quantification, mapped reads should be evenly distributed across genebodies.
+    Significantly skewed profiles (5' or 3') may introduce quantification bias and/or represent poor quality library preparation.\n
+
+    **Line Plot**
 
     .. image:: {genebody_cv_en}
 
-Differential Gene Exppression
-=============================
-    
+    **Heatmap**\n
+    This will help you identify biased samples \(lots of blue\)
+
+    .. image:: {genebody_hm_en}
+
+
+Experimental Design QC
+=======================
+
+Principle Component Analysis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    Human readable brief description of PCA goes here `wikipedia`_.
+
+    .. _wikipedia: https://en.wikipedia.org/wiki/Principal_component_analysis
+
     .. image:: {pca_1_en}
 
     .. image:: {pca_2_en}
 
+    What am I missing if I only look at principle component one and two?
+
     .. image:: {pca_3_en}
 
-    .. image:: {heatmapSF_en}
+
+Sample-to-Sample Correlation Heatmap
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: {heatmapSS_en}
 
-    .. image:: {heatmapSSC_en}
+
+
+Sample-Feature Correlation Heatmap
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    .. image:: {heatmapSF_en}
+
+    What are *these* genes? \(*link to table coming soon*\)
+
+Differential Gene expression
+============================
+
+Volcanos!
+^^^^^^^^^
+    Brief description goes here
 
     .. image:: {volcano_1_en}
 
     .. image:: {volcano_2_en}
-    
+
     .. image:: {volcano_3_en}
 
     .. image:: {volcano_4_en}
@@ -499,6 +537,15 @@ rule limma_and_deseq:
     run:
         counts = " ".join(input.counts)
         shell("Rscript snakemake/scripts/DEseq.R \"{counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.deseqSum}")
+
+rule fetch_DE_gene_list:
+    input:
+        deseq_file_list=expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt",comparison=comparisons)
+    output:
+        "analysis/diffexp/de_summary.csv"
+    run:
+        deseq_file_string = ' -f '.join(input.deseq_file_list)
+        shell("perl snakemake/scripts/get_de_summary_table.pl -f {deseq_file_string} 1>{output}") 
 
 #Generate volcano plots for each comparison
 rule volcano_plot:
