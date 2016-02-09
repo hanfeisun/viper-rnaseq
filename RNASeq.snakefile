@@ -131,6 +131,18 @@ rule report:
         volcano_3_en = data_uri(input.volcano_3)
         volcano_4_en = data_uri(input.volcano_4)
         volcano_5_en = data_uri(input.volcano_5)
+        
+
+        ### Getting all pdf reports ###
+        import os
+        import re
+        pdf_list = {}
+        ignore_pdf = re.compile('.*RSeQC/junction_saturation.*')
+        for root,dirs,files in os.walk('./analysis'):
+            for file in files:
+                if( (not bool(ignore_pdf.match(os.path.join(root,file)))) and (not file.startswith('.')) and (file.endswith('.pdf')) ):
+                    pdf_list[file[:-4]] = os.path.join(root,file)
+
         report("""
 ==============================================
 VIPER: Visualization Pipeline for RNAseq
@@ -240,7 +252,7 @@ Volcano Plots
 
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
         , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en, heatmapSF_en=heatmapSF_en, heatmapSS_en=heatmapSS_en,
-        pca_1_en=pca_1_en,pca_2_en=pca_2_en,pca_3_en=pca_3_en,heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,volcano_1_en=volcano_1_en,volcano_2_en=volcano_2_en,volcano_3_en=volcano_3_en,volcano_4_en=volcano_4_en,volcano_5_en=volcano_5_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **input)
+        pca_1_en=pca_1_en,pca_2_en=pca_2_en,pca_3_en=pca_3_en,heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,volcano_1_en=volcano_1_en,volcano_2_en=volcano_2_en,volcano_3_en=volcano_3_en,volcano_4_en=volcano_4_en,volcano_5_en=volcano_5_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **pdf_list)
 
 
 rule run_STAR:
