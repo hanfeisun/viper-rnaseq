@@ -152,13 +152,13 @@ Library Prep Quality Metrics
 =============================
 Read Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Percentage of reads/sample mapping to specific genomic features
+    Percentage of reads per sample mapping to specific genomic features.
 
     .. image:: {read_distrib_en}
 
 rRNA removal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Percentage of reads mapping to rRNA sequences. For mRNAseq prep methods ~5% rRNA read mapping is typical. It should be <10% for totalRNAseq. Higher percentages may indicate poor mRNA enrichment or rRNA depletion.
+    Percentage of reads mapping to rRNA sequences. For **mRNAseq prep methods ~5% rRNA** read mapping is typical. It should be **<10% for totalRNAseq**. Higher percentages may indicate poor mRNA enrichment or rRNA depletion.
 
     .. image:: {rRNA_metrics_en}
 
@@ -167,13 +167,16 @@ Genebody Coverage
 ^^^^^^^^^^^^^^^^^
     For accurate gene expression quantification, mapped reads should be evenly distributed across genebodies.
     Significantly skewed profiles (5' or 3') may introduce quantification bias and/or represent poor quality library preparation.\n
+    Figures generated using `RSeQC software`_.
+
+    .. _RSeQC software: http://rseqc.sourceforge.net
 
     **Line Plot**
 
     .. image:: {genebody_cv_en}
 
     **Heatmap**\n
-    This will help you identify biased samples \(lots of blue\)
+    This graphic may facilitate identification of biased samples.
 
     .. image:: {genebody_hm_en}
 
@@ -183,7 +186,11 @@ Experimental Design QC
 
 Principle Component Analysis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Human readable brief description of PCA goes here `wikipedia`_.
+    High dimensional expression data are mathmatically reduced to principle
+    components that can be used to describe variation across samples in fewer dimensions to allow human interpretation.
+    Principle component 1 \(PC1\) accounts for the most amount of variation across samples, PC2 the second most, and so on. These PC1 vs PC2 plots
+    are colored by sample annotation to demontrate how samples cluster together \(or not\) in reduced dimensional space.
+    For more detailed description of Princilple Component Analysis, start with `wikipedia`_.
 
     .. _wikipedia: https://en.wikipedia.org/wiki/Principal_component_analysis
 
@@ -191,7 +198,7 @@ Principle Component Analysis
 
     .. image:: {pca_2_en}
 
-    What am I missing if I only look at principle component one and two?
+    This plot indicates how much of the overall variance is desscribed by the principle components in descending order.
 
     .. image:: {pca_3_en}
 
@@ -212,11 +219,13 @@ Sample-Feature Correlation Heatmap
 
 Differential Gene expression
 ============================
+This summary image shows the number of genes that are up regulated and down regulated
+across each comparison at different adjusted P-value cut-offs.
 
     .. image:: {DEsummary_en}
 
-Volcano Plot
-^^^^^^^^^^^^^
+Volcano Plots
+^^^^^^^^^^^^^^
     Graphical representations of differentially expressed genes and statistical significance.
 
     .. image:: {volcano_1_en}
