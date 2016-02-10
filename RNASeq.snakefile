@@ -243,7 +243,7 @@ Volcano Plots
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
         , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en, heatmapSF_en=heatmapSF_en, heatmapSS_en=heatmapSS_en,
         heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,pca_string=pca_string,pca_var_string=pca_var_string,volcano_string=volcano_string ), 
-        output[0], metadata="Molecular Biology Core Facilities, DFCI", **pdf_list)
+        output[0], metadata="Molecular Biology Core Facilities, DFCI", **{'Copyrights:':"./snakemake/mbcf.jpg"})
 
 
 rule run_STAR:
@@ -321,6 +321,7 @@ rule run_STAR_fusion:
         " && mv analysis/STAR_Fusion/{wildcards.sample}/star-fusion.fusion_candidates.final {output}"
         " && mv analysis/STAR_Fusion/{wildcards.sample}/star-fusion.fusion_candidates.final.abridged"
         " analysis/STAR_Fusion/{wildcards.sample}/{wildcards.sample}.fusion_candidates.final.abridged"
+        " && touch {output}" # For some sample, final.abridged is created but not .final file; temp hack before further investigate into this
 
 
 rule read_distrib_qc:
