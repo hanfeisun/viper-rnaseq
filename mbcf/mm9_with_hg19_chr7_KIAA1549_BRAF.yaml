@@ -19,7 +19,7 @@ genome_lib_dir: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapi
 #Reference files required
 star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/mouse/Mus_musculus/UCSC/mm9/Sequence/STARIndex_with_ERCC_hg19_chr7_KIAA1549_BRAF/ 
 gtf_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/mouse/Mus_musculus/UCSC/mm9/Annotation/Genes/genes_with_ERCC_hg19_chr7_KIAA1549_BRAF.gtf
-bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/mouse/Mus_musculus/UCSC/mm9/Annotation/Genes/mm9_genes.bed
+bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/mouse/Mus_musculus/UCSC/mm9/Annotation/Genes/mm9_genes_with_ERCC.bed
 ref_fasta: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/mouse/Mus_musculus/UCSC/mm9/Sequence/WholeGenomeFasta/genome_with_ERCC.fa
 star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/mouse/Mus_musculus/Ensembl/GRCm38/Sequence/non_coding_RNA/STAR_index/
 

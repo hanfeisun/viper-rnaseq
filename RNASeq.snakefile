@@ -81,7 +81,7 @@ rule target:
         expand( "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
         "analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         expand( "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=ordered_sample_list ),
-#        expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
+        expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
         expand( "analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=ordered_sample_list ),
         expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
@@ -436,6 +436,7 @@ rule get_chrom_size:
         config['reference']
     shell:
         "fetchChromSizes {params} 1>{output}"
+        " && if [ -e /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/ERCC/input/ERCC92.chromInfo ]; then cat /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/ERCC/input/ERCC92.chromInfo 1>>{output}; fi"
 
 #MAHESH's
 rule bam_to_bigwig:

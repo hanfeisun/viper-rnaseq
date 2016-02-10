@@ -19,7 +19,7 @@ genome_lib_dir: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapi
 #Reference files required
 star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/rat/Rattus_norvegicus/UCSC/rn6/Sequence/STARIndex_with_ERCC/ 
 gtf_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/rat/Rattus_norvegicus/UCSC/rn6/Annotation/Genes/genes_with_ERCC.gtf
-bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/rat/Rattus_norvegicus/UCSC/rn6/Annotation/Genes/rn6_genes.bed
+bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/rat/Rattus_norvegicus/UCSC/rn6/Annotation/Genes/rn6_genes_with_ERCC.bed
 ref_fasta: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/rat/Rattus_norvegicus/UCSC/rn6/Sequence/WholeGenomeFasta/genome_with_ERCC.fa
 star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/rat/Rattus_norvegicus/Ensembl/Sequence/non_coding_RNA/STAR_index/
 
