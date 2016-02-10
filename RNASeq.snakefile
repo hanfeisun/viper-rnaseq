@@ -97,18 +97,10 @@ rule report:
         Read_Distribution="analysis/RSeQC/read_distrib/read_distrib.png",
         Genebody_Coverage_Heatmap="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         Genebody_Coverage_Curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png",
-        pca_plot_1="analysis/plots/images/pca_plot_1.png",
-        pca_plot_2="analysis/plots/images/pca_plot_2.png",
-        pca_plot_3="analysis/plots/images/pca_plot_3.png",
         heatmapSF_plot="analysis/plots/images/heatmapSF_plot.png",
         heatmapSS_plot="analysis/plots/images/heatmapSS_plot.png",
         heatmapSS_cluster="analysis/plots/images/heatmapSS_cluster.png",
         DEsummary_plot="analysis/diffexp/de_summary.png",
-        volcano_1="analysis/plots/images/AlvMacsTreatvsVeh_volcano.png",
-        volcano_2="analysis/plots/images/EpCamTreatvsVeh_volcano.png",
-        volcano_3="analysis/plots/images/TRegsTreatvsVeh_volcano.png",
-        volcano_4="analysis/plots/images/CD8treatvsVeh_volcano.png",
-        volcano_5="analysis/plots/images/NeutrophilsTreatvsVeh_volcano.png"
     output:
         "report.html"
     run:
@@ -119,29 +111,37 @@ rule report:
         read_distrib_en = data_uri( input.Read_Distribution )
         genebody_hm_en = data_uri( input.Genebody_Coverage_Heatmap )
         genebody_cv_en = data_uri( input.Genebody_Coverage_Curves )
-        pca_1_en = data_uri( input.pca_plot_1 )
-        pca_2_en = data_uri(input.pca_plot_2)
-        pca_3_en = data_uri(input.pca_plot_3)
         heatmapSF_en = data_uri( input.heatmapSF_plot )
         heatmapSS_en = data_uri( input.heatmapSS_plot )
         heatmapSSC_en = data_uri(input.heatmapSS_cluster)
         DEsummary_en = data_uri (input.DEsummary_plot)
-        volcano_1_en = data_uri(input.volcano_1)
-        volcano_2_en = data_uri(input.volcano_2)
-        volcano_3_en = data_uri(input.volcano_3)
-        volcano_4_en = data_uri(input.volcano_4)
-        volcano_5_en = data_uri(input.volcano_5)
-        
 
         ### Getting all pdf reports ###
         import os
         import re
+        import glob
         pdf_list = {}
         ignore_pdf = re.compile('.*RSeQC/junction_saturation.*')
         for root,dirs,files in os.walk('./analysis'):
             for file in files:
                 if( (not bool(ignore_pdf.match(os.path.join(root,file)))) and (not file.startswith('.')) and (file.endswith('.pdf')) ):
                     pdf_list[file[:-4]] = os.path.join(root,file)
+
+        ### Getting all pca and volcano plots
+        pca_png_list = []
+        volcano_list = []
+
+        for pca_plot in glob.glob("./analysis/plots/images/pca_plot*.png"):
+            pca_png_list.append(data_uri(pca_plot))
+        
+        for volcano_plot in glob.glob("./analysis/plots/images/*_volcano.png"):
+            volcano_list.append(data_uri(volcano_plot))
+
+        pca_string = "\n\t.. image:: " + "\n\t.. image:: ".join(pca_png_list[:-1]) + "\n"
+        pca_var_string = "\n\t.. image:: " + pca_png_list[-1] + "\n"
+        volcano_string = "\n\t.. image:: " + "\n\t.. image:: ".join(volcano_list) + "\n"
+
+        
 
         report("""
 ==============================================
@@ -206,13 +206,11 @@ Principle Component Analysis
 
     .. _wikipedia: https://en.wikipedia.org/wiki/Principal_component_analysis
 
-    .. image:: {pca_1_en}
-
-    .. image:: {pca_2_en}
+{pca_string}
 
     This plot indicates how much of the overall variance is desscribed by the principle components in descending order.
 
-    .. image:: {pca_3_en}
+{pca_var_string}
 
 
 Sample-to-Sample Correlation Heatmap
@@ -240,19 +238,12 @@ Volcano Plots
 ^^^^^^^^^^^^^^
     Graphical representations of differentially expressed genes and statistical significance.
 
-    .. image:: {volcano_1_en}
-
-    .. image:: {volcano_2_en}
-
-    .. image:: {volcano_3_en}
-
-    .. image:: {volcano_4_en}
-
-    .. image:: {volcano_5_en}
+{volcano_string}
 
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
         , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en, heatmapSF_en=heatmapSF_en, heatmapSS_en=heatmapSS_en,
-        pca_1_en=pca_1_en,pca_2_en=pca_2_en,pca_3_en=pca_3_en,heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,volcano_1_en=volcano_1_en,volcano_2_en=volcano_2_en,volcano_3_en=volcano_3_en,volcano_4_en=volcano_4_en,volcano_5_en=volcano_5_en ), output[0], metadata="Molecular Biology Core Facilities, DFCI", **pdf_list)
+        heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,pca_string=pca_string,pca_var_string=pca_var_string,volcano_string=volcano_string ), 
+        output[0], metadata="Molecular Biology Core Facilities, DFCI", **pdf_list)
 
 
 rule run_STAR:
