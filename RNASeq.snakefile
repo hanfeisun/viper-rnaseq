@@ -133,7 +133,7 @@ rule report:
 
         for pca_plot in glob.glob("./analysis/plots/images/pca_plot*.png"):
             pca_png_list.append(data_uri(pca_plot))
-        
+
         for volcano_plot in glob.glob("./analysis/plots/images/*_volcano.png"):
             volcano_list.append(data_uri(volcano_plot))
 
@@ -141,7 +141,7 @@ rule report:
         pca_var_string = "\n\t.. image:: " + pca_png_list[-1] + "\n"
         volcano_string = "\n\t.. image:: " + "\n\t.. image:: ".join(volcano_list) + "\n"
 
-        
+
 
         report("""
 ==============================================
@@ -164,7 +164,7 @@ Library Prep Quality Metrics
 =============================
 Read Distribution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Percentage of reads per sample mapping to specific genomic features.
+    Percentage of reads per sample mapping to specific **genomic features**.
 
     .. image:: {read_distrib_en}
 
@@ -188,7 +188,8 @@ Genebody Coverage
     .. image:: {genebody_cv_en}
 
     **Heatmap**\n
-    This graphic may facilitate identification of biased samples.
+    This graphic may facilitate identification of biased samples.\n
+    Scale: Blue = 0 Pink =1
 
     .. image:: {genebody_hm_en}
 
@@ -208,41 +209,49 @@ Principle Component Analysis
 
 {pca_string}
 
-    This plot indicates how much of the overall variance is desscribed by the principle components in descending order.
+    This plot indicates how much of the overall variance is described by the principle components in descending order.
 
 {pca_var_string}
 
 
 Sample-to-Sample Correlation Heatmap
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Hierarchical clustering of spearman correlation across samples.
 
     .. image:: {heatmapSS_en}
 
-
+    Sample-to-Sample data matrix is /analysis/plots/heatmapSS.txt
 
 Sample-Feature Correlation Heatmap
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     .. image:: {heatmapSF_en}
 
-    What are *these* genes? \(*link to table coming soon*\)
+    What are *these* genes?
+    Data used to generate this sample-feature graphic are in /analysis/plots/heatmapSF.txt
 
 Differential Gene expression
 ============================
-This summary image shows the number of genes that are up regulated and down regulated
-across each comparison at different adjusted P-value cut-offs.
+    Differential gene expression analysis was performed using both `limma`_ and `DESeq2`_.\n
+    Full analysis output tables are are available in /analysis/diffexp/comparison_of_interest
+
+    .. _limma: https://www.bioconductor.org/packages/3.3/bioc/vignettes/limma/inst/doc/usersguide.pdf
+
+    .. _DESeq2: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4302049/
+
+    This summary image shows the number of genes that are up regulated and down regulated across each comparison at different adjusted P-value cut-offs.
 
     .. image:: {DEsummary_en}
 
 Volcano Plots
 ^^^^^^^^^^^^^^
     Graphical representations of differentially expressed genes and statistical significance.
-
+    
 {volcano_string}
 
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
         , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en, heatmapSF_en=heatmapSF_en, heatmapSS_en=heatmapSS_en,
-        heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,pca_string=pca_string,pca_var_string=pca_var_string,volcano_string=volcano_string ), 
+        heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,pca_string=pca_string,pca_var_string=pca_var_string,volcano_string=volcano_string ),
         output[0], metadata="Molecular Biology Core Facilities, DFCI", **{'Copyrights:':"./snakemake/mbcf.jpg"})
 
 
