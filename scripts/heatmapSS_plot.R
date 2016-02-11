@@ -62,46 +62,72 @@ heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
     mi_nolym <- min(cordata)
     my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
 
-    test<-heatmap.2(as.matrix(cordata), Colv = "Rowv", revC = T,
-                    distfun = function(x) dist(x,method = 'euclidean'),
-                    hclustfun = function(x) hclust(x,method = 'ward.D2'),
-                    breaks=my.breaks_nolym,trace="none",scale="none",
-                    col=bluered(100),labCol=F, cexRow=0.75,
-                    key=TRUE, margins=c(2,6),
-                    #main = paste(Project_Name,"Sample-Sample Correlation"),
-                    main = "Sample-Sample Correlation",
-                    #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
-                    xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
-                    )
+    ha1 <- make_complexHeatmap_annotation(annotation)
 
-    png(file="analysis/plots/images/heatmapSS_cluster.png", width = 8, height = 8, unit="in",res=300)
-    ma_nolym <- max(cordata)
-    mi_nolym <- min(cordata)
-    my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
+    graph2 <-Heatmap(t(as.matrix(cordata)),
+                     col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
+                     #column_dend_height = unit(2, "cm"),
+                     #heatmap_legend_param = list(title = "exp. level"),
+                     column_title = "Sample-Sample Correlation",
+                     #row_title = "Samples",
+                     show_row_names = TRUE, show_column_names = TRUE,
+                     #row_names_max_width = unit(3, "mm"),
+                     row_names_gp = gpar(fontsize = 12),
+                     column_names_gp = gpar(fontsize = 12),
+                     cluster_rows = TRUE, cluster_columns=TRUE,
+                     clustering_method_rows="ward.D2",
+                     clustering_method_columns="ward.D2",
+                     clustering_distance_rows="euclidean",
+                     clustering_distance_columns="euclidean",
+                     show_heatmap_legend = FALSE,
+                     #row_dend_width = unit(5, "mm"),
+                     #width=unit(60,"cm"),
+                     top_annotation=ha1,
+                     )
+    draw(graph2)
+    
+    
+    #test<-heatmap.2(as.matrix(cordata), Colv = "Rowv", revC = T,
+    #                distfun = function(x) dist(x,method = 'euclidean'),
+    #                hclustfun = function(x) hclust(x,method = 'ward.D2'),
+    #                breaks=my.breaks_nolym,trace="none",scale="none",
+    #                col=bluered(100),labCol=F, cexRow=0.75,
+    #                key=TRUE, margins=c(2,6),
+    #                #main = paste(Project_Name,"Sample-Sample Correlation"),
+    #                main = "Sample-Sample Correlation",
+    #                #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
+    #                xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
+    #                )
 
-    test<-heatmap.2(as.matrix(cordata), Colv = "Rowv", revC = T,
-                    distfun = function(x) dist(x,method = 'euclidean'),
-                    hclustfun = function(x) hclust(x,method = 'ward.D2'),
-                    breaks=my.breaks_nolym,trace="none",scale="none",
-                    col=bluered(100),labCol=F, cexRow=0.75,
-                    key=TRUE, margins=c(2,6),
-                    #main = paste(Project_Name,"Sample-Sample Correlation"),
-                    main = "Sample-Sample Correlation",
-                    #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
-                    xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
-                    )
+    #png(file="analysis/plots/images/heatmapSS_cluster.png", width = 8, height = 8, unit="in",res=300)
+    #ma_nolym <- max(cordata)
+    #mi_nolym <- min(cordata)
+    #my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
+
+    #test<-heatmap.2(as.matrix(cordata), Colv = "Rowv", revC = T,
+    #                distfun = function(x) dist(x,method = 'euclidean'),
+    #                hclustfun = function(x) hclust(x,method = 'ward.D2'),
+    #                breaks=my.breaks_nolym,trace="none",scale="none",
+    #                col=bluered(100),labCol=F, cexRow=0.75,
+    #                key=TRUE, margins=c(2,6),
+    #                #main = paste(Project_Name,"Sample-Sample Correlation"),
+    #                main = "Sample-Sample Correlation",
+    #                #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
+    #                xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
+    #                )
     dev.off()
+    
     #LEN: HYP- This is generating matrix_1
     ss_col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
     ha1 <- make_complexHeatmap_annotation(annotation)
     ht_list <- Heatmap(cordata, name="sprmanCorr", col = ss_col, top_annotation=ha1)
     png(file="analysis/plots/images/heatmapSS_plot.png", width = 8, height = 8, unit="in",res=300)
-    draw(ht_list)
+    #draw(ht_list)
+    draw(graph2)
     dev.off()
-    draw(ht_list)
-    
+    #draw(ht_list)
     #SAVE graphics
-    dev.off()
+    #dev.off()
 }
 
 args <- commandArgs( trailingOnly = TRUE )
