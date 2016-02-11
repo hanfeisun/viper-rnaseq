@@ -131,7 +131,7 @@ rule report:
         pca_png_list = []
         volcano_list = []
 
-        for pca_plot in glob.glob("./analysis/plots/images/pca_plot*.png"):
+        for pca_plot in sorted(glob.glob("./analysis/plots/images/pca_plot*.png")):
             pca_png_list.append(data_uri(pca_plot))
 
         for volcano_plot in glob.glob("./analysis/plots/images/*_volcano.png"):
