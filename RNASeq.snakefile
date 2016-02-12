@@ -99,7 +99,7 @@ rule report:
         Genebody_Coverage_Curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png",
         heatmapSF_plot="analysis/plots/images/heatmapSF_plot.png",
         heatmapSS_plot="analysis/plots/images/heatmapSS_plot.png",
-        heatmapSS_cluster="analysis/plots/images/heatmapSS_cluster.png",
+       # heatmapSS_cluster="analysis/plots/images/heatmapSS_cluster.png",
         DEsummary_plot="analysis/diffexp/de_summary.png",
     output:
         "report.html"
@@ -113,7 +113,7 @@ rule report:
         genebody_cv_en = data_uri( input.Genebody_Coverage_Curves )
         heatmapSF_en = data_uri( input.heatmapSF_plot )
         heatmapSS_en = data_uri( input.heatmapSS_plot )
-        heatmapSSC_en = data_uri(input.heatmapSS_cluster)
+        #heatmapSSC_en = data_uri(input.heatmapSS_cluster)
         DEsummary_en = data_uri (input.DEsummary_plot)
 
         ### Getting all pdf reports ###
@@ -251,7 +251,7 @@ Volcano Plots
 
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en
         , genebody_hm_en=genebody_hm_en, genebody_cv_en=genebody_cv_en, heatmapSF_en=heatmapSF_en, heatmapSS_en=heatmapSS_en,
-        heatmapSSC_en=heatmapSSC_en,DEsummary_en=DEsummary_en,pca_string=pca_string,pca_var_string=pca_var_string,volcano_string=volcano_string ),
+        DEsummary_en=DEsummary_en,pca_string=pca_string,pca_var_string=pca_var_string,volcano_string=volcano_string ),
         output[0], metadata="Molecular Biology Core Facilities, DFCI", **{'Copyrights:':"./snakemake/mbcf.jpg"})
 
 
