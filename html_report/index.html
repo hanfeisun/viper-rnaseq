@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" ng-app="viperApp">
+<head>
+  <meta charset="utf-8">
+  <title>ViPeR</title>
+  <link rel="stylesheet" href="app/bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="app/css/app.css">
+  <script src="app/bower_components/angular/angular.js"></script>
+  <script src="app/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+  <script src="app/js/app.js"></script>
+  <script src="app/js/controllers.js"></script>
+</head>
+<body>
+  <!-- NAVIGATION -->
+  <nav class="navbar navbar-inverse" role="navigation">
+    <div class="navbar-header">
+      <a class="navbar-brand" ui-sref="#">ViPeR</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li><a ui-sref="home">Home</a></li>
+      <li><a ui-sref="about">About</a></li>
+      <li><a ui-sref="contact">Contact</a></li>
+    </ul>
+  </nav>
+  <div class="jumbotron text-center" style="padding:0.5em;">
+    <div class="container viper-header">
+    <a ui-sref=""><h1>ViPeR: Visualization Pipeline for RNAseq</h1></a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-2">
+        <a href="">Home</a>
+      </div>
+      <div class="col-md-10" ui-view>
+      
+      </div>
+    </div>
+  </div>
+</body>
+</html>

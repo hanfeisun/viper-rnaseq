@@ -1,4 +1,23 @@
+.navbar { 
+  border-radius:0; 
+}
+
+.jumbotron h1{
+  font-size:25px;
+  padding-top:1px;
+  padding-bottom:1px;
+}
+
+.viper-header a {
+  text-decoration: none;
+  color: #999;
+}
+
+.viper-header a:hover,a:focus {
+  color: black;
+}
+
 .thumb img {
   width: 100%;
   height: auto;
-};
+}
