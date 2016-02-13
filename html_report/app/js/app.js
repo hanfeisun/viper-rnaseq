@@ -17,7 +17,13 @@ viperApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
     });    
 
     $urlRouterProvider.otherwise('/');
-
+    var state_list = ["Alignment-Report", "Read-Distribution-Report", "PCA-Plots", "Heatmaps", "Volcano-Plots"];
+    for(var index=0; index < state_list.length; index++) {
+        $stateProvider.state('/' + state_list[index], {
+            url: '/' + state_list[index],
+            templateUrl: '/app/partials/section-report.html'
+        });
+    }
     $stateProvider
 
         .state('/', {
@@ -35,10 +41,6 @@ viperApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
         .state('/contact',{
             url: '/contact',
             templateUrl: '/app/partials/test.html'
-        })
-        .state('/Alignment-Report', {
-            url: '/Alignment-Report',
-            templateUrl: '/app/partials/section-report.html'
         });
 }]);
 
