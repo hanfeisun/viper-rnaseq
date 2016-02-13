@@ -4,17 +4,20 @@
   <meta charset="utf-8">
   <title>ViPeR</title>
   <link rel="stylesheet" href="app/bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="app/bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css">
   <link rel="stylesheet" href="app/css/app.css">
 
   <script src="app/bower_components/angular/angular.js"></script>
   <script src="app/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
   <script src="app/bower_components/jquery/dist/jquery.min.js"></script>
   <script src="app/bower_components/jquery-ui-layout-bower/source/stable/jquery.layout.min.js"></script>
+  <script src="app/bower_components/jquery-ui/jquery-ui.min.js"></script>
   <script src="app/js/app.js"></script>
   <script src="app/js/controllers.js"></script>
   <script>
     $(document).ready(function () {
         $('body').layout({ applyDefaultStyles: true });
+        $( "#accordion" ).accordion();
     });
   </script>
 </head>
@@ -36,14 +39,10 @@
         </div>
       </div>
     </div>
-    <div class="ui-layout-west" class="container" ng-controller="FullReportCtrl">
-      <div class="row">
-        <div class="col-md-12" style="text-align:left;">
-          <ul ng-repeat="section in report">
-            <li><a ng-href="/{{section.sectionName}}">{{section.sectionName}}</a></li>
-          </ul>
+    <div class="ui-layout-west" ng-controller="FullReportCtrl">
+        <div id="accordion" ng-repeat="section in report">
+            <h4><a ng-href="/{{section.sectionName}}">{{section.sectionName}}</a></h4>
         </div>
-      </div>
     </div>
      
   <div class="ui-layout-center">

@@ -1,9 +1,13 @@
 <div class="container-fluid" ng-controller="SectionReportCtrl">
   <div class="row">
-	<div class="col-md-12 thumb" ng-repeat="imageUrl in report.imageUrls">
+    <div class="col-md-12">
+      <h3><a ng-href="/{{report.sectionName}}">{{report.sectionName}}</a></h3>
+    </div>
+    <div class="col-md-12">
+      <p><h4>Description: </h4>{{report.desc}}</p>
+    </div>
+	<div class="col-md-6 thumb" ng-repeat="imageUrl in report.imageUrls">
           <a ng-href="/{{report.sectionName}}"><img ng-src="app/{{imageUrl}}" alt="{{report.name}}"></a>
-          <a ng-href="/{{report.sectionName}}">{{report.sectionName}}</a>
-          <p>{{report.desc}}</p>
 	</div>
   </div>
 </div>
