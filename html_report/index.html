@@ -5,38 +5,56 @@
   <title>ViPeR</title>
   <link rel="stylesheet" href="app/bower_components/bootstrap/dist/css/bootstrap.css">
   <link rel="stylesheet" href="app/css/app.css">
+
   <script src="app/bower_components/angular/angular.js"></script>
   <script src="app/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+  <script src="app/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="app/bower_components/jquery-ui-layout-bower/source/stable/jquery.layout.min.js"></script>
   <script src="app/js/app.js"></script>
   <script src="app/js/controllers.js"></script>
+  <script>
+    $(document).ready(function () {
+        $('body').layout({ applyDefaultStyles: true });
+    });
+  </script>
 </head>
 <body>
   <!-- NAVIGATION -->
-  <nav class="navbar navbar-inverse" role="navigation">
-    <div class="navbar-header">
-      <a class="navbar-brand" ui-sref="#">ViPeR</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li><a ui-sref="home">Home</a></li>
-      <li><a ui-sref="about">About</a></li>
-      <li><a ui-sref="contact">Contact</a></li>
-    </ul>
-  </nav>
-  <div class="jumbotron text-center" style="padding:0.5em;">
-    <div class="container viper-header">
-    <a ui-sref=""><h1>ViPeR: Visualization Pipeline for RNAseq</h1></a>
-    </div>
-  </div>
+    <div class="ui-layout-north">
+      <nav class="navbar navbar-inverse" role="navigation">
+      <div class="navbar-header">
+        <a class="navbar-brand" ui-sref="/">ViPeR</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a ui-sref="/home">Home</a></li>
+        <li><a ui-sref="/about">About</a></li>
+        <li><a ui-sref="/contact">Contact</a></li>
+      </ul>
+      </nav>
+   <!-- -->
+      <div class="jumbotron text-center" style="padding:0.5em;">
+        <div class="container viper-header">
+        <a ui-sref="/"><h1>ViPeR: Visualization Pipeline for RNAseq</h1></a>
+        </div>
+      </div>
+   <!-- -->
+    </div> <!-- End of north -->
 
-  <div class="container">
-    <div class="row">
-      <div class="col-md-2">
-        <a href="">Home</a>
+    <div class="ui-layout-west" class="container" ng-controller="FullReportCtrl">
+      <div class="row">
+        <div class="col-md-12" style="text-align:left;">
+          <ul ng-repeat="section in report">
+            <li><a ng-href="/{{section.sectionName}}">{{section.sectionName}}</a>
+          </ul>
+        </div>
       </div>
-      <div class="col-md-10" ui-view>
+    </div> <!-- End of south -->
+     
+  <div class="ui-layout-center">
+    <div ui-view></div>
+  </div> 
+<!--    <div class="ui-layout-center" ui-view>
       
-      </div>
-    </div>
-  </div>
+    </div> -->
 </body>
 </html>

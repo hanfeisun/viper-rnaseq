@@ -17,6 +17,11 @@
   color: black;
 }
 
+.scrollable {
+  width: 100%
+  overflow-y: scroll;
+}
+
 .thumb img {
   width: 100%;
   height: auto;

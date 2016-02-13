@@ -2,23 +2,26 @@
 
 /* App Module */
 
-var rnaApp = angular.module('rnaApp', [
-  'ngRoute',
-  'rnaAppControllers'
+var viperApp = angular.module('viperApp', [
+  'ui.router',
+  'viperAppControllers'
 ]);
 
-rnaApp.config(['$routeProvider',
-  function($routeProvider) {
-    $routeProvider.
-      when('/full-report', {
-        templateUrl: 'partials/full-report.html',
-        controller: 'FullReportCtrl'
-      }).
-      when('/full-report/:sectionName', {
-        templateUrl: 'partials/section-report.html',
-        controller: 'SectionReportCtrl'
-      }).
-      otherwise({
-        redirectTo: '/full-report'
-      });
-  }]);
+
+viperApp.config(function($stateProvider, $urlRouterProvider) {
+
+    $urlRouterProvider.otherwise('/');
+
+    $stateProvider
+
+        .state('/', {
+            url: '/',
+            templateUrl: 'app/partials/full-report.html'
+        })
+        .state('/home', {
+            url: '/home',
+            templateUrl: 'app/partials/test.html'
+        });
+});
+
+
