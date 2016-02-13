@@ -8,7 +8,13 @@ var viperApp = angular.module('viperApp', [
 ]);
 
 
-viperApp.config(function($stateProvider, $urlRouterProvider) {
+viperApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider', 
+        function($stateProvider, $urlRouterProvider, $locationProvider) {
+
+    $locationProvider.html5Mode({
+        enabled: true,
+        requireBase: false
+    });    
 
     $urlRouterProvider.otherwise('/');
 
@@ -16,12 +22,24 @@ viperApp.config(function($stateProvider, $urlRouterProvider) {
 
         .state('/', {
             url: '/',
-            templateUrl: 'app/partials/full-report.html'
+            templateUrl: '/app/partials/full-report.html'
         })
         .state('/home', {
             url: '/home',
-            templateUrl: 'app/partials/test.html'
+            templateUrl: '/app/partials/test.html'
+        })
+        .state('/about',{
+            url: '/about',
+            templateUrl: '/app/partials/test.html'
+        })
+        .state('/contact',{
+            url: '/contact',
+            templateUrl: '/app/partials/test.html'
+        })
+        .state('/Alignment-Report', {
+            url: '/Alignment-Report',
+            templateUrl: '/app/partials/section-report.html'
         });
-});
+}]);
 
 

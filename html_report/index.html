@@ -19,7 +19,6 @@
   </script>
 </head>
 <body>
-  <!-- NAVIGATION -->
     <div class="ui-layout-north">
       <nav class="navbar navbar-inverse" role="navigation">
       <div class="navbar-header">
@@ -31,30 +30,24 @@
         <li><a ui-sref="/contact">Contact</a></li>
       </ul>
       </nav>
-   <!-- -->
       <div class="jumbotron text-center" style="padding:0.5em;">
         <div class="container viper-header">
         <a ui-sref="/"><h1>ViPeR: Visualization Pipeline for RNAseq</h1></a>
         </div>
       </div>
-   <!-- -->
-    </div> <!-- End of north -->
-
+    </div>
     <div class="ui-layout-west" class="container" ng-controller="FullReportCtrl">
       <div class="row">
         <div class="col-md-12" style="text-align:left;">
           <ul ng-repeat="section in report">
-            <li><a ng-href="/{{section.sectionName}}">{{section.sectionName}}</a>
+            <li><a ng-href="/{{section.sectionName}}">{{section.sectionName}}</a></li>
           </ul>
         </div>
       </div>
-    </div> <!-- End of south -->
+    </div>
      
   <div class="ui-layout-center">
     <div ui-view></div>
   </div> 
-<!--    <div class="ui-layout-center" ui-view>
-      
-    </div> -->
 </body>
 </html>

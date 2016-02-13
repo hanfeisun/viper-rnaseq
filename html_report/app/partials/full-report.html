@@ -2,8 +2,8 @@
 <div class="row container-fluid" ng-repeat="section in report">
 <h4>{{section.sectionName}}</h4>	
 <div class="col-md-4 thumb" ng-repeat="imageUrl in section.imageUrls">
-          <a ng-href="app/{{section.sectionName}}"><img ng-src="app/{{imageUrl}}" alt="{{section.name}}"></a>
-          <a ng-href="app/{{section.sectionName}}">{{section.name}}</a>
+          <a ng-href="/app/{{section.sectionName}}"><img ng-src="/app/{{imageUrl}}" alt="{{section.name}}"></a>
+          <a ng-href="/app/{{section.sectionName}}">{{section.name}}</a>
           <p>{{section.desc}}</p>
 </div>
 </div>
