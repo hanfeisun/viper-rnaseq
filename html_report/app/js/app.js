@@ -32,15 +32,15 @@ viperApp.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
         })
         .state('/home', {
             url: '/home',
-            templateUrl: '/app/partials/test.html'
+            templateUrl: '/app/partials/home.html'
         })
         .state('/about',{
             url: '/about',
-            templateUrl: '/app/partials/test.html'
+            templateUrl: '/app/partials/about.html'
         })
         .state('/contact',{
             url: '/contact',
-            templateUrl: '/app/partials/test.html'
+            templateUrl: '/app/partials/contact.html'
         });
 }]);
 
