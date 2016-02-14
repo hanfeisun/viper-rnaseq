@@ -8,6 +8,7 @@ mdf <- melt(df)
 mdf$dir <- ifelse (grepl("up",mdf$variable),"UP","DOWN") 
 mdf$adjp <- ifelse (grepl("p1",mdf$variable),"Padj < 0.1",ifelse(grepl("p05",mdf$variable),"Padj < 0.05", "Padj < 0.01"))
 mdf$l2fc <- ifelse(grepl("log1",mdf$variable),"|FC| > 1", "|FC| > 2")
+mdf <- subset(mdf, adjp == "Padj < 0.05" | adjp == "Padj < 0.01")
 #yl <- 1.1*(max(mdf$value))
 png(args[2], width = 8, height = 8, unit="in",res=300)
 ggplot(mdf,aes(l2fc,value,fill=dir))+
