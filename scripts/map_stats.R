@@ -27,7 +27,7 @@ if( nchar(upper_limit) < 7 ) {
 }
 
 
-colors <- c(Total_Reads="Grey", Unique_Reads="Blue")
+colors <- c(Total_Reads="Grey", Unique_Reads="steelblue")
 
 ggplot(x1, aes(x=Sample, y=value, fill=variable)) + geom_bar( stat = "identity", position="identity") + scale_y_continuous("",limits=c(0,upper_limit), labels=cust_labels, breaks=limits) + scale_fill_manual(values=colors) + labs( title="Read Alignment Report\n\n", x = "Sample Names", y="") + guides(fill=guide_legend(title=NULL)) + theme_bw() + theme(axis.text.x = element_text(angle=90, hjust = 1, vjust=0.5, size=10))
 
