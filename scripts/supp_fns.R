@@ -42,7 +42,7 @@ make_complexHeatmap_annotation <- function(annotation){
     }
     names(colorlist) <- c(colnames(annotation)[1:nn])
     
-    ha1 = HeatmapAnnotation(df = annotation[,1:nn,drop=FALSE], col = colorlist)
+    ha1 = HeatmapAnnotation(df = annotation[,1:nn,drop=FALSE], gap=unit(0.5,"mm"), col = colorlist)
 
     return(ha1)
 }

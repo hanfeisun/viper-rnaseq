@@ -1,295 +1,220 @@
-Welcome to your tutorial repository!
-================
-Learn how to use Git and Bitbucket with either SourceTree, one of the best Git clients available, or using Git from the command line. Whichever you choose you will learn how set up Git, clone this repository locally. Then learn how to make and commit a change locally and push that change back to Bitbucket.
+——————————————————————————————————————————
+VIPER - Visualization Pipeline for RNA-seq
+——————————————————————————————————————————
 
-____
+—————
+Intro
+—————
+ViPeR is a comprehensive RNA-seq analysis tool built using snakemake which allows for ease of use and customization. We combine the use of etc……..
 
-## Start here
-Choose either SourceTree, Atlassian's Git client, or the command line to learn source control using Bitbucket and Git. 
+In ViPeR, there will be three distinct components that are kept purposefully separate to avoid confusion, accidental deletion or editing of essential components. The three components are the DATA, VIPER, and ANALYSIS. DATA is where the user will store all of their data for analysis. VIPER is the actual source of the code, you will never have to edit anything in here. ANALYSIS will be the output of VIPER
 
-### Use [SourceTree Atlassian's Git client](#markdown-header-sourcetree) for Windows and Mac
+Although included in this README are step-by-step instructions, it is assumed that the user should have a basic understanding of a command line interface on mac or linux, 
 
-![Looking at the repository in SourceTree](https://confluence.atlassian.com/download/attachments/304578655/sourcetree-gui-small.png)
 
-### Use [Git from the command line](#markdown-header-command-line) for Windows, Mac, and Linux
+Input:
+fastqs or bam files
+config file - details below
+meta file - details below
 
+Output:
+Mapped STAR files
+…
+Sample-Sample Clustering
+Sample-Feature Clustering
+PCA
 
-**Finally**, if you want a complete end to end tutorial: See our [Bitbucket Tutorials](https://confluence.atlassian.com/x/Q4sFLQ). 
 
------------------
-### Collaboration is the core of Git
-Unlike SVN, Git makes no distinction between the working copy and the central repository—they are all full-fledged Git repositories.
+———————————————
+Getting Started
+———————————————
+Before ViPeR can be used, all of the necessary packages and tools must be downloaded and installed.
 
-![Git to SVN comparison](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-basics-clone-repotorepocollaboration.png)
+Installing Python2 and Python3
+——————————————————————————————
+https://www.python.org/downloads/
 
-Git's ability to communicate with remote repositories is the foundation of every Git-based collaboration workflow. To learn more about Git and Git workflows see, [Atlassian's Git site](https://www.atlassian.com/git/).
 
+Installing wget
+———————————————
+To get these packages, we will use a command line tool called wget (http://www.gnu.org/software/wget/). wget is a popular tool for pulling things off of the internet, and although it should be already be installed on most linux machines, you may need to install is if you are using a Mac (http://rudix.org/packages/wget.html)
 
-- - -
-## SourceTree 
-Download, install and configure SourceTree. Source tree is Atlassian's Git GUI client and one of the most popular on the market. 
- 
-This section contains the following tasks: 
 
-* [Install and configure SourceTree](#markdown-header-install-and-configure-sourcetree): Download, install, and configure SourceTree. 
-* [Clone repository locally](#markdown-header-clone-repository-locally): Learn how to clone the bucket-o-sand to your local system. 
-	* [Clone from SourceTree welcome wizard](#markdown-header-clone-from-sourcetree-welcome-wizard)
-	* [Clone from Bitbucket](#markdown-header-clone-from-bitbucket)
-* [Inspect your repository](#markdown-header-inspect-your-repository)
-	* [Repository in SourceTree](#markdown-header-repository-in-sourcetree)
-	* [Repository in Bitbucket](#markdown-header-repository-in-bitbucket)
-* [Make a commit and push a change](#markdown-header-make-a-commit-and-push-a-change)
+Installing Miniconda
+————————————————————
+We will be using Miniconda to manage most of the packages that go into ViPeR. Miniconda3 (http://conda.pydata.org/miniconda.html) is a simple tool that include the package manager Conda (http://conda.pydata.org/docs/) Conda is used to manage all of the tools used in ViPeR including version control
 
+Navigate to a folder where you keep your coding tools or wherever you want to store the main Miniconda3 folder. Then enter the following commands:
 
-####Install and configure SourceTree
+If you are using Linux:
+	wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+	bash Miniconda3-latest-Linux-x86_64.sh
+If you are using Mac:
+	wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+	bash Miniconda3-latest-MacOSX-x86_64.sh
 
-1. Go to [SourceTree](http://sourcetreeapp.com) and click **Download SourceTree Free**
-2. Open the downloaded file and click **Run**
-3. Accept the default settings by clicking **Next** at each screen. (Windows only: Follow the instructions for installing .Net Framework if prompted.)
-4. Select a location to install SourceTree or accept the default. 
-5. Click **Finish** (Mac) or **Install** (Windows).
+-Make sure to answer yes when asked if you want to prepend Miniconda3 to PATH.
+-Close your terminal, open a new one and you should now have Conda working! Test by entering:
+	conda update conda
 
-The SourceTree welcome wizard opens. Select **I agree to the license agreement** and click **Continue**. 
 
-![Welcome wizard open page](https://confluence.atlassian.com/download/attachments/304578655/soucetree-welcomewiz-screen1.png)
- 
-Fantastic! Now you have SourceTree installed! Next you'll complete SourceTree configuration. 
+Installing VIPER and setting up your environment
+————————————————————————————————————————————————
+1) Open a terminal and navigate to the location of the PROJECT’s data (path/to/PROJECT means the full computer path of where your project is, ex. usr/home/project)
+	cd /path/to/PROJECT/
+	- If you do not have a folder for your PROJECT we recommend you make one
+		cd /path/to
+		mkdir PROJECT
+		cd PROJECT
 
-**Configure SourceTree**
+#2) The PROJECT folder for now should only have your data in it. Next we will acquire VIPER using git
+#	within your PROJECT folder you want to initialize a git repository
+#		git init
+#	after git initialization and set up, you will need to clone the VIPER folder in to your PROJECT folder
+#		git clone git@bitbucket.org:vangalamaheshh/snakemake.git
 
-* SourceTree will install Git, if you do not already have a version installed. 
+############### THIS NEEDS TO BE IN A PUBLIC FOLDER WITH THE PROPER NAMING, need to talk about this
+2) The PROJECT folder for now should only have your data in it. Next we will acquire VIPER using wget
+	wget https://bitbucket.org/vangalamaheshh/snakemake/get/master.tar.gz
+	tar -xf master.tar.gz
+	rm master.tar.gz
 
-![Git install window](https://confluence.atlassian.com/download/attachments/304578655/sourcetree-install-git.png)
+3) Download all of the necessary packages. Most of the tools needed can be downloaded via Miniconda. Navigate into the snakemake folder and run the bash script to download all of the packages
+	cd VIPER
+	bash build_env.bash
 
-The welcome wizard will help you add an account. 
+4) Copy the config file from within your VIPER folder into your PROJECT folder. Go back to your PROJECT folder to enter:
+	cp VIPER/config.yaml ./
+Edit your config file, more on this in the config section
 
-* Select Bitbucket in the Account **A** section, and enter the same login information you use for your Bitbucket account in the Username and Password fields **B**. 
+5) Create your metadata file and move it into your PROJECT folder
+More on this in the meta section
 
-![Set up account window](https://confluence.atlassian.com/download/attachments/304578655/sourcetree-setup-account.png)
+6) At this point, you should have your /path/to/PROJECT folder with the following contained within it
+	VIPER
+	DATA
+	config.yaml
+	metadata.csv
 
-* Click **No** to decline SSH keys for the moment. If you have SSH keys you can add them later. 
 
-Finally, you can [Clone from SourceTree welcome wizard](#markdown-header-clone-from-sourcetree-welcome-wizard) in the next section. 
+Running VIPER
+—————————————
+If all of the above have been followed correctly, you should be ready to run VIPER! snakemake is an extensive and powerful tool with many features that the user should learn, but for now, you will only need a few simple commands
 
+In your PROJECT folder run the following command to see if you are ready to go:
+	snakemake --snakefile snakemake/RNAseq.snakefile -n
+This will return a large output which basically outlines what VIPER is about to do. If no errors come back, then you are ready to go! Type in the following command and enter
+	snakemake --snakefile snakemake/RNAseq.snakefile
 
------
 
-##Clone repository locally
-Next we'll get the repository to your local system. The git clone copies an existing Git repository as its own full-fledged Git repository. Cloning also creates a remote connection called origin pointing back to the original repository.
+
+——————— 
+CONFIG:
+———————
+Your config file has three main sections. PATHS, PARAMS, SAMPLES:
+
+PATHS:
+——————
+In this section, the user will need to specify the location of the following packages and tools. Below is an example path and a description of what each item is.
 
-![Git clone](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-basics-clone.png)
+#####################NEED EXPLANATIONS HERE!!!!
+bed_file: /data/static_libraries/RefGene/refseqGenesHg19.bed
+	MISSING
 
-###Clone from SourceTree welcome wizard
-If your installing SourceTree you can clone your repository during the configuration process. 
+genome_lib_dir: /home/lentaing/tmp/weinstock/newrun/ref_files/Hg19_CTAT_resource_lib
+	MISSING
 
-1. Select your repository **1** from the list in the welcome wizard. 
-2. Confirm the destination folder **2**, or select a new one. 
-3. Click **Ok**. 
+gtf_file: /home/lentaing/tmp/weinstock/newrun/ref_files/Hg19_CTAT_resource_lib/ref_annot.gtf
+	MISSING
 
-![welcome wizard clone dialog](https://confluence.atlassian.com/download/attachments/304578655/sourcetree-setup-selectrepo.png)
+metasheet: metasheet.csv
+	The name and location of your metasheet. This should in the same folder as your PROJECT as described above. You need to specify the name of the file and its location
 
-Fantastic!! Now you have a clone of the repository on your local system and are ready to work. Next, you can [Inspect your repository](#markdown-header-inspect-your-repository)
+picard_path: /home/lentaing/setup_files/picard-tools-1.113
+	MISSING
 
-###Clone from Bitbucket
-Learn how to clone a repository starting from Bitbucket to your local system using SourceTree.
+python2: /usr/bin/python2.7
+	Some tools in VIPER use python2, but snakelike is written in python3. So for tools that are written in python2, we need to specify a location for its use
 
-1. Open the sidebar navigation by clicking on the **>>** symbol.
-2. Click **Clone** *A*, then click **Clone in SourceTree** *B*.  
+ref_fasta: /data/static_libraries/assembly/humanhg19/rawgenome/hg19.fasta
+	Reference genome in a .fasta or .fa format
 
-![Clone process](https://confluence.atlassian.com/download/attachments/304578655/tutorial-clone-sourcetree1.png)
+reference: hg19
+	What genome the user is using
 
-**NOTE** For Mac you will be asked to launch an application, click **OK** to continue.
+rseqc_path: /usr/local/bin
+	MISSING
 
-This will prompt SourceTree to open the clone dialog, as shown in the following example: 
+star_index: /data/static_libraries/STAR/humanhg19/
+	star-index for the STAR aligner
+	If you don't have a star-index, make one by running the following:
+	   STAR  --runMode genomeGenerate --runThreadN 24 --genomeDir /where/you/store/reference/genomes -genomeFastaFiles /dir/to/hg19/hg19.fa
 
-* Microsoft Windows **A**  
-* Macintosh **B** 
+star_rRNA_index: /home/lentaing/tmp/weinstock/newrun/ref_files/humanhg38_ncrna/
+	MISSING
 
-![Clone dialog](https://confluence.atlassian.com/download/attachments/304578655/tutorial-clone-step2.png)
+PARAMS:
+———————
+This section holds parameters specific to your project design
 
-Check the destination path and modify it if you wish to place your repository file in a different directory. 
+stranded: 'true'
+	MISSING
+library_type: 'fr-firststrand'
+	MISSING
 
-You might want to create a directory specifically for your repositories: 
-	/repositories/bucket-o-sand 
-	
+#— Parameters for plotting
+#numgenes: the number of top genes for the gene heatmaps
 
+#for kmeans later…
+#globalnumcluster: the number of clusters to output in the clustering analysis for the gene heatmap global
+#pairnumcluster: the number of clusters to output in the clustering analysis for the gene heatmap global
 
-----
-##Inspect your repository
-Let's take a look around your repository in both Bitbucket and SourceTree.
+SAMPLES:
+————————
+The location of your files in a zipped fast format (.fastq.gz) or bam format (.bam)
 
-####Repository in SourceTree
-The files and titles in your repository might be a bit different, but the basics are the same. 
+samples:
+	## Cell Line 1
+	A1:
+		- /path/to/file/A1.fastq
+	B1:
+		- /path/to/file/A1.bam
+	C1:
+		- /path/to/stranded/file/C1_R1.fastq.gz
+		- /path/to/stranded/file/C1_R2.fastq.gz
 
-![Looking at the repository in SourceTree](https://confluence.atlassian.com/download/attachments/304578655/sourcetree_gui.png)
 
-**1** Repository bookmarks: displays a list of all the repositories you have listed. You can double click a bookmarked repository to open it in an active tab.
+—————
+META:
+—————
+Make the metadata file in excel, and save it as a .txt or .csv, It doesn’t matter what it is named as long as it is called in the config in the spot marked “metasheet,” see the config section if confused. The format should be something like the following:
 
-**2** Active repository tab: you can have many repositories open at once, each tab lets you view a different repository. In this example *working copy* is selected, so in the next pane you can see a list of the files in the working copy of this repository. 
+sample    cell     condition        treatment      replicates      comp_MCF7_AvB     comp_T47D_CvD
+A1	  MCF7     Full_Media       NoDOX          1               1
+A2	  MCF7     Full_Media       NoDOX          2               1
+B1        MCF7     Full_Media       DOX            1           	   2
+B2        MCF7     Full_Media       DOX            2               2
+C1        T47D     Full_Media       NoDOX          1                                 1
+C2        T47D     Full_Media       NoDOX          2                                 1
+D1        T47D     Full_Media       DOX            1                                 2
+D2        T47D     Full_Media       DOX            2                                 2
 
-**3** View selection: in this pane *working copy* you can choose to view only the files in a particular state (such as: All, Modified, Clean). 
+- The first column should always be sample, this should be some kind of sample ID.
+- The samples that you want to perform a Differential Expression (DE) on using limma and deseq should be marked by the “comp” columns more on this below
+	- This is important! The “control” should be marked with a 1, and the “treatment” should be marked with a 2.
+- It is recommended that if you should have a “replicates” column to denote different samples, it is a good idea to not only have each of the sample names be unique, but also make sure that the associated metadata is unique as well to each sample.
+- The rest of the  metadata columns are up to the user to write. Sample must always be first, and you are allowed to have as many “comp_XXXX” columns as you want at the end. All of the middle columns are your metadata (for this example, this is cell, condition, treatment, replicates)
 
-**4** Working copy and Staged changes: here you can see the files in the active view (based on the selection in 3) and drag changed files from working into staged to create a change set to commit.
+Again, make this in excel so that all of the spacing is done correctly and save it out as a .txt or .csv file. This is the most common bug, so please follow this.
+Notes on meta
+	— use the replicates column to make sure there are no duplicates. SAMPLE NAMES MAY NOT DISTINGUISH DUPLICATES
+	- To avoid bugs, the only punctuation that should be used is the underscore “_”. Dashes, periods, etc, could cause a bug because there is a lot of table formatting and manipulation
+	- It is very important that you know that samples A is what you mark with 1, and samples B is what you mark with a 2. You should name your output following this format as well "comp_cond_AvB” This will let the reader know what the output DE files refer to. 
+	Deseq: ”baseMeanA” refers to samples A, which follows condition 1 and “baseMeanB” refers to samples B which follows condition 2. logfc is B/A
+	Limma: Logfc refers to B/A
 
-**5** Currently selected file: you can see the diff view of a selected file in the working copy or staged area. 
 
-####Repository in Bitbucket
-Your repository will have some differences but, again, the basics are the same. The view in the following example has the sidebar expanded press [ to expand the sidebar. 
 
-![Looking at a repository in Bitbucket](https://confluence.atlassian.com/download/attachments/304578655/tutorial-sandbucket-bitbucket-reposview.png?)
 
-**A** Actions: all the most common actions are here, create a clone, branch, pull request, etc... 
 
-**B** Navigation: this is where you can get to all the things in Bitbucket (such as: source code, list of commits, list of branches). 
 
-**C** README: The view in the preceding example is on the *Overview* page where you can configure your own README using markdown or plain text.
-
-**D** Recent activity: lists the most recent commits, pushes, merges, and pull request activity. 
-
-----
-##Make a commit and push a change 
-Now your ready to make a change, add that change to your local repository, and push the change to your remote Bitbucket repository.
-
-####Open a file from SourceTree
-A simple thing like selecting and opening a file from the source control UI can make things move quicker. 
-
-1. Select **All** from view selection menu. 
-2. Select the 'sample.html' file, then right click and select **Show in Explorer** (Windows). Or click *...* then select **Show in Finder** (Mac)
-3. Using your favorite editor, edit the `sample.html` file.
-4. Change the heading from *My First File* to *Playing in the Sand*.
-5. Save and close the file. 
-
-####Commit the change in SourceTree
-Now you've made a change locally and are ready to go through the git process of adding that change to the project history locally.
-
-The 'git add' moves changes from the working directory to the staging area. This gives you the opportunity to prepare a set of changes (a snapshot) before committing it to the official history.
-
-![Git add command](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-basics-add.png)
-
-The git commit takes the staged snapshot and commits it to the project history. Combined with git add, this defines the basic workflow for all Git users.
-
-![Git commit](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-basics-commit.png)
-
-Let's do that in SourceTree
-![Modified file in SourceTree](https://confluence.atlassian.com/download/attachments/304578655/tutorial-sourcetree-changedfile.png)
-
-1. Identify the changed file **A** in SourceTree by noting the change in color and from a checkmark to an ellipsis, as shown in the following example. 
-2. Click and drag the `sample.html` **A** that file to the *Staged files* **B** area. This action is the same as the 'git add' or 'git stage' command. 
-3. Click **Commit** from the [actions menu](#markdown-header-push-the-change-to-bitbucket) in SourceTree. 
-4. Add a commit message **C**, then click **Commit**.
-
-Great! Now the snapshot of your change has been added to your local project history. 
-
-####Push the change to Bitbucket 
-The last thing we'll do is push that change to Bitbucket. 
- 
-![SouceTree toolbar with one item highlighted in the push action](https://confluence.atlassian.com/download/attachments/304578655/sourcetree-toolbar-push1.png)
-
-Click **Push** from the toolbar. You'll notice there is a *1* highlighted in the **Push** action. This is the number of commits ready to be pushed to the remote repository, Bitbucket in this case. 
-
-The push dialog opens. Review the settings and click **Ok**.  
-
-![SourceTree push dialog](https://confluence.atlassian.com/download/attachments/304578655/sourcetree-push-dialog.png)
-
-Pushing lets you move a local branch or series of commits to another repository, which serves as a convenient way to publish contributions. This is like svn commit, but it sends a series of commits instead of a single changeset.
-
-![Push graphic](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-remote-repositories-push.png)
-
-Congratulations! You've done all the basics! Feel free to use the tutorial repository to learn more, test, experiment, and expand your knowledge. You can jump into the [Bitbucket 101](https://confluence.atlassian.com/x/cgozDQ) after the *Clone your repository* section. Or you can check out [Atlassian's Git site](https://www.atlassian.com/git/) and learn more about Git workflows. 
-
-All of us at Bitbucket and SourceTree hope your experience is a great one! We are constantly working and building a better Bitbucket and SourceTree. 
-
-- - -
-
-#Command line
-  
-Learn the very basics of cloning, committing, and pushing from the command line. Git is a very effective from the command line and it's commands are reasonably easy to learn.
-
-**If you don't already have Git installed** on your local system see, [Set up Git](https://confluence.atlassian.com/x/V4DHHw), then return here. 
-
-**This section contains the following tasks: 
-
-* [Clone your repository](#markdown-header-clone-your-repository)
-* [Stage, commit, and push a change](#markdown-header-make-a-commit-and-push-the-change)
-
-If you are unfamiliar with the Git, or the Git commands here are a couple very good resources: 
-
-* [Atlassian Git cheatsheet](https://www.atlassian.com/dms/wac/images/landing/git/atlassian_git_cheatsheet.pdf): Nice crisp PDF of all the basic Git commands. 
-* [Atlassian's Git site](https://www.atlassian.com/git/)
-
-### Clone your repository:
-
-Cloning makes a local copy of the repository for you.
-
-![Clone from command line](https://confluence.atlassian.com/download/attachments/304578655/repo-setup-clone_menu-sidexpand.png)
-
-1. Click  **Clone** in Bitbucket **A**, as shown in the previous figure. 
-2. Make sure the protocol **B** is set to HTTPS, as shown in the previous figure.
-
-    Bitbucket pre-fills the clone command for you.
-    
-3. Copy the command **C**. 
-4. Open a terminal, or launch a GitBash terminal, on your local machine.
-5. Navigate to the directory where you want your files. Use the cd /path-to-your/directory command to navigate to the location you want your repository. 
-6. Paste the command **C** you copied in step 3 at the prompt.
-7. Press ENTER on your keyboard.
-The result should be something like. 
-
-Git clones your repository from Bitbucket to your local machine.
-> If you have trouble cloning from these instructions you can check out the more [detailed tutorial](https://confluence.atlassian.com/x/W4DHHw).
-
-The git clone command copies an existing Git repository as its own full-fledged Git repository with its own history, manages its own files, and is a completely isolated environment from the original repository. Cloning also creates a remote connection called origin pointing back to the original repository
-
-![Git clone](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-basics-clone.png)
-
-
-### Make a commit and push the change
-
-Learn the Git basics of stage, commit, push when you make a change to the 'sample.html' file.
-
-1.  Navigate to the directory (folder) where you cloned your repository.
-2.  Using your favorite editor, open the `sample.html` file.
-3.  Change the heading from `My First File` to `Playing in the Sand`. 
-4.  Save and close the file.
-5.  Navigate to the repository in your command line 'cd path/to/your-repository'.
-5.  Stage the file with Git.
-    
-    `git add sample.html`
-    
-6.  Commit the change.
- 
-    `git commit -m "changing sample.html"`
-    
-7. Push to Bitbucket.
-
-    `git push`
-    
-    The system prompts you for a username/password.
-    
-8. Enter your Bitbucket account name and the password.
-9. After the push completes, click **Commits**, in Bitbucket, to view your change.
-
-The 'git add' moves changes from the working directory to the staging area. This gives you the opportunity to prepare a set of changes (a snapshot) before committing it to the official history.
-
-![Git add command](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-basics-add.png)
-
-The git commit takes the staged snapshot and commits it to the project history. Combined with git add, this defines the basic workflow for all Git users.
-
-![Git commit](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-basics-commit.png)
-
-Pushing lets you move a local branch or series of commits to another repository, which serves as a convenient way to publish contributions. This is like svn commit, but it sends a series of commits instead of a single changeset.
-
-![Push graphic](https://confluence.atlassian.com/download/attachments/304578655/git-tutorial-remote-repositories-push.png)
-
-Congratulations! You've done all the basics! Feel free to use the tutorial repository to learn more, test, experiment, and expand your knowledge. You can jump into the [Bitbucket 101](https://confluence.atlassian.com/x/cgozDQ) after the *Clone your repository* section. Or you can check out [Atlassian's Git site](https://www.atlassian.com/git/) and learn more about Git workflows. 
-
-All of us at Bitbucket and SourceTree hope your experience is a great one! We are constantly working and building a better Bitbucket and SourceTree.
-
-----
-
-[lexers]: http://pygments.org/docs/lexers/
-[fireball]: http://daringfireball.net/projects/markdown/ 
-[Pygments]: http://www.pygments.org/ 
-[Extra]: http://michelf.ca/projects/php-markdown/extra/
-[id]: http://example.com/  "Optional Title Here"
-[BBmarkup]: https://confluence.atlassian.com/x/xTAvEw

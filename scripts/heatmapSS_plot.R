@@ -4,67 +4,67 @@
 #   annotation: annotation file in SOME TBD format
 #Output:
 #   plot_out: some filename ending in '.pdf' to save the plots
-#   ssSpear_out: some filename ending in 'txt' to save the sample-sample
-#                   spearman correlations
+#   ssSpear_out: some filename ending in 'txt' to save the sample-sample spearman correlations
 #BASED on makeclustering_all_samples_HWL.R by Henry Long
 
-# load required packages
-library("gplots")
-library("ComplexHeatmap")
-library("circlize")
-library("dendextend")
-library("viridis")
-library('dplyr')
-source('snakemake/scripts/supp_fns.R')
+## Load required packages
+suppressMessages(library("gplots"))
+suppressMessages(library("genefilter"))
+suppressMessages(library("ComplexHeatmap"))
+suppressMessages(library("circlize"))
+suppressMessages(library("dendextend"))
+suppressMessages(library("viridis"))
+suppressMessages(library('dplyr'))
+suppressMessages(source('snakemake/scripts/supp_fns.R'))
 
-#enable stack trace
+## Enable stack trace
 options(error = function() traceback(2))
 
-heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
-    #CONSTANTS
-    RPKM_THRESHOLD <- 2.0
-    MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
-    NUM_GENES_TO_CLUSTER <- 250
+heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,SSnumgenes, ss_plot_out,ss_txt_out) {
+    ## CONSTANTS
+    #RPKM_THRESHOLD <- 2.0
+    #MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
+    #NUM_GENES_TO_CLUSTER <- 250
 
-    #readin and process newdata
-    #newdata <- read.table(rawRPKM_file, header=T, row.names=1, sep=",")
+    ## Readin and process newdata
     newdata <- rpkmTable
-    #remove MIR RNAs and SNO RNAs
-    #LEN: newdata <- newdata[-grep("MIR[[:digit:]]*",rownames(newdata)), ]
-    #LEN: newdata <- newdata[-grep("SNO.*",rownames(newdata)), ]
-    
-    #remove genes with no RPKM values or
-    #genes where not enough samples meet a minimum threshold
-    #LEN: newdata <- (newdata[which(apply(newdata,1,mean)!=0),])
-    newdata<-newdata[apply(newdata, 1, function(x) length(x[x>=RPKM_THRESHOLD])>MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD),]
+            
+    ## Remove genes with no RPKM values or genes where not enough samples meet a minimum threshold
+    newdata<-newdata[apply(newdata, 1, function(x) length(x[x>=RPKM_threshold])>min_num_samples_expressing_at_threshold),]
 
-    #log transform of data
+    ## Log transform of data
     newdata <- log2(newdata+1)
 
-    #Calculate CVs for all genes (rows)
+    ## Calculate CVs for all genes (rows)
     mean_rpkm_nolym <- apply(newdata,1,mean)
     var_rpkm_nolym <- apply(newdata,1,var)
     cv_rpkm_nolym <- abs(var_rpkm_nolym/mean_rpkm_nolym)
 
-    #Select out the most highly variable genes into the dataframe 'Exp_data'
-    Exp_data <- newdata[order(cv_rpkm_nolym,decreasing=T)[1:NUM_GENES_TO_CLUSTER],]
+    ## Select out the most highly variable genes into the dataframe 'Exp_data'
+    Exp_data <- newdata[order(cv_rpkm_nolym,decreasing=T)[1:SSnumgenes],]
 
-    #Calc. spearman correlation
+    ## Calc. spearman correlation
     cordata <- cor(Exp_data, method="spearman")
 
-    #save the spearman correlation as txt; save plots
-    pdf(file = plot_out)
-    #data.matrix.filename <- "XXX_foo.txt"
-    write.table(cordata, file=ssSpear_out, quote=F, col.names = NA, sep="\t")
-
-    #make SS (sample-sample) heatmap
+    ## make SS (sample-sample) heatmap
     ma_nolym <- max(cordata)
     mi_nolym <- min(cordata)
     my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
+    param_text <- paste(RPKM_threshold, min_num_samples_expressing_at_threshold, SSnumgenes, sep=",")
 
-    ha1 <- make_complexHeatmap_annotation(annotation)
+    # NOTES on clustering, not used for now
+    # Distance options: euclidean (default), maximum, canberra, binary, minkowski, manhattan
+    # Cluster options: complete (default), single, average, mcquitty, median, centroid, ward
+    rowdistance = dist(as.matrix(cordata), method = "euclidean")
+    rowcluster = hclust(rowdistance, method = "ward.D2")
+    coldistance = dist(t(as.matrix(cordata)), method = "euclidean")
+    colcluster = hclust(coldistance, method = "ward.D2")
 
-    graph2 <-Heatmap(t(as.matrix(cordata)),
+    pdf(file = ss_plot_out)
+    
+    ha1 <- make_complexHeatmap_annotation(tmp_ann)
+
+    mapplot <-Heatmap(t(as.matrix(cordata)),
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
                      #column_dend_height = unit(2, "cm"),
                      #heatmap_legend_param = list(title = "exp. level"),
@@ -74,85 +74,74 @@ heatmapSS_plot <- function(rpkmTable, annotation, plot_out, ssSpear_out) {
                      #row_names_max_width = unit(3, "mm"),
                      row_names_gp = gpar(fontsize = 12),
                      column_names_gp = gpar(fontsize = 12),
-                     cluster_rows = TRUE, cluster_columns=TRUE,
-                     clustering_method_rows="ward.D2",
-                     clustering_method_columns="ward.D2",
-                     clustering_distance_rows="euclidean",
-                     clustering_distance_columns="euclidean",
-                     show_heatmap_legend = FALSE,
+                     #cluster_rows = TRUE,
+                     #cluster_columns=TRUE,
+                     cluster_rows = rowcluster,
+                     cluster_columns = colcluster,
+                     #clustering_method_rows="ward.D2",
+                     #clustering_method_columns="ward.D2",
+                     #clustering_distance_rows="euclidean",
+                     #clustering_distance_columns="euclidean",
+                     show_heatmap_legend = TRUE,
+                     heatmap_legend_param=list(title="corr"),
                      #row_dend_width = unit(5, "mm"),
                      #width=unit(60,"cm"),
                      top_annotation=ha1,
                      )
-    draw(graph2)
-    
-    
-    #test<-heatmap.2(as.matrix(cordata), Colv = "Rowv", revC = T,
-    #                distfun = function(x) dist(x,method = 'euclidean'),
-    #                hclustfun = function(x) hclust(x,method = 'ward.D2'),
-    #                breaks=my.breaks_nolym,trace="none",scale="none",
-    #                col=bluered(100),labCol=F, cexRow=0.75,
-    #                key=TRUE, margins=c(2,6),
-    #                #main = paste(Project_Name,"Sample-Sample Correlation"),
-    #                main = "Sample-Sample Correlation",
-    #                #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
-    #                xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
-    #                )
-
-    #png(file="analysis/plots/images/heatmapSS_cluster.png", width = 8, height = 8, unit="in",res=300)
-    #ma_nolym <- max(cordata)
-    #mi_nolym <- min(cordata)
-    #my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
-
-    #test<-heatmap.2(as.matrix(cordata), Colv = "Rowv", revC = T,
-    #                distfun = function(x) dist(x,method = 'euclidean'),
-    #                hclustfun = function(x) hclust(x,method = 'ward.D2'),
-    #                breaks=my.breaks_nolym,trace="none",scale="none",
-    #                col=bluered(100),labCol=F, cexRow=0.75,
-    #                key=TRUE, margins=c(2,6),
-    #                #main = paste(Project_Name,"Sample-Sample Correlation"),
-    #                main = "Sample-Sample Correlation",
-    #                #xlab = paste(NUM_GENES_TO_CLUSTER, " genes ",Sys.Date())
-    #                xlab = paste(NUM_GENES_TO_CLUSTER, " genes ")
-    #                )
+    draw(mapplot)
+    for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
+        decorate_annotation(an, {
+            grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
+            grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
+        })
+    }
     dev.off()
     
-    #LEN: HYP- This is generating matrix_1
-    ss_col = colorRamp2(seq(min(cordata), max(cordata), length = 3), c("blue", "#EEEEEE", "red"))
-    ha1 <- make_complexHeatmap_annotation(annotation)
-    ht_list <- Heatmap(cordata, name="sprmanCorr", col = ss_col, top_annotation=ha1)
     png(file="analysis/plots/images/heatmapSS_plot.png", width = 8, height = 8, unit="in",res=300)
-    #draw(ht_list)
-    draw(graph2)
+    draw(mapplot)
+    for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
+        decorate_annotation(an, {
+            grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
+            grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
+        })
+    }
     dev.off()
-    #draw(ht_list)
-    #SAVE graphics
-    #dev.off()
+
+    #WRITE output to file
+    output<-as.matrix(cordata)
+    output<-output[rowcluster$order, colcluster$order]
+    write.table(output, file=ss_txt_out, quote=F, col.names = NA, sep="\t")
+    
 }
+
+
 
 args <- commandArgs( trailingOnly = TRUE )
 rpkmFile=args[1]
 annotFile=args[2]
-ss_plot_out=args[3]
-ss_txt_out=args[4]
+RPKM_threshold=args[3]
+min_num_samples_expressing_at_threshold=args[4]
+SSnumgenes=args[5]
+ss_plot_out=args[6]
+ss_txt_out=args[7]
 
-#process RPKM file
+## process RPKM file
 rpkmTable <- read.table(rpkmFile, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
 for (n in names(rpkmTable)) {
-    #CONVERT to numeric!
+    # CONVERT to numeric!
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
-    #replace NA
+    # replace NA
     #na.omit(rpkmTable)
 }
 
-#PROCESS ANNOTATIONS
+## PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
-#REMOVE comp_ columns
+## REMOVE comp_ columns
 tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
 
-#convert numerical annotations to numbers/floats
+## Convert numerical annotations to numbers/floats
 for (col in colnames(tmp_ann)) {
-    #IS it a valid number?--test first value in col
+    ## Test first value in col for validity
     if(attr(regexpr("^\\-?\\d+\\.\\d+$",tmp_ann[1,col]), "match.length") > 0){
         #print(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
         tmp_ann[,col] <- as.vector(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
@@ -162,5 +151,4 @@ for (col in colnames(tmp_ann)) {
 rownames(tmp_ann) <- tmp_ann$SampleName
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
-#print(str(tmp_ann))
-heatmapSS_plot(rpkmTable, tmp_ann, ss_plot_out, ss_txt_out)
+heatmapSS_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,SSnumgenes, ss_plot_out,ss_txt_out)

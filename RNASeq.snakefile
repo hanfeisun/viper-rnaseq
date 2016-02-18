@@ -525,8 +525,12 @@ rule heatmapSS_plot:
     output:
         ss_plot_out="analysis/plots/heatmapSS_plot.pdf",
         ss_txt_out="analysis/plots/heatmapSS.txt"
+    params:
+        RPKM_threshold = config["RPKM_threshold"],
+        min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
+        SSnumgenes = config["SSnumgenes"]
     run:
-        shell("Rscript snakemake/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {output.ss_plot_out} {output.ss_txt_out}")
+        shell("Rscript snakemake/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
 
 rule heatmapSF_plot:
     input:
@@ -535,8 +539,13 @@ rule heatmapSF_plot:
     output:
         sf_plot_out="analysis/plots/heatmapSF_plot.pdf",
         sf_txt_out="analysis/plots/heatmapSF.txt"
+    params:
+        RPKM_threshold = config["RPKM_threshold"],
+        min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
+        SFnumgenes = config["SFnumgenes"],
+        num_kmeans_clust = config["num_kmeans_clust"]
     run:
-        shell("Rscript snakemake/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {output.sf_plot_out} {output.sf_txt_out}")
+        shell("Rscript snakemake/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.SFnumgenes} {params.num_kmeans_clust} {output.sf_plot_out} {output.sf_txt_out}")
 
 #PART 2.2- diffexp w/ DEseq
 #based on tosh's coppRhead/Snakefile
