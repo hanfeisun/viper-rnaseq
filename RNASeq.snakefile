@@ -154,26 +154,33 @@ VIPER: Visualization Pipeline for RNAseq
 
 Alignment Summary
 =================
-    Samples are aligned against reference organism, using `STAR software`_.
+    Raw reads were mapped or aligned to the reference organism using `STAR software`_.
 
     .. _STAR software: https://github.com/alexdobin/STAR
 
 
-    The **uniquely mapped read counts** and the **total read counts** for all the samples are summarized in the following image.
+    The **uniquely mapped read counts** and the **total read counts** for all the samples are summarized in the following image. In most cases, more than 70% of the reads should uniquely map to the reference genome.
+    Contamination, low quality sequencing data, or poor library contruction may result in <60% uniquely aligned reads.
 
     .. image:: {unique_reads_en}
 
 Library Prep Quality Metrics
 =============================
-Read Distribution
+Read Distribution QC
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Percentage of reads per sample mapping to specific **genomic features**.
+    This graph displays the disibution of reads mapped to **features** across the genome for each sample. Distribution profiles should be similar across samples.
+    A sample with a siginficantly different distribution profile may indicate that it was initially a poor sample or that there was a problem during library preparation.
+    **mRNAseq libraries will typically contain less than 20% intronic mapped reads** whereas **totalRNAseq libraries may have greater than 40% intronic mapped reads**.
 
     .. image:: {read_distrib_en}
 
-rRNA removal
+rRNA removal QC
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    Percentage of reads mapping to rRNA sequences. For **mRNAseq prep methods ~5% rRNA** read mapping is typical. It should be **<10% for totalRNAseq**. Higher percentages may indicate poor mRNA enrichment or rRNA depletion.
+    This graph displays the percentage of reads mapping to ribosomal RNA reference sequences.
+    Most RNAseq library prep methods are designed to avoid sampling ribosomal RNAs that in some cases can greater than 80% of total RNA.
+    *mRNAseq* library prep methods address this issue by using oligo-dT RT priming or capture beads to enrich for polyadenylated transcripts. *totalRNAseq* library prep methods address this problem by selectivel depleting rRNAs.
+    Analyzing reads mapping to rRNA is a useful metric to assess the effectiveness of either mRNA enrichment or rRNA depletion.
+    For **mRNAseq prep methods ~5% rRNA** read mapping is typical. It should be **<10% for totalRNAseq**. Higher percentages may indicate poor mRNA enrichment or rRNA depletion.
 
     .. image:: {rRNA_metrics_en}
 
@@ -182,6 +189,9 @@ Genebody Coverage
 ^^^^^^^^^^^^^^^^^
     For accurate gene expression quantification, mapped reads should be evenly distributed across genebodies.
     Significantly skewed profiles (5' or 3') may introduce quantification bias and/or represent poor quality library preparation.\n
+    For example, mRNAseq library preps typically use oligo-dT beads to capture mature transcripts and can be prone to 3' bias in genebody coverage if degraded RNA \(RIN < 7\) is used as input. This may result in inaccurate gene quantification and the following graphs will help diagnose.
+    There are other prep methods that may result in 5' bias too. Ideally, coverage should be uniform across the genebody. The line plots should look like this: "∩"
+
     Figures generated using `RSeQC software`_.
 
     .. _RSeQC software: http://rseqc.sourceforge.net
@@ -197,8 +207,8 @@ Genebody Coverage
     .. image:: {genebody_hm_en}
 
 
-Experimental Design QC
-=======================
+Experimental Quality Control
+===============================
 
 Principle Component Analysis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -219,7 +229,8 @@ Principle Component Analysis
 
 Sample-to-Sample Correlation Heatmap
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Hierarchical clustering of spearman correlation across samples.
+    This heatmap displays hierarchical clustering of spearman rank correlations across samples.
+    Highly correlated samples will cluster together and be represented in red. Samples that do not correlate will be represented in blue.
 
     .. image:: {heatmapSS_en}
 
@@ -227,6 +238,9 @@ Hierarchical clustering of spearman correlation across samples.
 
 Sample-Feature Correlation Heatmap
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    This heatmap illustrates hierarchical clustering of samples based on the top 5 percent or roughly 1000 most variable genes or "features."
+    The top colomn color annotations are presented to help identify how sample types, groups, or treatments are clustering together \(or not\).
+
 
     .. image:: {heatmapSF_en}
 
@@ -248,8 +262,11 @@ Differential Gene expression
 
 Volcano Plots
 ^^^^^^^^^^^^^^
-    Graphical representations of differentially expressed genes and statistical significance.
-    
+    Volcano plots are commonly used graphical representations of differentially expressed genes and statistical significance.
+    These scatter plots show log2 fold change versus P-value for all genes detected. Each data point represents a gene. Genes are colored red if the log2 fold change is greater than one \(log2fc > 1\). Genes are colored blue if the log2 fold change is less than negative one \(log2fc < -1\).
+    The plot title indicates the direction of the comparison.
+    For example, "treatment_vs_control" indicates that genes colored red are up-regulated in the treatment condition compared to the control condition with a statistically significant P-value.
+
 {volcano_string}
 
         """.format( unique_reads_en=unique_reads_en, rRNA_metrics_en=rRNA_metrics_en, read_distrib_en=read_distrib_en

@@ -1,0 +1,6 @@
+{
+  "sectionId": 4,
+  "sectionName": "Volcano-Plots",
+  "imageUrls": ["img/AlvMacsTreatvsVeh_volcano.png","img/CD8treatvsVeh_volcano.png","img/EpCamTreatvsVeh_volcano.png","img/NeutrophilsTreatvsVeh_volcano.png","img/TRegsTreatvsVeh_volcano.png"],
+  "desc": ""
+}

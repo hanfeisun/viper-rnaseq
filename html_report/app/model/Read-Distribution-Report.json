@@ -1,0 +1,6 @@
+{
+  "sectionId": 1,
+  "sectionName": "Read-Distribution-Report",
+  "imageUrls": ["img/read_distrib.png","img/geneBodyCoverage.curves.png","img/geneBodyCoverage.heatMap.png"],
+  "desc": ""
+}

@@ -1,0 +1,6 @@
+{
+  "sectionId": 3,
+  "sectionName": "Heatmaps",
+  "imageUrls": ["img/heatmapSS_plot.png","img/heatmapSS_cluster.png","img/heatmapSF_plot.png"],
+  "desc": ""
+}

@@ -11,9 +11,10 @@ viperAppControllers.controller('FullReportCtrl', ['$scope', '$http',
     });
   }]);
 
-viperAppControllers.controller('SectionReportCtrl', ['$scope', '$http', '$routeParams',
-  function($scope, $http, $routeParams) {
-    $http.get('app/model/' + $routeParams.sectionName + '.json').success(function(data) {
+viperAppControllers.controller('SectionReportCtrl', ['$scope', '$http', '$location',
+  function($scope, $http, $location) {
+    var cur_path = $location.path();
+    $http.get('/app/model' + cur_path + '.json').success(function(data) {
       $scope.report = data;
     });
   }]);
