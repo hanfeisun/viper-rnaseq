@@ -1,0 +1,87 @@
+---
+bed_file: /data/static_libraries/RefGene/refseqGenesHg19.bed
+#This is required only for PE data.
+genome_lib_dir: /home/lentaing/tmp/weinstock/newrun/ref_files/Hg19_CTAT_resource_lib
+#gtf_file: /home/lentaing/tmp/weinstock/newrun/ref_files/hg19.gtf
+gtf_file: /home/lentaing/tmp/weinstock/newrun/ref_files/Hg19_CTAT_resource_lib/ref_annot.gtf
+#metasheet: snakemake/metasheet.csv
+metasheet: metasheet.csv
+picard_path: /home/lentaing/setup_files/picard-tools-1.113
+python2: /usr/bin/python2.7
+ref_fasta: /data/static_libraries/assembly/humanhg19/rawgenome/hg19.fasta
+reference: hg19
+rseqc_path: /usr/local/bin
+star_index: /data/static_libraries/STAR/humanhg19/
+star_rRNA_index: /home/lentaing/tmp/weinstock/newrun/ref_files/humanhg38_ncrna/
+stranded: 'true'
+#??Ask Mahesh what this is
+library_type: 'fr-firststrand'
+varscan_jar_path: /home/lentaing/setup_files/varscan-master/VarScan.v2.4.1.jar
+
+
+#################
+#####PARAMS
+#################
+
+## Sample-Sample Heatmap params
+RPKM_threshold: 2.0
+min_num_samples_expressing_at_threshold: 4
+
+SSnumgenes: 250
+SFnumgenes: 1000
+
+num_kmeans_clust: 4
+
+
+
+#bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/hg19_genes.bed
+#genome_lib_dir: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/STAR_Fusion/Hg19_CTAT_resource_lib
+#gtf_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/genes_with_ERCC.gtf
+#metasheet: metasheet.csv
+#picard_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/picard-tools-1.115
+#python2: /apps/python-2.7.9/bin/python
+#ref_fasta: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_with_ERCC.fa
+#reference: hg19
+#rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/scripts
+#star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/STARIndex_with_ERCC/
+#star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STAR_index/
+#stranded: 'true'
+#library_type: 'fr-firststrand'
+
+samples:
+    IRJ57:
+        - /mnt/cfce-stor1/data/port/20160123_mbcf/160122_MP2683_NS500233_fastq/20160122-IRJ57-MP2683_S19_R1_001.fastq.gz
+    IRJ60:
+        - /mnt/cfce-stor1/data/port/20160123_mbcf/160122_MP2683_NS500233_fastq/20160122-IRJ60-MP2683_S20_R1_001.fastq.gz
+    IRJ63:
+        - /mnt/cfce-stor1/data/port/20160123_mbcf/160122_MP2683_NS500233_fastq/20160122-IRJ63-MP2683_S21_R1_001.fastq.gz
+    IRJ66:
+        - /mnt/cfce-stor1/data/port/20160123_mbcf/160122_MP2683_NS500233_fastq/20160122-IRJ66-MP2683_S22_R1_001.fastq.gz
+    IRJ69:
+        - /mnt/cfce-stor1/data/port/20160123_mbcf/160122_MP2683_NS500233_fastq/20160122-IRJ69-MP2683_S23_R1_001.fastq.gz
+    IRJ72:
+        - /mnt/cfce-stor1/data/port/20160123_mbcf/160122_MP2683_NS500233_fastq/20160122-IRJ72-MP2683_S24_R1_001.fastq.gz
+    IRJ56:
+        - /mnt/cfce-stor1/data/port/20160129_mbcf/160128_MP2689_NS500144_fastq/20160128-IRJ56-MP2689_S19_R1_001.fastq.gz
+    IRJ59:
+        - /mnt/cfce-stor1/data/port/20160129_mbcf/160128_MP2689_NS500144_fastq/20160128-IRJ59-MP2689_S20_R1_001.fastq.gz
+    IRJ62:
+        - /mnt/cfce-stor1/data/port/20160129_mbcf/160128_MP2689_NS500144_fastq/20160128-IRJ62-MP2689_S21_R1_001.fastq.gz
+    IRJ65:
+        - /mnt/cfce-stor1/data/port/20160129_mbcf/160128_MP2689_NS500144_fastq/20160128-IRJ65-MP2689_S22_R1_001.fastq.gz
+    IRJ68:
+        - /mnt/cfce-stor1/data/port/20160129_mbcf/160128_MP2689_NS500144_fastq/20160128-IRJ68-MP2689_S23_R1_001.fastq.gz
+    IRJ71:
+        - /mnt/cfce-stor1/data/port/20160129_mbcf/160128_MP2689_NS500144_fastq/20160128-IRJ71-MP2689_S24_R1_001.fastq.gz
+    IRJ55:
+        - /mnt/cfce-stor1/data/port/20160207_mbcf/160125_MP2688_NS500144_fastq/20160125-IRJ55-MP2688_S19_R1_001.fastq.gz
+    IRJ58:
+        - /mnt/cfce-stor1/data/port/20160207_mbcf/160125_MP2688_NS500144_fastq/20160125-IRJ58-MP2688_S20_R1_001.fastq.gz
+    IRJ61:
+        - /mnt/cfce-stor1/data/port/20160207_mbcf/160125_MP2688_NS500144_fastq/20160125-IRJ61-MP2688_S21_R1_001.fastq.gz
+    IRJ64:
+        - /mnt/cfce-stor1/data/port/20160207_mbcf/160125_MP2688_NS500144_fastq/20160125-IRJ64-MP2688_S22_R1_001.fastq.gz
+    IRJ67:
+        - /mnt/cfce-stor1/data/port/20160207_mbcf/160125_MP2688_NS500144_fastq/20160125-IRJ67-MP2688_S23_R1_001.fastq.gz
+    IRJ70:
+        - /mnt/cfce-stor1/data/port/20160207_mbcf/160125_MP2688_NS500144_fastq/20160125-IRJ70-MP2688_S24_R1_001.fastq.gz
