@@ -76,6 +76,7 @@ rule target:
         "analysis/plots/pca_plot.pdf",
         "analysis/plots/heatmapSS_plot.pdf",
         "analysis/plots/heatmapSF_plot.pdf",
+        "analysis/plots/sampleSNPcorr_plot.png",
         expand( "analysis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
         "analysis/RSeQC/read_distrib/read_distrib.png",
         expand( "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
@@ -86,6 +87,8 @@ rule target:
         expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
         "analysis/diffexp/de_summary.png",
+        expand( "analysis/snp/{sample}/{sample}.snp.txt", sample=ordered_sample_list ),
+        "analysis/snp/snp_corr.txt",
         fusion_output,
         insert_size_output,
         rRNA_metrics
@@ -611,3 +614,37 @@ rule volcano_plot:
         png = "analysis/plots/images/{comparison}_volcano.png"
     run:
         shell("Rscript snakemake/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")
+
+#call snps from the samples
+#NOTE: lots of duplicated code below!
+rule call_snps:
+    input:
+        bam="analysis/STAR/{sample}/{sample}.sorted.bam",
+        ref_fa=config["ref_fasta"],
+    output:
+        "analysis/snp/{sample}/{sample}.snp.txt"
+    params:
+        varscan_jar_path=config["varscan_jar_path"]
+    shell:
+        "samtools mpileup -f {input.ref_fa} {input.bam} | awk \'$4 != 0\' | "
+        "java -jar {params.varscan_jar_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
+
+#calculate sample snps correlation--ALL SAMPLES!
+rule sample_snps_corr:
+    input:
+        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.txt", sample=ordered_sample_list)
+    output:
+        "analysis/snp/snp_corr.txt"
+    run:
+        snps = " ".join(input.snps)
+        shell("{config[python2]} snakemake/scripts/sampleSNPcorr.py {snps}> {output}")
+
+rule snps_corr_plot:
+    input:
+        snp_corr="analysis/snp/snp_corr.txt",
+        annotFile=config['metasheet'],
+    output:
+        snp_plot_out="analysis/plots/sampleSNPcorr_plot.png"
+    run:
+        shell("Rscript snakemake/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
+
