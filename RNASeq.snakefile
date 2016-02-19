@@ -726,7 +726,7 @@ rule pca_plot:
         annotFile=config['metasheet']
     output:
         pca_plot_out="analysis/plots/pca_plot.pdf",
-        png_dir="analysis/plots/images/"
+        png_dir=temp("analysis/plots/images/")
 #    shell:
 #        "scripts/pca_plot.R"
     run:
