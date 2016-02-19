@@ -228,8 +228,11 @@ Principle Component Analysis
 """
 
     if 'pca_png_list' in file_dict:
-        report += "\n\t.. image:: " + "\n\t.. image:: ".join(file_dict['pca_png_list'][:-1]) + "\n"
-        report += "\n\t" + 'This plot indicates how much of the overall variance is described by the principle components in descending order.' + "\n\n\t.. image:: " + file_dict['pca_png_list'][-1] + "\n"
+        if len(file_dict['pca_png_list']) > 1:
+            report += "\n\t.. image:: " + "\n\t.. image:: ".join(file_dict['pca_png_list'][:-1]) + "\n"
+            report += "\n\t" + 'This plot indicates how much of the overall variance is described by the principle components in descending order.' + "\n\n\t.. image:: " + file_dict['pca_png_list'][-1] + "\n"
+        else:
+            report += "\n\t.. image:: " + "\n\t.. image:: ".join(file_dict['pca_png_list'][0]) + "\n"
 
     report += "\n"
     report += """
