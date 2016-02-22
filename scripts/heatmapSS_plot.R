@@ -46,12 +46,6 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     ## Calc. spearman correlation
     cordata <- cor(Exp_data, method="spearman")
 
-    ## make SS (sample-sample) heatmap
-    ma_nolym <- max(cordata)
-    mi_nolym <- min(cordata)
-    my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
-    param_text <- paste(RPKM_threshold, min_num_samples_expressing_at_threshold, SSnumgenes, sep=",")
-
     # NOTES on clustering, not used for now
     # Distance options: euclidean (default), maximum, canberra, binary, minkowski, manhattan
     # Cluster options: complete (default), single, average, mcquitty, median, centroid, ward
@@ -59,6 +53,12 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     rowcluster = hclust(rowdistance, method = "ward.D2")
     coldistance = dist(t(as.matrix(cordata)), method = "euclidean")
     colcluster = hclust(coldistance, method = "ward.D2")
+    
+    ## make SS (sample-sample) heatmap
+    ma_nolym <- max(cordata)
+    mi_nolym <- min(cordata)
+    my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
+    param_text <- paste(RPKM_threshold, min_num_samples_expressing_at_threshold, SSnumgenes, sep=",")
 
     pdf(file = ss_plot_out)
     

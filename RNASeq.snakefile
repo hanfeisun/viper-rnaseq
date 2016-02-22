@@ -23,15 +23,15 @@ file_info = defaultdict(list)
 ordered_sample_list = []
 run_fusion = False
 
-with open( config["metasheet"], "r" ) as meta_fh:
-    next(meta_fh)
-    for line in meta_fh:
-        info = line.strip().split(",")
-        file_info[info[0]] = config["samples"][info[0]]
-        if( len(file_info[info[0]]) == 2 ):
-            run_fusion = True
-        if info[0] not in ordered_sample_list:
-            ordered_sample_list.append(info[0])
+#with open( config["metasheet"], "r" ) as meta_fh:
+#    next(meta_fh)
+#    for line in meta_fh:
+#        info = line.strip().split(",")
+#        file_info[info[0]] = config["samples"][info[0]]
+#        if( len(file_info[info[0]]) == 2 ):
+#            run_fusion = True
+#        if info[0] not in ordered_sample_list:
+#            ordered_sample_list.append(info[0])
 
 if( run_fusion ):
     if( config["stranded"] ):
