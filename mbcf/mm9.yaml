@@ -30,3 +30,13 @@ reference: mm9
 python2: /apps/python-2.7.9/bin/python
 rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/scripts 
 picard_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/picard-tools-1.115  #This dependency will be added to conda in the near future; temp fix 
+
+# Tosh R code params
+RPKM_threshold: 2.0
+min_num_samples_expressing_at_threshold: 4
+
+SSnumgenes: 250
+SFnumgenes: 1000
+
+num_kmeans_clust: 4
+
