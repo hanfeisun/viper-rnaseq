@@ -6,21 +6,7 @@ limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out) {
     treatlist = strsplit(s2,',')[[1]]
     ctrllist = strsplit(s1,',')[[1]]
 
-    ## Build the raw count matrix by reading in each of the count files and appending them together
-    countmat <- do.call(cbind,lapply(counts,function(fn)read.table(fn,header=FALSE, sep="\t")[,3]))
-    #LEN: let's take GeneName instead of GeneSymbol
-    #genes <- read.table(counts[1], header=FALSE, sep="\t")[,1]
-    genes <- read.table(counts[1], header=FALSE, sep="\t")[,2]
-    rownames(countmat) <- genes
-    
-    #LEN: this doesn't work!
-    #colnames(countmat) = gsub("(counts/|.read_cnt.txt)",'',counts)
-    #GET SAMPLE names
-    samples = sapply(counts, function(path)strsplit(path,"/")[[1]][3], simplify=FALSE, USE.NAMES=FALSE)
-    #LEN: convert the above list to a vector
-    samples = unlist(samples)
-    colnames(countmat) = samples
-
+    countmat <- read.table(counts, header=TRUE, sep=",", row.names=1)
     ctrllist = countmat[ ,colnames(countmat) %in% ctrllist]
     treatlist = countmat[ ,colnames(countmat) %in% treatlist]
 
@@ -121,9 +107,10 @@ limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out) {
 }
 
 args <- commandArgs( trailingOnly = TRUE )
-arg_counts = strsplit(args[1]," ")[[1]]
+#arg_counts = strsplit(args[1]," ")[[1]]
 #arg_s1 = strsplit(args[2], ",")
 #arg_s2 = strsplit(args[3], ",")
+arg_counts = args[1]
 arg_s1 = args[2]
 arg_s2 = args[3]
 limma_out=args[4]

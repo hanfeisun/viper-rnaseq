@@ -23,15 +23,15 @@ file_info = defaultdict(list)
 ordered_sample_list = []
 run_fusion = False
 
-#with open( config["metasheet"], "r" ) as meta_fh:
-#    next(meta_fh)
-#    for line in meta_fh:
-#        info = line.strip().split(",")
-#        file_info[info[0]] = config["samples"][info[0]]
-#        if( len(file_info[info[0]]) == 2 ):
-#            run_fusion = True
-#        if info[0] not in ordered_sample_list:
-#            ordered_sample_list.append(info[0])
+with open( config["metasheet"], "r" ) as meta_fh:
+    next(meta_fh)
+    for line in meta_fh:
+        info = line.strip().split(",")
+        file_info[info[0]] = config["samples"][info[0]]
+        if( len(file_info[info[0]]) == 2 ):
+            run_fusion = True
+        if info[0] not in ordered_sample_list:
+            ordered_sample_list.append(info[0])
 
 if( run_fusion ):
     if( config["stranded"] ):
@@ -83,7 +83,6 @@ rule target:
         "analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         expand( "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=ordered_sample_list ),
         expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
-        expand( "analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=ordered_sample_list ),
         expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
         "analysis/diffexp/de_summary.png",
@@ -764,17 +763,6 @@ rule heatmapSF_plot:
 #PART 2.2- diffexp w/ DEseq
 #based on tosh's coppRhead/Snakefile
 
-## Get the raw counts for each sample
-rule gfold_count:
-    input:
-        bam="analysis/STAR/{sample}/{sample}.sorted.bam",
-        reference_genes=config["gtf_file"],
-    output:
-        "analysis/gfold/{sample}/{sample}.read_cnt.txt"
-    shell:
-        "samtools view {input.bam} | "
-        "gfold count -ann {input.reference_genes} -tag stdin -o {output}"
-
 ## Extract comparisons from the metadata file and perform gfold diff
 def get_column(comparison):
     return metadata["comp_{}".format(comparison)]
@@ -790,7 +778,7 @@ def get_samples(wildcards):
 ## Perform Limma and DEseq on comparisons
 rule limma_and_deseq:
     input:
-        counts = lambda wildcards: expand("analysis/gfold/{sample}/{sample}.read_cnt.txt", sample=get_samples(wildcards))
+        counts = "analysis/STAR/STAR_Gene_Counts.csv"
     output:
         limma = "analysis/diffexp/{comparison}/{comparison}.limma.txt",
         deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt",
@@ -802,8 +790,7 @@ rule limma_and_deseq:
 #        "scripts/DEseq.R"
 
     run:
-        counts = " ".join(input.counts)
-        shell("Rscript snakemake/scripts/DEseq.R \"{counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.deseqSum}")
+        shell("Rscript snakemake/scripts/DEseq.R \"{input.counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.deseqSum}")
 
 rule fetch_DE_gene_list:
     input:
