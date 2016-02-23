@@ -21,7 +21,7 @@ star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/
 gtf_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/genes_with_ERCC.gtf
 bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/hg19_genes_with_ERCC.bed
 ref_fasta: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_with_ERCC.fa
-star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STAR_index/
+star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STARIndex_rRNA/
 
 #Reference organism; possible value - hg19, mm9 etc.
 reference: hg19
