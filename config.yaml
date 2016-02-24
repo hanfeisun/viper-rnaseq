@@ -29,7 +29,8 @@ SFnumgenes: 1000
 
 num_kmeans_clust: 4
 
-
+#Turn on the following if you want a genome wide snp scan in addition to chr6 scan
+#snp_scan_genome: "True"
 
 samples:
   P4_OE1:
