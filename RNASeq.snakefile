@@ -755,10 +755,11 @@ rule heatmapSF_plot:
     params:
         RPKM_threshold = config["RPKM_threshold"],
         min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
+        filter_mirna = config["filter_mirna"],
         SFnumgenes = config["SFnumgenes"],
         num_kmeans_clust = config["num_kmeans_clust"]
     run:
-        shell("Rscript snakemake/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.SFnumgenes} {params.num_kmeans_clust} {output.sf_plot_out} {output.sf_txt_out}")
+        shell("Rscript snakemake/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SFnumgenes} {params.num_kmeans_clust} {output.sf_plot_out} {output.sf_txt_out}")
 
 #PART 2.2- diffexp w/ DEseq
 #based on tosh's coppRhead/Snakefile

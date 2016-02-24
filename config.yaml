@@ -21,13 +21,15 @@ varscan_jar_path: /home/lentaing/setup_files/varscan-master/VarScan.v2.4.1.jar
 #################
 
 ## Sample-Sample Heatmap params
-RPKM_threshold: 2.0
-min_num_samples_expressing_at_threshold: 4
+RPKM_threshold: "2.0"
+min_num_samples_expressing_at_threshold: "4"
 
-SSnumgenes: 250
-SFnumgenes: 1000
+filter_mirna: "TRUE"
 
-num_kmeans_clust: 4
+SSnumgenes: "250"
+SFnumgenes: "1000"
+
+num_kmeans_clust: "4"
 
 
 

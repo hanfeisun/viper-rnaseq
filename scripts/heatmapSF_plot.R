@@ -20,7 +20,7 @@ suppressMessages(source('snakemake/scripts/supp_fns.R'))
 #enable stack trace
 options(error = function() traceback(2))
 
-heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,SFnumgenes,num_kmeans_clust, sf_plot_out,sf_txt_out) {
+heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SFnumgenes,num_kmeans_clust, sf_plot_out,sf_txt_out) {
     #RPKM_THRESHOLD <- 2.0
     #MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
     #NUM_GENES <- 22000 #roughly how many human genes there are
@@ -34,6 +34,12 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
 
     #log transform of data
     newdata <- log2(newdata+1)
+
+    ## Removing Sno and Mir mrna, parameterized
+    if (filter_mirna == TRUE) {
+        newdata <- newdata[-grep("MIR[[:digit:]]*",rownames(newdata)), ]
+        newdata <- newdata[-grep("SNO.*",rownames(newdata)), ]
+    }
 
     #Calculate CVs for all genes (rows)
     mean_rpkm_nolym <- apply(newdata,1,mean)
@@ -62,26 +68,54 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     
     ha1 <- make_complexHeatmap_annotation(tmp_ann)
 
-    #if (num_kmeans_clust == 0) {
-    #    kmparam = FALSE
-    #    rowclusterparam = rowcluster
-    #}
-
-    #if (length(num_kmeans_clust) == 1) {
-    if (is.numeric(num_kmeans_clust) == TRUE) {
-        kmparam = num_kmeans_clust
-        rowclusterparam = FALSE
-    }
-
-    #if (length(num_kmeans_clust) > 1) {
-    if (is.character(num_kmeans_clust) == TRUE) {
-        num_kmeans_clust = as.numeric(unlist(strsplit(num_kmeans_clust,",")))
-        kmparam = sort(num_kmeans_clust, decreasing=TRUE)
-        rowclusterparam = FALSE
-    }
-            
+    if (is.numeric(num_kmeans_clust) == TRUE) {kmparam = num_kmeans_clust}
+    if (is.character(num_kmeans_clust) == TRUE) {kmparam = as.numeric(unlist(strsplit(num_kmeans_clust,",")))}
+    
     for (i in 1:length(kmparam)) {
+        rowclusterparam = FALSE
         if (kmparam[i] == 0) {
+            kmparam[i] = FALSE
+            rowclusterparam = rowcluster
+        }
+        mapplot <- Heatmap(t(as.matrix(Exp_data)),
+                     col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
+                     #heatmap_legend_param = list(title = "exp. level"),
+                     column_title = "Sample-Feature Correlation",
+                     #REMOVErow_title = "Samples",
+                     show_row_names = TRUE, show_column_names = TRUE,
+                     #row_names_max_width = unit(3, "mm"),
+                     row_names_gp = gpar(fontsize = 12),
+                     column_names_gp = gpar(fontsize = 8),
+                     #cluster_rows = TRUE,
+                     #cluster_columns=TRUE,
+                     cluster_rows = rowclusterparam,
+                     km = kmparam[i],
+                     cluster_columns = colcluster,
+                     show_heatmap_legend = FALSE,
+                     #row_dend_width = unit(5, "mm"),
+                     #width=unit(60,"cm"),
+                     top_annotation=ha1,
+                     )
+        draw(mapplot)
+        for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
+            decorate_annotation(an, {
+                grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc",
+                          just = "left", gp=gpar(fontsize=5), check=TRUE)
+                grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc",
+                          just = "right", gp=gpar(fontsize=5), check=TRUE)
+            })
+        }
+    }
+    dev.off()
+        
+    ## For now, repeating everything for PNG, should probably change this
+
+    #png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300) 
+    png(file="analysis/plots/images/heatmapSF_%2d_plot.png", width = 8, height = 8, unit="in",res=300)
+    
+    for (i in 1:length(kmparam)) {
+        rowclusterparam = FALSE 
+        if (kmparam[i] == 0|FALSE) {
             kmparam[i] = FALSE
             rowclusterparam = rowcluster
         }
@@ -93,7 +127,7 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
                      show_row_names = FALSE, show_column_names = TRUE,
                      #row_names_max_width = unit(3, "mm"),
                      row_names_gp = gpar(fontsize = 12),
-                     column_names_gp = gpar(fontsize = 12),
+                     column_names_gp = gpar(fontsize = 8),
                      #cluster_rows = TRUE,
                      #cluster_columns=TRUE,
                      cluster_rows = rowclusterparam,
@@ -103,39 +137,44 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
                      #row_dend_width = unit(5, "mm"),
                      #width=unit(60,"cm"),
                      top_annotation=ha1,
-                        )
+                     )
         draw(mapplot)
         for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
             decorate_annotation(an, {
-                grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
-                grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
+                grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc",
+                          just = "left", gp=gpar(fontsize=5), check=TRUE)
+                grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc",
+                          just = "right", gp=gpar(fontsize=5), check=TRUE)
             })
         }
     }
     dev.off()
-    
-    png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300)
-    draw(mapplot)
-    for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
-        decorate_annotation(an, {
-            grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
-            grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
-        })
-    }
-    dev.off()
 
+    ########row_order(mapplot)
+    ########column_order(mapplot)
+    
     #WRITE output to file
     #output<-as.matrix(Exp_data)#[rev(Exp_data$rowInd), Exp_data$colInd]
 
+    #if (kmparam[1] != 0) {
+        #km1 = kmeans(as.matrix(t(Exp_data)), centers=kmparam[1])
+        #kmclust = km1$cluster
+        #output<-as.matrix(t(Exp_data))
+        #out <- cbind(output, clusterNum = kmclust)
 
-    #if (num_kmeans_clust[1] == 0) use this as written
-    
-    #if (num_kmeans_clust[1] != 0) do kmeans, and use those
-    
-    output<-as.matrix(t(Exp_data))
-    output<-output[rowcluster$order, colcluster$order]
-    #output<-t(output)
-    write.table(output, file=sf_txt_out, quote=F, col.names = NA, sep="\t")
+        #output<-as.matrix(t(Exp_data))
+        #mapplot<-Heatmap(output, km = kmparam[1], cluster_columns = colcluster)
+        #output<-output[unlist(row_order(mapplot)), unlist(column_order(mapplot))]
+        #write.table(output, file=sf_txt_out, quote=F, col.names = NA, sep="\t")
+    #### IN PROGRESS
+    #}    
+
+    #if (kmparam[1] == 0) {
+        output<-as.matrix(t(Exp_data))
+        mapplot<-Heatmap(output, cluster_rows = rowcluster, cluster_columns = colcluster)
+        output<-output[unlist(row_order(mapplot)), unlist(column_order(mapplot))]
+        write.table(output, file=sf_txt_out, quote=F, col.names = NA, sep="\t")
+    #}
 }
 
 
@@ -145,10 +184,11 @@ rpkmFile=args[1]
 annotFile=args[2]
 RPKM_threshold=args[3]
 min_num_samples_expressing_at_threshold=args[4]
-SFnumgenes=args[5]
-num_kmeans_clust=args[6]
-sf_plot_out=args[7]
-sf_txt_out=args[8]
+filter_mirna=args[5]
+SFnumgenes=args[6]
+num_kmeans_clust=args[7]
+sf_plot_out=args[8]
+sf_txt_out=args[9]
 
 ## Process RPKM file
 rpkmTable <- read.table(rpkmFile, check.names=F, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
@@ -177,4 +217,4 @@ samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
 
 ## Run the function
-heatmapSF_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,SFnumgenes,num_kmeans_clust, sf_plot_out,sf_txt_out)
+heatmapSF_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SFnumgenes,num_kmeans_clust, sf_plot_out,sf_txt_out)
