@@ -39,6 +39,8 @@ if( run_fusion ):
     else:
         strand_command = " --outFilterIntronMotifs RemoveNoncanonicalUnannotated --outReadsUnmapped None --chimSegmentMin 12 --chimJunctionOverhangMin 12 --alignSJDBoverhangMin 10 --alignMatesGapMax 200000 --alignIntronMax 200000 --outSAMstrandField intronMotif"
 
+#GENERATE snp regions list:
+snp_regions = ['chr6', 'genome'] if ('snp_scan_genome' in config) and config['snp_scan_genome'] else ['chr6']
 
 def get_fastq(wildcards):
     return file_info[wildcards.sample]
@@ -76,7 +78,6 @@ rule target:
         "analysis/plots/pca_plot.pdf",
         "analysis/plots/heatmapSS_plot.pdf",
         "analysis/plots/heatmapSF_plot.pdf",
-        "analysis/plots/sampleSNPcorr_plot.png",
         expand( "analysis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
         "analysis/RSeQC/read_distrib/read_distrib.png",
         expand( "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png", sample=ordered_sample_list ),
@@ -86,8 +87,9 @@ rule target:
         expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
         "analysis/diffexp/de_summary.png",
-        expand( "analysis/snp/{sample}/{sample}.snp.txt", sample=ordered_sample_list ),
-        "analysis/snp/snp_corr.txt",
+        expand( "analysis/snp/{sample}/{sample}.snp.{region}.txt", sample=ordered_sample_list, region=snp_regions ),
+        expand( "analysis/snp/snp_corr.{region}.txt", region=snp_regions ),
+        expand( "analysis/plots/sampleSNPcorr_plot.{region}.png", region=snp_regions),
         fusion_output,
         insert_size_output,
         rRNA_metrics
@@ -815,35 +817,73 @@ rule volcano_plot:
         shell("Rscript snakemake/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")
 
 #call snps from the samples
-#NOTE: lots of duplicated code below!
-rule call_snps:
+#NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
+#for genome-wide
+#------------------------------------------------------------------------------
+# snp calling for chr6 (default)
+#------------------------------------------------------------------------------
+rule call_snps_chr6:
     input:
         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
         ref_fa=config["ref_fasta"],
     output:
-        "analysis/snp/{sample}/{sample}.snp.txt"
+        "analysis/snp/{sample}/{sample}.snp.chr6.txt"
+    params:
+        varscan_jar_path=config["varscan_jar_path"]
+    shell:
+        "samtools mpileup -r \"chr6\" -f {input.ref_fa} {input.bam} | awk \'$4 != 0\' | "
+        "java -jar {params.varscan_jar_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
+
+#calculate sample snps correlation using all samples
+rule sample_snps_corr_chr6:
+    input:
+        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.chr6.txt", sample=ordered_sample_list)
+    output:
+        "analysis/snp/snp_corr.chr6.txt"
+    run:
+        snps = " ".join(input.snps)
+        shell("{config[python2]} snakemake/scripts/sampleSNPcorr.py {snps}> {output}")
+
+rule snps_corr_plot_chr6:
+    input:
+        snp_corr="analysis/snp/snp_corr.chr6.txt",
+        annotFile=config['metasheet'],
+    output:
+        snp_plot_out="analysis/plots/sampleSNPcorr_plot.chr6.png"
+    run:
+        shell("Rscript snakemake/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
+
+#------------------------------------------------------------------------------
+# snp calling GENOME wide (hidden config.yaml flag- 'snp_scan_genome:True'
+#------------------------------------------------------------------------------
+
+rule call_snps_genome:
+    input:
+        bam="analysis/STAR/{sample}/{sample}.sorted.bam",
+        ref_fa=config["ref_fasta"],
+    output:
+        "analysis/snp/{sample}/{sample}.snp.genome.txt"
     params:
         varscan_jar_path=config["varscan_jar_path"]
     shell:
         "samtools mpileup -f {input.ref_fa} {input.bam} | awk \'$4 != 0\' | "
         "java -jar {params.varscan_jar_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
 
-#calculate sample snps correlation--ALL SAMPLES!
-rule sample_snps_corr:
+rule sample_snps_corr_genome:
     input:
-        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.txt", sample=ordered_sample_list)
+        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.genome.txt", sample=ordered_sample_list)
     output:
-        "analysis/snp/snp_corr.txt"
+        "analysis/snp/snp_corr.genome.txt"
     run:
         snps = " ".join(input.snps)
         shell("{config[python2]} snakemake/scripts/sampleSNPcorr.py {snps}> {output}")
 
-rule snps_corr_plot:
+rule snps_corr_plot_genome:
     input:
-        snp_corr="analysis/snp/snp_corr.txt",
+        snp_corr="analysis/snp/snp_corr.genome.txt",
         annotFile=config['metasheet'],
     output:
-        snp_plot_out="analysis/plots/sampleSNPcorr_plot.png"
+        snp_plot_out="analysis/plots/sampleSNPcorr_plot.genome.png"
     run:
         shell("Rscript snakemake/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
 
