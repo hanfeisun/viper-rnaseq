@@ -19,7 +19,8 @@ echo y | conda install -c https://conda.anaconda.org/bioconda \
         bioconductor-complexheatmap \
         r-dendextend \
         r-viridis \
-        r-calibrate
+        r-calibrate \
+	r-gplots
 
 echo y | conda install -c https://conda.anaconda.org/hcc \
 	ucsc-tools
