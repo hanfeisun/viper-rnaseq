@@ -44,5 +44,7 @@ SFnumgenes: 1000
 
 num_kmeans_clust: 4
 
+filter_mirna: "TRUE"
+
 # Varscan - default turned off 
 snp_scan_genome: "FALSE"
