@@ -111,7 +111,7 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     ## For now, repeating everything for PNG, should probably change this
 
     #png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300) 
-    png(file="analysis/plots/images/heatmapSF_%2d_plot.png", width = 8, height = 8, unit="in",res=300)
+    png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300)
     
     for (i in 1:length(kmparam)) {
         rowclusterparam = FALSE 
