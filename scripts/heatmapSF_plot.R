@@ -110,7 +110,40 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
         }
         dev.off()
         
+<<<<<<< HEAD
         ## Repeated to get into the pdf
+=======
+    ## For now, repeating everything for PNG, should probably change this
+
+    #png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300) 
+    png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300)
+    
+    for (i in 1:length(kmparam)) {
+        rowclusterparam = FALSE 
+        if (kmparam[i] == 0|FALSE) {
+            kmparam[i] = FALSE
+            rowclusterparam = rowcluster
+        }
+        mapplot <-Heatmap(t(as.matrix(Exp_data)),
+                     col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
+                     #heatmap_legend_param = list(title = "exp. level"),
+                     column_title = "Sample-Feature Correlation",
+                     #REMOVErow_title = "Samples",
+                     show_row_names = FALSE, show_column_names = TRUE,
+                     #row_names_max_width = unit(3, "mm"),
+                     row_names_gp = gpar(fontsize = 12),
+                     column_names_gp = gpar(fontsize = 8),
+                     #cluster_rows = TRUE,
+                     #cluster_columns=TRUE,
+                     cluster_rows = rowclusterparam,
+                     km = kmparam[i],
+                     cluster_columns = colcluster,
+                     show_heatmap_legend = FALSE,
+                     #row_dend_width = unit(5, "mm"),
+                     #width=unit(60,"cm"),
+                     top_annotation=ha1,
+                     )
+>>>>>>> f4e4c8458ceb02b8399ff44284b6ae094fd46cdd
         draw(mapplot)
         for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
             decorate_annotation(an,

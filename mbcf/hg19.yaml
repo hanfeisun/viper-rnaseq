@@ -44,4 +44,8 @@ SFnumgenes: 1000
 
 num_kmeans_clust: 4
 
+filter_mirna: "TRUE"
 
+# Varscan - default turned off 
+snp_scan_genome: "FALSE"
+varscan_jar_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/varscan/VarScan.v2.3.9.jar
