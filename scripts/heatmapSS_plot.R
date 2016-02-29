@@ -72,8 +72,8 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
                      #row_title = "Samples",
                      show_row_names = TRUE, show_column_names = TRUE,
                      #row_names_max_width = unit(3, "mm"),
-                     row_names_gp = gpar(fontsize = 12),
-                     column_names_gp = gpar(fontsize = 12),
+                     row_names_gp = gpar(fontsize = 6),
+                     column_names_gp = gpar(fontsize = 6),
                      #cluster_rows = TRUE,
                      #cluster_columns=TRUE,
                      cluster_rows = rowcluster,
@@ -130,9 +130,8 @@ rpkmTable <- read.table(rpkmFile, header=T, row.names=1, sep=",", stringsAsFacto
 for (n in names(rpkmTable)) {
     # CONVERT to numeric!
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
-    # replace NA
-    #na.omit(rpkmTable)
 }
+rpkmTable = na.omit(rpkmTable)
 
 ## PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
