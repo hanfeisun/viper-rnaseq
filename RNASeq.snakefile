@@ -23,15 +23,15 @@ file_info = defaultdict(list)
 ordered_sample_list = []
 run_fusion = False
 
-with open( config["metasheet"], "r" ) as meta_fh:
-    next(meta_fh)
-    for line in meta_fh:
-        info = line.strip().split(",")
-        file_info[info[0]] = config["samples"][info[0]]
-        if( len(file_info[info[0]]) == 2 ):
-            run_fusion = True
-        if info[0] not in ordered_sample_list:
-            ordered_sample_list.append(info[0])
+#with open( config["metasheet"], "r" ) as meta_fh:
+#    next(meta_fh)
+#    for line in meta_fh:
+#        info = line.strip().split(",")
+#        file_info[info[0]] = config["samples"][info[0]]
+#        if( len(file_info[info[0]]) == 2 ):
+#            run_fusion = True
+#        if info[0] not in ordered_sample_list:
+#            ordered_sample_list.append(info[0])
 
 if( run_fusion ):
     if( config["stranded"] ):
@@ -886,4 +886,20 @@ rule snps_corr_plot_genome:
         snp_plot_out="analysis/plots/sampleSNPcorr_plot.genome.png"
     run:
         shell("Rscript snakemake/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
+
+## Perform Correlation analysis between limma diff files
+#rule correlation_plot:
+#    input:
+#        diffiles = expand("diff/{comparison}.diff.txt", comparison=comparisons),
+#        meta = config["metasheet"]
+#    output:
+#        correlation_plot = "output/correlation_plot.pdf",
+#        correlation_table = "output/correlation_table.csv",
+#        upvenn_plot = "output/upvenn_plot.pdf",
+#        downvenn_plot = "output/downvenn_plot.pdf"
+#    params:
+#        numgenes = config["SFnumgenes"]
+#   script:
+#        "scripts/correlation_plot.R"
+
 

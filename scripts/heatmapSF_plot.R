@@ -21,10 +21,6 @@ suppressMessages(source('snakemake/scripts/supp_fns.R'))
 options(error = function() traceback(2))
 
 heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SFnumgenes,num_kmeans_clust, sf_plot_out,sf_txt_out) {
-    #RPKM_THRESHOLD <- 2.0
-    #MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
-    #NUM_GENES <- 22000 #roughly how many human genes there are
-    #NUM_GENES_TO_CLUSTER <- NUM_GENES * 0.05 #cluster top 5%
 
     #readin and process newdata
     newdata <- rpkmTable
@@ -49,14 +45,6 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     #Select out the most highly variable genes into the dataframe 'Exp_data'
     Exp_data <- newdata[order(cv_rpkm_nolym,decreasing=T)[1:SFnumgenes],]
 
-    # NOTES on clustering, not used for now
-    # Distance options: euclidean (default), maximum, canberra, binary, minkowski, manhattan
-    # Cluster options: complete (default), single, average, mcquitty, median, centroid, ward
-    rowdistance = dist(as.matrix(Exp_data), method = "euclidean")
-    rowcluster = hclust(rowdistance, method = "ward.D2")
-    coldistance = dist(t(as.matrix(Exp_data)), method = "euclidean")
-    colcluster = hclust(coldistance, method = "ward.D2")
-        
     #make SF (sample-feature) heatmap
     Exp_data <- apply(Exp_data,1,function(x) zscore(x))
     ma_nolym <- max(Exp_data)
@@ -64,117 +52,85 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     my.breaks_nolym<-c(-3,seq(-2.5,2.5,length.out=99),3)
     param_text <- paste(RPKM_threshold, min_num_samples_expressing_at_threshold, SFnumgenes, sep=",")
 
-    pdf(file = sf_plot_out, width=11,height=8.5)
+    Exp_data = t(as.matrix(Exp_data))
     
     ha1 <- make_complexHeatmap_annotation(tmp_ann)
 
+    coldistance = dist(t(Exp_data), method = "euclidean")
+    colcluster = hclust(coldistance, method = "ward.D2")
+    
     if (is.numeric(num_kmeans_clust) == TRUE) {kmparam = num_kmeans_clust}
     if (is.character(num_kmeans_clust) == TRUE) {kmparam = as.numeric(unlist(strsplit(num_kmeans_clust,",")))}
+   
+    pdf(file = sf_plot_out, width=11,height=8.5) 
     
+    png_count = 0
     for (i in 1:length(kmparam)) {
-        rowclusterparam = FALSE
         if (kmparam[i] == 0) {
-            kmparam[i] = FALSE
+            rowdistance = dist(Exp_data, method = "euclidean")
+            rowcluster = hclust(rowdistance, method = "ward.D2")
             rowclusterparam = rowcluster
+            hmdata = Exp_data
         }
-        mapplot <- Heatmap(t(as.matrix(Exp_data)),
+        
+        if (kmparam[i] != 0) {
+            km1 = kmeans(Exp_data, centers=kmparam[1])
+            kmclust = km1$cluster
+            kmclustsort = sort(kmclust)
+            ind = match(names(kmclustsort), rownames(Exp_data))
+            hmdata = Exp_data[ind,]
+            rowclusterparam = FALSE
+        }
+        
+        mapplot <- Heatmap(hmdata,
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
                      #heatmap_legend_param = list(title = "exp. level"),
                      column_title = "Sample-Feature Correlation",
-                     #REMOVErow_title = "Samples",
                      show_row_names = TRUE, show_column_names = TRUE,
                      #row_names_max_width = unit(3, "mm"),
                      row_names_gp = gpar(fontsize = 12),
                      column_names_gp = gpar(fontsize = 8),
-                     #cluster_rows = TRUE,
-                     #cluster_columns=TRUE,
                      cluster_rows = rowclusterparam,
-                     km = kmparam[i],
                      cluster_columns = colcluster,
                      show_heatmap_legend = FALSE,
                      #row_dend_width = unit(5, "mm"),
                      #width=unit(60,"cm"),
                      top_annotation=ha1,
                      )
-        draw(mapplot)
-        for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
-            decorate_annotation(an, {
-                grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc",
-                          just = "left", gp=gpar(fontsize=5), check=TRUE)
-                grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc",
-                          just = "right", gp=gpar(fontsize=5), check=TRUE)
-            })
-        }
-    }
-    dev.off()
         
-    ## For now, repeating everything for PNG, should probably change this
-
-    #png(file="analysis/plots/images/heatmapSF_plot.png", width = 8, height = 8, unit="in",res=300) 
-    png(file="analysis/plots/images/heatmapSF_%2d_plot.png", width = 8, height = 8, unit="in",res=300)
-    
-    for (i in 1:length(kmparam)) {
-        rowclusterparam = FALSE 
-        if (kmparam[i] == 0|FALSE) {
-            kmparam[i] = FALSE
-            rowclusterparam = rowcluster
-        }
-        mapplot <-Heatmap(t(as.matrix(Exp_data)),
-                     col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
-                     #heatmap_legend_param = list(title = "exp. level"),
-                     column_title = "Sample-Feature Correlation",
-                     #REMOVErow_title = "Samples",
-                     show_row_names = FALSE, show_column_names = TRUE,
-                     #row_names_max_width = unit(3, "mm"),
-                     row_names_gp = gpar(fontsize = 12),
-                     column_names_gp = gpar(fontsize = 8),
-                     #cluster_rows = TRUE,
-                     #cluster_columns=TRUE,
-                     cluster_rows = rowclusterparam,
-                     km = kmparam[i],
-                     cluster_columns = colcluster,
-                     show_heatmap_legend = FALSE,
-                     #row_dend_width = unit(5, "mm"),
-                     #width=unit(60,"cm"),
-                     top_annotation=ha1,
-                     )
+        ## First drawing into png
+        png_count = png_count+1
+        png(file=paste("/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/plots/images/heatmapSF_",png_count,"_plot.png",sep=""), width = 8, height = 8, unit="in",res=300)
         draw(mapplot)
         for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
-            decorate_annotation(an, {
-                grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc",
-                          just = "left", gp=gpar(fontsize=5), check=TRUE)
-                grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc",
-                          just = "right", gp=gpar(fontsize=5), check=TRUE)
-            })
+            decorate_annotation(an,
+              {grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
+              grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
+              })
+        }
+        dev.off()
+        
+        ## Repeated to get into the pdf
+        draw(mapplot)
+        for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
+            decorate_annotation(an,
+              {grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
+              grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
+              })
+        }
+        if (i == 1) {
+            if (kmparam[1] == 0) {
+                output<-Exp_data
+                output<-output[unlist(row_order(mapplot)), unlist(column_order(mapplot))]
+                write.table(output, file=sf_txt_out, quote=F, col.names = NA, sep="\t")
+            }
+            if (kmparam[1] != 0) {
+                output = cbind(hmdata,kmclustsort)
+                write.table(output, file=sf_txt_out, quote=F, col.names = NA, sep="\t")
+            }
         }
     }
-    dev.off()
-
-    ########row_order(mapplot)
-    ########column_order(mapplot)
-    
-    #WRITE output to file
-    #output<-as.matrix(Exp_data)#[rev(Exp_data$rowInd), Exp_data$colInd]
-
-    #if (kmparam[1] != 0) {
-        #km1 = kmeans(as.matrix(t(Exp_data)), centers=kmparam[1])
-        #kmclust = km1$cluster
-        #output<-as.matrix(t(Exp_data))
-        #out <- cbind(output, clusterNum = kmclust)
-
-        #output<-as.matrix(t(Exp_data))
-        #mapplot<-Heatmap(output, km = kmparam[1], cluster_columns = colcluster)
-        #output<-output[unlist(row_order(mapplot)), unlist(column_order(mapplot))]
-        #write.table(output, file=sf_txt_out, quote=F, col.names = NA, sep="\t")
-    #### IN PROGRESS
-    #}    
-
-    #if (kmparam[1] == 0) {
-        output<-as.matrix(t(Exp_data))
-        mapplot<-Heatmap(output, cluster_rows = rowcluster, cluster_columns = colcluster)
-        output<-output[unlist(row_order(mapplot)), unlist(column_order(mapplot))]
-        write.table(output, file=sf_txt_out, quote=F, col.names = NA, sep="\t")
-    #}
+    dev.off()        
 }
 
 
