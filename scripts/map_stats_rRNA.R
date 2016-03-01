@@ -14,6 +14,8 @@ x1 <- melt(x, id.var="Sample")
 png( args[2], width = 8, height = 8, unit="in",res=300 )
 
 upper_limit <- max(x$rRNA_Reads)
+limits <- seq( 0, upper_limit, length.out=10)
+
 if( upper_limit > 1 ) { 
 	limits <- round(limits)
 }else {
