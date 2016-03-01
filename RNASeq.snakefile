@@ -171,11 +171,7 @@ Read Distribution QC
     report += """
 rRNA removal QC
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    This graph displays the percentage of reads mapping to ribosomal RNA reference sequences.
-    Most RNAseq library prep methods are designed to avoid sampling ribosomal RNAs that in some cases can greater than 80% of total RNA.
-    *mRNAseq* library prep methods address this issue by using oligo-dT RT priming or capture beads to enrich for polyadenylated transcripts. *totalRNAseq* library prep methods address this problem by selectivel depleting rRNAs.
-    Analyzing reads mapping to rRNA is a useful metric to assess the effectiveness of either mRNA enrichment or rRNA depletion.
-    For **mRNAseq prep methods ~5% rRNA** read mapping is typical. It should be **<10% for totalRNAseq**. Higher percentages may indicate poor mRNA enrichment or rRNA depletion.
+    This graph displays the percentage of reads mapping to ribosomal RNA reference sequences. Most RNAseq library prep methods are designed to avoid sampling ribosomal RNAs which typically represent greater than 80% of total RNA. If rRNA removal was effective, less than 5% of the reads should map to rRNA sequences and for mRNA libraries fewer than 1%.
 """
 
     if 'rRNA_report' in file_dict:
@@ -295,7 +291,7 @@ Volcano Plots
 
     return report + "\n"
 
-rule report_test:
+rule generate_report:
     input:
     output:
         "report.html"
