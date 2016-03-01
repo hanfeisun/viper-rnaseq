@@ -40,7 +40,7 @@ if( run_fusion ):
         strand_command = " --outFilterIntronMotifs RemoveNoncanonicalUnannotated --outReadsUnmapped None --chimSegmentMin 12 --chimJunctionOverhangMin 12 --alignSJDBoverhangMin 10 --alignMatesGapMax 200000 --alignIntronMax 200000 --outSAMstrandField intronMotif"
 
 #GENERATE snp regions list:
-snp_regions = ['chr6', 'genome'] if ('snp_scan_genome' in config) and config['snp_scan_genome'] else ['chr6']
+snp_regions = ['chr6', 'genome'] if ('snp_scan_genome' in config) and config['snp_scan_genome'] == 'true' else ['chr6']
 
 def get_fastq(wildcards):
     return file_info[wildcards.sample]
