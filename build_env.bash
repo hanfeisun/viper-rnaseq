@@ -17,6 +17,7 @@ echo y | conda install -c https://conda.anaconda.org/bioconda \
         bioconductor-deseq2 \
         bioconductor-edger \
         bioconductor-complexheatmap \
+        bioconductor-biomart\
         r-dendextend \
         r-viridis \
         r-calibrate \
