@@ -5,11 +5,11 @@ library(edgeR)
 limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out) {
     treatlist = strsplit(s2,',')[[1]]
     ctrllist = strsplit(s1,',')[[1]]
-
     countmat <- read.table(counts, header=TRUE, sep=",", row.names=1)
+
     ctrllist = countmat[ ,colnames(countmat) %in% ctrllist]
     treatlist = countmat[ ,colnames(countmat) %in% treatlist]
-
+   
     ntreat = ncol(treatlist)
     nctrl = ncol(ctrllist)
 
