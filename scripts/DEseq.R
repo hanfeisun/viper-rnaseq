@@ -1,9 +1,9 @@
 library(limma)
 library(DESeq2)
 library(edgeR)
-library(biomaRt)
+#library(biomaRt)
 
-limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out, biomart_dset) {
+limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out, gene_annotation) {
     treatlist = strsplit(s2,',')[[1]]
     ctrllist = strsplit(s1,',')[[1]]
     countmat <- read.table(counts, header=TRUE, sep=",", row.names=1)
@@ -101,6 +101,7 @@ limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out, biomart
         limma_result = preparationL(data,ntreat,nctrl)
         limma_result <- cbind(ID=rownames(limma_result), limma_result)
         write.table(limma_result,limma,sep='\t',col.names=T,row.names=F,quote=F)
+        write.table(limma_result,paste(limma, "csv", sep="."),sep=',',col.names=T,row.names=F,quote=F)
     }
     #LEN: setting the first column name to 'id'
     deseq_result <- cbind(id=rownames(deseq_result), as.matrix(deseq_result))
@@ -108,45 +109,42 @@ limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, deseqSum_out, biomart
     deseq_result <-deseq_result[order(as.numeric(deseq_result[,"padj"]), na.last = NA),]
     #WRITE output deseq
     write.table(deseq_result,deseq,sep='\t',col.names=T,row.names=F,quote=F)
+    write.table(deseq_result,paste(deseq, "csv", sep="."),sep=',',col.names=T,row.names=F,quote=F)
 
-    #LEN: annotate w/ biomaRt
-    mymart = useMart(biomart="ensembl", dataset=biomart_dset)
-    gene_annots <- getBM(attributes=c("hgnc_symbol", "ensembl_gene_id"), filters=c("hgnc_symbol"), values=deseq_result[,1], mart=mymart)
-    colnames(gene_annots) <- c("id", "EnsemblID")
-    gene_annots <- merge(deseq_result, gene_annots, by= "id", all = TRUE)
+    #ANNOTATE w/ local .csv biomart annotation file
+    gene_annot <- read.table(gene_annotation, header=TRUE, sep=",", fill=TRUE)
+    gene_annot <- merge(deseq_result, gene_annot, by= "id", all.x = TRUE, sort=FALSE)
+    #LEN:  sort by padj. and remove padj = NA
+    #gene_annot <- gene_annot[order(as.numeric(gene_annot[,"padj"]), na.last = NA),]
+    write.table(gene_annot,paste(deseq, "annot", sep="."),sep='\t',col.names=T,row.names=F,quote=F)
+    write.table(gene_annot,paste(deseq, "annot", "csv", sep="."),sep=',',col.names=T,row.names=F,quote=F)
 
-    #LEN: Get entrezid, gene description-- LEAVE out GO terms
-    foo <- getBM(attributes=c("ensembl_gene_id", "entrezgene", "description"), filters=c("ensembl_gene_id"), values=gene_annots[complete.cases(gene_annots[,"EnsemblID"]), "EnsemblID"], mart=mymart)
-    colnames(foo) <- c("EnsemblID", "Entrez ID", "Gene Description")
-    gene_annots <- merge(gene_annots, foo, by= "EnsemblID", all = TRUE)
-    gene_annots <- gene_annots[,c(2:8,1,9:10)]
-    write.table(gene_annots,paste(deseq, "annot", sep="."),sep='\t',col.names=T,row.names=F,quote=F)
+    ## #LEN: annotate w/ biomaRt
+    ## mymart = useMart(biomart="ensembl", dataset=biomart_dset)
+    ## gene_annots <- getBM(attributes=c("hgnc_symbol", "ensembl_gene_id"), filters=c("hgnc_symbol"), values=deseq_result[,1], mart=mymart)
+    ## colnames(gene_annots) <- c("id", "EnsemblID")
+    ## gene_annots <- merge(deseq_result, gene_annots, by= "id", all = TRUE)
+
+    ## #LEN: Get entrezid, gene description-- LEAVE out GO terms
+    ## foo <- getBM(attributes=c("ensembl_gene_id", "entrezgene", "description"), filters=c("ensembl_gene_id"), values=gene_annots[complete.cases(gene_annots[,"EnsemblID"]), "EnsemblID"], mart=mymart)
+    ## colnames(foo) <- c("EnsemblID", "Entrez ID", "Gene Description")
+    ## gene_annots <- merge(gene_annots, foo, by= "EnsemblID", all = TRUE)
+    ## gene_annots <- gene_annots[,c(2:8,1,9:10)]
+    ## write.table(gene_annots,paste(deseq, "annot", sep="."),sep='\t',col.names=T,row.names=F,quote=F)
 
     
-    #select out the ones that HAVE ENSEMBL id
-    foo <- gene_annots[complete.cases(gene_annots[,"EnsemblID"]), c("padj", "EnsemblID")]
-    #Select out the top 1000 by padj, ENSEMBL id only
-    foo <- foo[order(as.numeric(foo[,"padj"]), na.last= NA),]#"EnsemblID"][1:1000
-    #GET GO terms for top 1000
-    foo <- getBM(attributes=c("ensembl_gene_id", "go_id", "name_1006"), filters=c("ensembl_gene_id"), values=foo[1:1000,"EnsemblID"], mart=mymart)
-    colnames(foo) <- c("EnsemblID", "GO ID", "GO Term")
-    #MERGE, taking only the 1000 we have info on
-    foo <- merge(gene_annots, foo, by= "EnsemblID", all.y = TRUE)
-    #REORDER columns
-    foo <- foo[,c(2:8,1,9:12)]
-    write.table(foo,paste(deseq, "go", sep="."),sep='\t',col.names=T,row.names=F,quote=F)
-    
-    #LEN: Second call using ENSEMBL ID-- Get the rest
-    #foo <- getBM(attributes=c("ensembl_gene_id", "entrezgene", "description", "go_id", "name_1006"), filters=c("ensembl_gene_id"), values=gene_annots[complete.cases(gene_annots[,"EnsemblID"]), "EnsemblID"], mart=mymart)
-    #colnames(foo) <- c("EnsemblID", "Entrez ID", "Gene Description", "GO ID", "GO Term")
-    #gene_annots <- merge(gene_annots, foo, by= "EnsemblID", all = TRUE)
-    #reorder the columns!
-    #gene_annots <- gene_annots[,c(2:8,1,9:12)]
-    #SORT by padj. -- DOESN'T WORK!
-    #gene_annots <-gene_annots[order(as.numeric(gene_annots[,"padj"]), na.last= NA),]
-    #gene_annots <-gene_annots[order(as.numeric(gene_annots[,7]), na.last= NA),]
-    #write.table(gene_annots,paste(deseq, "annot", sep="."),sep='\t',col.names=T,row.names=F,quote=F)
-    
+    ## #select out the ones that HAVE ENSEMBL id
+    ## foo <- gene_annots[complete.cases(gene_annots[,"EnsemblID"]), c("padj", "EnsemblID")]
+    ## #Select out the top 1000 by padj, ENSEMBL id only
+    ## foo <- foo[order(as.numeric(foo[,"padj"]), na.last= NA),]#"EnsemblID"][1:1000
+    ## #GET GO terms for top 1000
+    ## foo <- getBM(attributes=c("ensembl_gene_id", "go_id", "name_1006"), filters=c("ensembl_gene_id"), values=foo[1:1000,"EnsemblID"], mart=mymart)
+    ## colnames(foo) <- c("EnsemblID", "GO ID", "GO Term")
+    ## #MERGE, taking only the 1000 we have info on
+    ## foo <- merge(gene_annots, foo, by= "EnsemblID", all.y = TRUE)
+    ## #REORDER columns
+    ## foo <- foo[,c(2:8,1,9:12)]
+    ## write.table(foo,paste(deseq, "go", sep="."),sep='\t',col.names=T,row.names=F,quote=F)    
 }
 
 args <- commandArgs( trailingOnly = TRUE )
@@ -159,8 +157,8 @@ arg_s2 = args[3]
 limma_out=args[4]
 deseq_out=args[5]
 deseqSum_out=args[6]
-biomart_dset=args[7]
+gene_annotation=args[7]
 
-limma_and_deseq_f(arg_counts, arg_s1, arg_s2, limma_out, deseq_out, deseqSum_out, biomart_dset)
+limma_and_deseq_f(arg_counts, arg_s1, arg_s2, limma_out, deseq_out, deseqSum_out, gene_annotation)
 
         

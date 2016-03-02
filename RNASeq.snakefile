@@ -603,12 +603,12 @@ rule limma_and_deseq:
     params:
         s1=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 1)),
         s2=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 2)),
-        biomart_dset = config['biomaRt_dataset']
+        gene_annotation = config['gene_annotation']
 #    script:
 #        "scripts/DEseq.R"
 
     run:
-        shell("Rscript snakemake/scripts/DEseq.R \"{input.counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.deseqSum} {params.biomart_dset}")
+        shell("Rscript snakemake/scripts/DEseq.R \"{input.counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.deseqSum} {params.gene_annotation}")
 
 rule fetch_DE_gene_list:
     input:
