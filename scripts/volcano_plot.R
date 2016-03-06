@@ -13,7 +13,7 @@ volcano_plot_f <- function(deseq_results, pdf_file, png_file, makePDF = TRUE) {
     }
 
     #FROM: http://www.gettinggeneticsdone.com/2014/05/r-volcano-plots-to-visualize-rnaseq-microarray.html
-    res <- read.table(deseq_results, header=TRUE)
+    res <- read.table(deseq_results, header=TRUE, sep=",")
 
     #get comparisonName
     comparisonName = strsplit(deseq_results, "/")[[1]][3]

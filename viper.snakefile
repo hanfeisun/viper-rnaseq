@@ -84,7 +84,7 @@ rule target:
         "analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         expand( "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf", sample=ordered_sample_list ),
         expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
-        expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.deseq.csv", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
         "analysis/diffexp/de_summary.png",
         expand( "analysis/snp/{sample}/{sample}.snp.{region}.txt", sample=ordered_sample_list, region=snp_regions ),
@@ -597,9 +597,12 @@ rule limma_and_deseq:
     input:
         counts = "analysis/STAR/STAR_Gene_Counts.csv"
     output:
-        limma = "analysis/diffexp/{comparison}/{comparison}.limma.txt",
-        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt",
-        deseqSum = "analysis/diffexp/{comparison}/{comparison}.deseq.sum.csv"
+        limma = "analysis/diffexp/{comparison}/{comparison}.limma.csv",
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+        deseqSum = "analysis/diffexp/{comparison}/{comparison}.deseq.sum.csv",
+        #annotations
+        limma_annot = "analysis/diffexp/{comparison}/{comparison}.limma.annot.csv",
+        deseq_annot = "analysis/diffexp/{comparison}/{comparison}.deseq.annot.csv",
     params:
         s1=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 1)),
         s2=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 2)),
@@ -608,11 +611,11 @@ rule limma_and_deseq:
 #        "scripts/DEseq.R"
 
     run:
-        shell("Rscript viper/scripts/DEseq.R \"{input.counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.deseqSum} {params.gene_annotation}")
+        shell("Rscript viper/scripts/DEseq.R \"{input.counts}\" \"{params.s1}\" \"{params.s2}\" {output.limma} {output.deseq} {output.limma_annot} {output.deseq_annot} {output.deseqSum} {params.gene_annotation}")
 
 rule fetch_DE_gene_list:
     input:
-        deseq_file_list=expand("analysis/diffexp/{comparison}/{comparison}.deseq.txt",comparison=comparisons)
+        deseq_file_list=expand("analysis/diffexp/{comparison}/{comparison}.deseq.csv",comparison=comparisons)
     output:
         csv="analysis/diffexp/de_summary.csv",
         png="analysis/diffexp/de_summary.png"
@@ -624,7 +627,7 @@ rule fetch_DE_gene_list:
 #Generate volcano plots for each comparison
 rule volcano_plot:
     input:
-        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.txt",
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
     output:
         plot = "analysis/diffexp/{comparison}/{comparison}_volcano.pdf",
         png = "analysis/plots/images/{comparison}_volcano.png"

@@ -24,12 +24,12 @@ sub get_de_info {
 	my( $file_list ) = @_;
 	my $info = {};
 	foreach my $file( @$file_list ){
-		my( $comp ) = ( basename( $file ) =~ /(.+)\.deseq\.txt/ );
+		my( $comp ) = ( basename( $file ) =~ /(.+)\.deseq\.csv/ );
 		open( FH, "<$file" ) or die "Error opening the file, $file, $!\n";
 		my $header = <FH>;
 		while( my $line = <FH> ) {
 			chomp $line;
-			my( $id, $mean, $logfc, $lfsce, $stat, $p, $p_adj ) = split( "\t", $line );
+			my( $id, $mean, $logfc, $lfsce, $stat, $p, $p_adj ) = split( ",", $line );
 			next if( $p_adj eq 'NA' );
 			if( $p_adj <= 0.1 ) {
 				if( $logfc <= -2 ) {
