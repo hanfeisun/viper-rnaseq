@@ -10,7 +10,7 @@ library("circlize")
 library("dendextend")
 library("viridis")
 library('dplyr')
-source('snakemake/scripts/supp_fns.R')
+source('viper/scripts/supp_fns.R')
 
 #enable stack trace
 options(error = function() traceback(2))

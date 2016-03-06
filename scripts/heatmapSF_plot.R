@@ -15,7 +15,7 @@ suppressMessages(library("circlize"))
 suppressMessages(library("dendextend"))
 suppressMessages(library("viridis"))
 suppressMessages(library('dplyr'))
-suppressMessages(source('snakemake/scripts/supp_fns.R'))
+suppressMessages(source('viper/scripts/supp_fns.R'))
 
 #enable stack trace
 options(error = function() traceback(2))
@@ -31,6 +31,7 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     #log transform of data
     newdata <- log2(newdata+1)
 
+    #LEN: the following section is making newdata to go to []; leaving it in
     ## Removing Sno and Mir mrna, parameterized
     if (filter_mirna == TRUE) {
         newdata <- newdata[-grep("MIR[[:digit:]]*",rownames(newdata)), ]
