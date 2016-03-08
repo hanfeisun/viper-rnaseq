@@ -557,9 +557,10 @@ rule heatmapSS_plot:
     params:
         RPKM_threshold = config["RPKM_threshold"],
         min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
+        filter_mirna = config["filter_mirna"],
         SSnumgenes = config["SSnumgenes"]
     run:
-        shell("Rscript viper/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
+        shell("Rscript viper/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
 
 rule heatmapSF_plot:
     input:

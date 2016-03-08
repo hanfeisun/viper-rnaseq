@@ -20,11 +20,7 @@ suppressMessages(source('viper/scripts/supp_fns.R'))
 ## Enable stack trace
 options(error = function() traceback(2))
 
-heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,SSnumgenes, ss_plot_out,ss_txt_out) {
-    ## CONSTANTS
-    #RPKM_THRESHOLD <- 2.0
-    #MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
-    #NUM_GENES_TO_CLUSTER <- 250
+heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, ss_plot_out,ss_txt_out) {
 
     ## Readin and process newdata
     newdata <- rpkmTable
@@ -35,14 +31,23 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     ## Log transform of data
     newdata <- log2(newdata+1)
 
+    ## Removing Sno and Mir mrna, parameterized
+    if (filter_mirna == TRUE) {
+        newdata <- newdata[ !grepl("MIR",rownames(newdata)), ]
+        newdata <- newdata[ !grepl("SNO",rownames(newdata)), ]
+    }
+
+    ## Fail safe to take all genes if numgenes param is greater than what passes filters
+    if (SSnumgenes > nrow(newdata)) {SSnumgenes = nrow(newdata)}
+    
     ## Calculate CVs for all genes (rows)
     mean_rpkm_nolym <- apply(newdata,1,mean)
     var_rpkm_nolym <- apply(newdata,1,var)
     cv_rpkm_nolym <- abs(var_rpkm_nolym/mean_rpkm_nolym)
-
+    
     ## Select out the most highly variable genes into the dataframe 'Exp_data'
     Exp_data <- newdata[order(cv_rpkm_nolym,decreasing=T)[1:SSnumgenes],]
-
+        
     ## Calc. spearman correlation
     cordata <- cor(Exp_data, method="spearman")
 
@@ -78,10 +83,6 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
                      #cluster_columns=TRUE,
                      cluster_rows = rowcluster,
                      cluster_columns = colcluster,
-                     #clustering_method_rows="ward.D2",
-                     #clustering_method_columns="ward.D2",
-                     #clustering_distance_rows="euclidean",
-                     #clustering_distance_columns="euclidean",
                      show_heatmap_legend = TRUE,
                      heatmap_legend_param=list(title="corr"),
                      #row_dend_width = unit(5, "mm"),
@@ -115,15 +116,15 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
 }
 
 
-
 args <- commandArgs( trailingOnly = TRUE )
 rpkmFile=args[1]
 annotFile=args[2]
 RPKM_threshold=args[3]
 min_num_samples_expressing_at_threshold=args[4]
-SSnumgenes=args[5]
-ss_plot_out=args[6]
-ss_txt_out=args[7]
+filter_mirna = args[5]
+SSnumgenes=args[6]
+ss_plot_out=args[7]
+ss_txt_out=args[8]
 
 ## process RPKM file
 rpkmTable <- read.table(rpkmFile, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
@@ -147,7 +148,7 @@ for (col in colnames(tmp_ann)) {
     }
 }
 
-rownames(tmp_ann) <- tmp_ann$SampleName
+rownames(tmp_ann) <- tmp_ann[,1]
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
-heatmapSS_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,SSnumgenes, ss_plot_out,ss_txt_out)
+heatmapSS_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, ss_plot_out,ss_txt_out)
