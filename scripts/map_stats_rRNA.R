@@ -30,8 +30,8 @@ scale_y_continuous("",limits=c(0,upper_limit),  breaks=limits, labels=percent(li
 scale_fill_manual(values=colors) +
 labs( title="rRNA Report\n\n", x = "Sample Names", y="") +
 guides(fill=guide_legend(title=NULL)) + theme_bw() +
-geom_hline(yintercept =5,linetype="longdash") +
-geom_hline(yintercept =10, linetype= "dash") +
+#geom_hline(yintercept =5,linetype="longdash") +
+#geom_hline(yintercept =10, linetype= "dash") +
 theme(axis.text.x = element_text(angle=90, hjust = 1, vjust=0.5, size=10))
 
 dev.off()
