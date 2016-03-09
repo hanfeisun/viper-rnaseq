@@ -38,7 +38,7 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     }
 
     ## Fail safe to take all genes if numgenes param is greater than what passes filters
-    if (SSnumgenes > nrow(newdata)) {SSnumgenes = nrow(newdata)}
+    if (as.numeric(SSnumgenes) > nrow(newdata)) {SSnumgenes = nrow(newdata)}
     
     ## Calculate CVs for all genes (rows)
     mean_rpkm_nolym <- apply(newdata,1,mean)
@@ -137,7 +137,7 @@ rpkmTable = na.omit(rpkmTable)
 ## PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 ## REMOVE comp_ columns
-tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+tmp_ann <- tmp_ann[ , !grepl('comp_*', names(tmp_ann))]
 
 ## Convert numerical annotations to numbers/floats
 for (col in colnames(tmp_ann)) {
@@ -151,4 +151,5 @@ for (col in colnames(tmp_ann)) {
 rownames(tmp_ann) <- tmp_ann[,1]
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
+
 heatmapSS_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, ss_plot_out,ss_txt_out)

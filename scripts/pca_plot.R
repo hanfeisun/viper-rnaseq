@@ -4,42 +4,41 @@
 #   annotation: annotation file in SOME TBD format
 #OUTPUT:
 #   plot_out: some filename ending in '.pdf' to save the plots
+#   Also out plotting all as pngs in images
 #BASED on garber_analysis.R by Henry Long
 
 # load required packages
-library("gplots")
-library("ComplexHeatmap")
-library("circlize")
-library("dendextend")
-library("viridis")
-library('dplyr')
-source('viper/scripts/supp_fns.R')
+suppressMessages(library("gplots"))
+suppressMessages(library("ComplexHeatmap"))
+suppressMessages(library("circlize"))
+suppressMessages(library("dendextend"))
+suppressMessages(library("viridis"))
+suppressMessages(library('dplyr'))
+suppressMessages(source('viper/scripts/supp_fns.R'))
 
 #enable stack trace
 #LEN:
 options(error = function() traceback(2))
 
-pca_plot <- function(rpkmTable, annotation, plot_out, png_dir) {
-    #CONSTANTS
-    RPKM_THRESHOLD <- 2.0
-    MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD <- 4
-    NUM_GENES_TO_CLUSTER <- 250
-
+pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, plot_out,png_dir) {
+    
     #readin and process newdata
-    #newdata <- read.table(args[1], header=T, row.names=1, sep=",")
     newdata <- rpkmTable
     
-    #remove MIR RNAs and SNO RNAs    
-    #LEN: newdata <- newdata[-grep("MIR[[:digit:]]*",rownames(newdata)), ]
-    #LEN: newdata <- newdata[-grep("SNO.*",rownames(newdata)), ]
-
     #remove genes with no RPKM values or
-    #genes where not enough samples meet a minimum threshold
-    #LEN: newdata <- (newdata[which(apply(newdata,1,mean)!=0),])
-    newdata<-newdata[apply(newdata, 1, function(x) length(x[x>=RPKM_THRESHOLD])>MIN_NUM_SAMPLES_EXPRESSSING_AT_THRESHOLD),]
+    newdata<-newdata[apply(newdata, 1, function(x) length(x[x>=RPKM_threshold])>min_num_samples_expressing_at_threshold),]
 
     #log transform of data
     newdata <- log2(newdata+1)
+
+    ## Removing Sno and Mir mrna, parameterized
+    if (filter_mirna == TRUE) {
+        newdata <- newdata[ !grepl("MIR",rownames(newdata)), ]
+        newdata <- newdata[ !grepl("SNO",rownames(newdata)), ]
+    }
+
+    ## Fail safe to take all genes if numgenes param is greater than what passes filters
+    if (as.numeric(SSnumgenes) > nrow(newdata)) {SSnumgenes = nrow(newdata)}
 
     #Calculate CVs for all genes (rows)
     mean_rpkm_nolym <- apply(newdata,1,mean)
@@ -47,7 +46,7 @@ pca_plot <- function(rpkmTable, annotation, plot_out, png_dir) {
     cv_rpkm_nolym <- abs(var_rpkm_nolym/mean_rpkm_nolym)
 
     #Select out the most highly variable genes into the dataframe 'Exp_data'
-    Exp_data <- newdata[order(cv_rpkm_nolym,decreasing=T)[1:NUM_GENES_TO_CLUSTER],]
+    Exp_data <- newdata[order(cv_rpkm_nolym,decreasing=T)[1:SSnumgenes],]
 
     #SAVE plot
     pdf(file = plot_out)
@@ -84,26 +83,41 @@ pca_plot <- function(rpkmTable, annotation, plot_out, png_dir) {
     dev.off()
 }
 
+
 args <- commandArgs( trailingOnly = TRUE )
 rpkmFile=args[1]
 annotFile=args[2]
-pca_plot_out=args[3]
-png_dir=args[4]
+RPKM_threshold=args[3]
+min_num_samples_expressing_at_threshold=args[4]
+filter_mirna = args[5]
+SSnumgenes=args[6]
+pca_plot_out=args[7]
+png_dir=args[8]
 
 #process RPKM file
 # Mahesh adding check.names=F so that if there is any - or _ characters, they won't be turned to default '.'
 rpkmTable <- read.table(rpkmFile, header=T, check.names=F, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
-#CONVERT to numeric!
 for (n in names(rpkmTable)) {
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
 }
+rpkmTable = na.omit(rpkmTable)
 
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
-#previous Len's code was returning 0 columns if metasheet doesn't contain 'comp_' column 
 tmp_ann <- tmp_ann[ , !grepl('comp_*', names(tmp_ann))]
-rownames(tmp_ann) <- tmp_ann$SampleName
+
+## Convert numerical annotations to numbers/floats
+for (col in colnames(tmp_ann)) {
+    ## Test first value in col for validity
+    if(attr(regexpr("^\\-?\\d+\\.\\d+$",tmp_ann[1,col]), "match.length") > 0){
+        #print(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
+        tmp_ann[,col] <- as.vector(apply(as.matrix(tmp_ann[,col]), 2, as.numeric))
+    }
+}
+
+rownames(tmp_ann) <- tmp_ann[,1]
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
-pca_plot(rpkmTable, tmp_ann, pca_plot_out, png_dir)
+
+pca_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out,png_dir)

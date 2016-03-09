@@ -48,18 +48,22 @@ make_complexHeatmap_annotation <- function(annotation){
 }
 
 #NOTE: LEN removed the threeD code
-make_pca_plots = function(data_matrix, threeD = TRUE, labels = TRUE, pca_title = "Data Matrix", legend_title = "", ClassColorings) {
+make_pca_plots <- function(data_matrix, threeD = TRUE, labels = TRUE, pca_title = "Data Matrix", legend_title = "", ClassColorings) {
 
     #Standard PCA analysis
     pca_out <- prcomp(data_matrix, scale. = TRUE, tol = 0.05)
     pc_var <- signif(100.0 * summary(pca_out)[[6]][2,1:3], digits = 3)
+
+    #### NEW
+    par(mar=c(5.1, 4.1, 4.1, 8.1), xpd=TRUE)
 
     plot(pca_out$x[,"PC1"], pca_out$x[,"PC2"],  col=ClassColorings, pch=16, xlab=paste0("PC1 (", pc_var[1], "% of variance)"), ylab=paste0("PC2 (", pc_var[2], "% of variance)"), main = paste0('PCA analysis of ',pca_title))
     if(labels == TRUE) {text(pca_out$x[,"PC1"], pca_out$x[,"PC2"], labels=row.names(data_matrix), cex= 0.7, pos=3)}
     if(legend_title != "") {
         mycols = unique(ClassColorings)
         mynames = unique(names(ClassColorings))
-        legend("bottomright", legend = mynames, col=mycols, pch = 16, title = legend_title)
+        #legend("bottomright", legend = mynames, col=mycols, pch = 16, title = legend_title)
+        legend("topright", inset=c(-0.23,0), legend = mynames, col=mycols, pch = 16, title = legend_title)
     }
 
 #    if(threeD==TRUE){

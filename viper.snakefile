@@ -542,10 +542,15 @@ rule pca_plot:
     output:
         pca_plot_out="analysis/plots/pca_plot.pdf",
         png_dir=temp("analysis/plots/images/")
+    params:
+        RPKM_threshold = config["RPKM_threshold"],
+        min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
+        filter_mirna = config["filter_mirna"],
+        SSnumgenes = config["SSnumgenes"]
 #    shell:
 #        "scripts/pca_plot.R"
     run:
-        shell("Rscript viper/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {output.pca_plot_out} {output.png_dir}")
+        shell("Rscript viper/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.pca_plot_out} {output.png_dir}")
 
 rule heatmapSS_plot:
     input:
