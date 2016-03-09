@@ -93,6 +93,8 @@ rule target:
         fusion_output,
         insert_size_output,
         rRNA_metrics
+        
+#["analysis/plots/correlation_plot.pdf", "analysis/plots/correlation_table.csv", "analysis/plots/upvenn_plot.pdf", "analysis/plots/downvenn_plot.pdf"] if len(comparisons) >= 2 else []
 
 
 def get_sphinx_report():
@@ -534,18 +536,23 @@ rule bam_to_bigwig:
 #     shell:
 #         "bedGraphToBigWig {input.bg} {input.chrom_size} {output}"
 
-#LEN:
+
 rule pca_plot:
     input:
         rpkmFile="analysis/cufflinks/Cuff_Gene_Counts.csv",
         annotFile=config['metasheet']
     output:
         pca_plot_out="analysis/plots/pca_plot.pdf",
-        png_dir=temp("analysis/plots/images/")
+        png_dir = temp("analysis/plots/images/")
+    params:
+        RPKM_threshold = config["RPKM_threshold"],
+        min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
+        filter_mirna = config["filter_mirna"],
+        SSnumgenes = config["SSnumgenes"]
 #    shell:
 #        "scripts/pca_plot.R"
     run:
-        shell("Rscript viper/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {output.pca_plot_out} {output.png_dir}")
+        shell("Rscript viper/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.pca_plot_out} {output.png_dir}")
 
 rule heatmapSS_plot:
     input:
@@ -557,9 +564,10 @@ rule heatmapSS_plot:
     params:
         RPKM_threshold = config["RPKM_threshold"],
         min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
+        filter_mirna = config["filter_mirna"],
         SSnumgenes = config["SSnumgenes"]
     run:
-        shell("Rscript viper/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
+        shell("Rscript viper/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
 
 rule heatmapSF_plot:
     input:
@@ -708,16 +716,16 @@ rule snps_corr_plot_genome:
 ## Perform Correlation analysis between limma diff files
 #rule correlation_plot:
 #    input:
-#        diffiles = expand("diff/{comparison}.diff.txt", comparison=comparisons),
+#        diffiles = expand("analysis/diffexp/{comparison}/{comparison}.limma.csv", comparison=comparisons),
 #        meta = config["metasheet"]
 #    output:
-#        correlation_plot = "output/correlation_plot.pdf",
-#        correlation_table = "output/correlation_table.csv",
-#        upvenn_plot = "output/upvenn_plot.pdf",
-#        downvenn_plot = "output/downvenn_plot.pdf"
+#        correlation_plot = "analysis/plots/correlation_plot.pdf",
+#        correlation_table = "analysis/plots/correlation_table.csv",
+#        upvenn_plot = "analysis/plots/upvenn_plot.pdf",
+#        downvenn_plot = "analysis/plots/downvenn_plot.pdf"
 #    params:
-#        numgenes = config["SFnumgenes"]
-#   script:
+#        SFnumgenes = config["SFnumgenes"]
+#    script:
 #        "scripts/correlation_plot.R"
 
 

@@ -31,13 +31,15 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     #log transform of data
     newdata <- log2(newdata+1)
 
-    #LEN: the following section is making newdata to go to []; leaving it in
     ## Removing Sno and Mir mrna, parameterized
     if (filter_mirna == TRUE) {
-        newdata <- newdata[-grep("MIR[[:digit:]]*",rownames(newdata)), ]
-        newdata <- newdata[-grep("SNO.*",rownames(newdata)), ]
+        newdata <- newdata[ !grepl("MIR",rownames(newdata)), ]
+        newdata <- newdata[ !grepl("SNO",rownames(newdata)), ]
     }
 
+    ## Fail safe to take all genes if numgenes param is greater than what passes filters
+    if (as.numeric(SFnumgenes) > nrow(newdata)) {SFnumgenes = nrow(newdata)}
+    
     #Calculate CVs for all genes (rows)
     mean_rpkm_nolym <- apply(newdata,1,mean)
     var_rpkm_nolym <- apply(newdata,1,var)
@@ -59,37 +61,43 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
 
     coldistance = dist(t(Exp_data), method = "euclidean")
     colcluster = hclust(coldistance, method = "ward.D2")
-    
+
+    row_name_param = FALSE
+    if (nrow(Exp_data) <= 100) {row_name_param = TRUE}
+   
     if (is.numeric(num_kmeans_clust) == TRUE) {kmparam = num_kmeans_clust}
     if (is.character(num_kmeans_clust) == TRUE) {kmparam = as.numeric(unlist(strsplit(num_kmeans_clust,",")))}
-   
+    
     pdf(file = sf_plot_out, width=11,height=8.5) 
     
     png_count = 0
     for (i in 1:length(kmparam)) {
+        
         if (kmparam[i] == 0) {
             rowdistance = dist(Exp_data, method = "euclidean")
             rowcluster = hclust(rowdistance, method = "ward.D2")
             rowclusterparam = rowcluster
             hmdata = Exp_data
+            column_title_param = "Sample-Feature Hierarchical Clustering"
         }
         
         if (kmparam[i] != 0) {
-            km1 = kmeans(Exp_data, centers=kmparam[1])
+            km1 = kmeans(Exp_data, centers=kmparam[i])
             kmclust = km1$cluster
             kmclustsort = sort(kmclust)
             ind = match(names(kmclustsort), rownames(Exp_data))
             hmdata = Exp_data[ind,]
             rowclusterparam = FALSE
-        }
+            column_title_param = paste("Sample-Feature Kmeans ", kmparam[i], " Clustering", sep="")
+        }        
         
         mapplot <- Heatmap(hmdata,
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
                      #heatmap_legend_param = list(title = "exp. level"),
-                     column_title = "Sample-Feature Correlation",
-                     show_row_names = TRUE, show_column_names = TRUE,
+                     column_title = column_title_param,
+                     show_row_names = row_name_param, show_column_names = TRUE,
                      #row_names_max_width = unit(3, "mm"),
-                     row_names_gp = gpar(fontsize = 12),
+                     row_names_gp = gpar(fontsize = 6),
                      column_names_gp = gpar(fontsize = 8),
                      cluster_rows = rowclusterparam,
                      cluster_columns = colcluster,
@@ -170,7 +178,7 @@ for (col in colnames(tmp_ann)) {
     }
 }
 
-rownames(tmp_ann) <- tmp_ann$SampleName
+rownames(tmp_ann) <- tmp_ann[,1]
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
 
