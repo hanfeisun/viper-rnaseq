@@ -121,6 +121,7 @@ def get_sphinx_report():
     file_dict = copy_file_dict
     pca_png_list = []
     volcano_list = []
+    SF_png_list = []
 
     for pca_plot in sorted(glob.glob("./analysis/plots/images/pca_plot*.png")):
         pca_png_list.append(data_uri(pca_plot))
@@ -128,10 +129,15 @@ def get_sphinx_report():
     for volcano_plot in glob.glob("./analysis/plots/images/*_volcano.png"):
         volcano_list.append(data_uri(volcano_plot))
 
+    for SF_plot in sorted(glob.glob("./analysis/plots/images/heatmapSF_*_plot.png")):
+        SF_png_list.append(data_uri(SF_plot))
+
     if pca_png_list:
         file_dict['pca_png_list'] = pca_png_list
     if volcano_list:
         file_dict['volcano_png_list'] = volcano_list
+    if SF_png_list:
+        file_dict['sf_png_list'] = SF_png_list
 
     report = """
 ==============================================
@@ -255,7 +261,12 @@ Sample-Feature Correlation Heatmap
 
                     
     if 'heatmapSF_plot' in file_dict:
-        report += "\n\n\t.. image:: " + file_dict['heatmapSF_plot'] + "\n\n\t" + 'What are *these* genes?' + "\n\n\t" + 'Data used to generate this sample-feature graphic are in /analysis/plots/heatmapSF.txt' + "\n"
+        report += "\n\n\t.. image:: " + file_dict['heatmapSF_plot'] + "\n";
+
+    if 'sf_png_list' in file_dict:
+        report += "\n\t.. image:: " + "\n\t.. image:: ".join(file_dict['sf_png_list'][:]) + "\n"
+
+    report += "\n\n\t" + 'What are *these* genes?' + "\n\n\t" + 'Data used to generate this sample-feature graphic are in /analysis/plots/heatmapSF.txt' + "\n"
 
     report += "\n"
     report += """
