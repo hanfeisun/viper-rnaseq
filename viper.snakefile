@@ -716,7 +716,7 @@ rule snps_corr_plot_genome:
 ## Perform Correlation analysis between limma diff files
 #rule correlation_plot:
 #    input:
-#        diffiles = expand("analysis/diffexp/{comparison}/{comparison}.limma.csv", comparison=comparisons),
+#        diffiles = expand("analysis/diffexp/{comparison}/{comparison}.deseq.csv", comparison=comparisons),
 #        meta = config["metasheet"]
 #    output:
 #        correlation_plot = "analysis/plots/correlation_plot.pdf",

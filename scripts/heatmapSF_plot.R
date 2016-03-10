@@ -82,6 +82,7 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
         }
         
         if (kmparam[i] != 0) {
+            #if (kmparam[i] == 1) {kmparam[i] = 2}
             km1 = kmeans(Exp_data, centers=kmparam[i])
             kmclust = km1$cluster
             kmclustsort = sort(kmclust)

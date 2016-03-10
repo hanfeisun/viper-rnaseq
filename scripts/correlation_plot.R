@@ -38,9 +38,9 @@ correlation_plot_f <- function(diffiles,meta, SFnumgenes, correlation_plot,corre
         tempnamestr2 = paste("file",i,"_filt",sep="")
         tempfile = eval(parse(text=tempnamestr))
         #assign(tempnamestr2, subset(tempfile, tempfile[,6]>1 & tempfile[,7]>1))
-        #assign(tempnamestr2, subset(tempfile, tempfile[,6]<0.05))
-        assign(tempnamestr2, tempfile[1:10000,])
-        #print(nrow(eval(parse(text=tempnamestr2))))
+        assign(tempnamestr2, subset(tempfile, tempfile[,7]<0.25))
+        #assign(tempnamestr2, tempfile[1:10000,])
+        print(nrow(eval(parse(text=tempnamestr2))))
     }
     
     ## pulls out the gene list from each file that pass filtering for all samples
@@ -63,11 +63,14 @@ correlation_plot_f <- function(diffiles,meta, SFnumgenes, correlation_plot,corre
         tempnamestr = paste("file",i,"a",sep="")
         tempfile = eval(parse(text=paste("file",i,sep="")))
         assign(tempnamestr, tempfile[tempfile[,1] %in% genes_filt,])
-        corrmat = cbind(corrmat, eval(parse(text=paste("file",i,"a",sep="")))[,5])
+        print(head(file1a[,3]))
+        corrmat = cbind(corrmat, eval(parse(text=paste("file",i,"a",sep="")))[,3])
     }
+
+    #print(head(corrmat))
     
     ## gsub out the front and back for annotation purposes
-    diffilenames = gsub(".limma.csv","", diffiles)
+    diffilenames = gsub(".deseq.csv","", diffiles)
     diffilenames = gsub("analysis/diffexp/","",diffilenames)
     colnames(corrmat)=c("gene",diffilenames)
     
@@ -111,10 +114,12 @@ correlation_plot_f <- function(diffiles,meta, SFnumgenes, correlation_plot,corre
 
     #if (SFnumgenes > nrow(newdata)) {SFnumgenes = nrow(newdata)}
     
-    upgenes <- data.frame(matrix(0, ncol = length(diffiles), nrow = SFnumgenes))
+    #upgenes <- data.frame(matrix(0, ncol = length(diffiles), nrow = SFnumgenes))
+    upgenes <- data.frame(matrix(0, ncol = length(diffiles)))
     #upgenes <- data.frame(matrix(0, ncol = length(diffiles), nrow = length(genes_filt)))
     colnames(upgenes) = diffilenames
-    downgenes <- data.frame(matrix(0, ncol = length(diffiles), nrow = SFnumgenes))
+    #downgenes <- data.frame(matrix(0, ncol = length(diffiles), nrow = SFnumgenes))
+    downgenes <- data.frame(matrix(0, ncol = length(diffiles)))
     colnames(downgenes) = diffilenames
 
     #print(dim(corrmat))
@@ -129,11 +134,13 @@ correlation_plot_f <- function(diffiles,meta, SFnumgenes, correlation_plot,corre
         #print(dim(logfileorder))
         #print(head(logfileorder))
         
-        print("test")
+        #print("test")
         #upgenes[i] = logfileorder$gene[1:as.numeric(SFnumgenes)]
-        upgenes[i] = logfileorder$gene[1:SFnumgenes]
-        print("test")
-        downgenes[i] = tail(logfileorder$gene,SFnumgenes)
+        #upgenes[i] = logfileorder$gene[1:SFnumgenes]
+        upgenes[i] = subset(logfileorder, logfileorder[,2]>0) 
+        #print("test")
+        #downgenes[i] = tail(logfileorder$gene,SFnumgenes)
+        downgenes[i] = subset(logfileorder, logfileorder[,2]<0)
         #downgenes[i] = tail(logfileorder$gene,as.numeric(SFnumgenes))
         #print("test")
         #upgenesnew = logfileorder[logfileorder[,2] > 1,1]
