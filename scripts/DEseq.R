@@ -47,7 +47,7 @@ limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, limma_annot, deseq_an
         #print (head(counts(cds, normalized = TRUE)))
   
         if (ntreat<=2 && nctrl<=2){
-            cds = estimateDispersions( cds, method="blind", sharingMode="fit-only" )
+            cds = estimateDispersions( cds)#, method="blind", sharingMode="fit-only" )
         }else{
             cds = estimateDispersions (cds)}
         
