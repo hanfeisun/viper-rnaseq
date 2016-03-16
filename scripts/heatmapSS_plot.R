@@ -66,7 +66,7 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     param_text <- paste(RPKM_threshold, min_num_samples_expressing_at_threshold, SSnumgenes, sep=",")
 
     pdf(file = ss_plot_out)
-    
+
     ha1 <- make_complexHeatmap_annotation(tmp_ann)
 
     mapplot <-Heatmap(t(as.matrix(cordata)),
@@ -84,7 +84,7 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
                      cluster_rows = rowcluster,
                      cluster_columns = colcluster,
                      show_heatmap_legend = TRUE,
-                     heatmap_legend_param=list(title="corr"),
+                     heatmap_legend_param=list(title="corr", title_gp=gpar(fontsize=8), labels_gp=gpar(fontsize=8)),
                      #row_dend_width = unit(5, "mm"),
                      #width=unit(60,"cm"),
                      top_annotation=ha1,
@@ -92,8 +92,8 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     draw(mapplot)
     for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
         decorate_annotation(an, {
-            grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
-            grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
+            grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=6), check=TRUE)
+            grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=6), check=TRUE)
         })
     }
     dev.off()
@@ -102,8 +102,8 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     draw(mapplot)
     for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
         decorate_annotation(an, {
-            grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=5), check=TRUE)
-            grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=5), check=TRUE)
+            grid.text(an, unit(1, "npc") + unit(2, "mm"), 0.5, default.units = "npc", just = "left", gp=gpar(fontsize=6), check=TRUE)
+            grid.text(an, unit(0, "npc") - unit(2, "mm"), 0.5, default.units = "npc", just = "right", gp=gpar(fontsize=6), check=TRUE)
         })
     }
     dev.off()

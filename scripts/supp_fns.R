@@ -32,7 +32,8 @@ make_complexHeatmap_annotation <- function(annotation){
         #NEED a better way to distinguish between discrete and continuous
         #something like:
         #if(! is.numeric(ann[1]) or (is.integer and ! is.double #and less)) {
-        if(length(sort(unique(na.omit(as.vector(ann))))) < MIN_UNIQUE) {
+        #if(length(sort(unique(na.omit(as.vector(ann))))) < MIN_UNIQUE) {
+        if(length(sort(unique(na.omit(as.vector(ann))))) < MIN_UNIQUE | is.numeric(ann)==FALSE) {
             colorlist[[i]] <- cmap(ann, colorstart=colorcount)
             colorcount = colorcount + length(unique(ann))
         } else {
@@ -42,7 +43,8 @@ make_complexHeatmap_annotation <- function(annotation){
     }
     names(colorlist) <- c(colnames(annotation)[1:nn])
     
-    ha1 = HeatmapAnnotation(df = annotation[,1:nn,drop=FALSE], gap=unit(0.5,"mm"), col = colorlist)
+    #ha1 = HeatmapAnnotation(df = annotation[,1:nn,drop=FALSE], gap=unit(0.5,"mm"), col = colorlist)
+    ha1 = HeatmapAnnotation(df = annotation[,1:nn,drop=FALSE], gap=unit(0.5,"mm"), col = colorlist, annotation_legend_param = list(title_gp=gpar(fontsize=8), grid_height = unit(3,"mm"), labels_gp=gpar(fontsize=8)))
 
     return(ha1)
 }
