@@ -110,7 +110,7 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
         
         ## First drawing into png
         png_count = png_count+1
-        png(file=paste("/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/plots/images/heatmapSF_",png_count,"_plot.png",sep=""), width = 8, height = 8, unit="in",res=300)
+        png(file=paste("analysis/plots/images/heatmapSF_",png_count,"_plot.png",sep=""), width = 8, height = 8, unit="in",res=300)
         draw(mapplot)
         for(an in colnames(tmp_ann[1:ncol(tmp_ann)])) {
             decorate_annotation(an,
