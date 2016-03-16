@@ -70,4 +70,4 @@ rule copy_summary:
         plots_dir=VIPER_DIR + "/Summary/plots/"
     shell:
         "find analysis/ -type f -name \"*.png\" -exec cp -t {output.plots_dir} {{}} \;"
-        " && cp report.html $(basename {VIPER_DIR})_report.html"  
+        " && cp report.html $(basename " + VIPER_DIR + ")_report.html"  
