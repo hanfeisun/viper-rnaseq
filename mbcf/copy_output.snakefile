@@ -10,7 +10,7 @@ if not VIPER_DIR:
 
 rule target:
     input:
-        VIPER_DIR + "/alignment/bam/", VIPER_DIR + "/alignment/bigwig/", VIPER_DIR + "/diffexp/", VIPER_DIR + "/expression/", VIPER_DIR + "/QC/",  VIPER_DIR + "/SNP/", VIPER_DIR + "/Summary/plots/"
+        VIPER_DIR + "/alignment/bam/", VIPER_DIR + "/alignment/bigwig/", VIPER_DIR + "/diffexp/", VIPER_DIR + "/expression/", VIPER_DIR + "/QC/",  VIPER_DIR + "/SNP/", VIPER_DIR + "/plots/"
 
 rule copy_fastqc:
     output:
@@ -66,8 +66,7 @@ rule copy_snp:
 
 rule copy_summary:
     output:
-        summary_dir=VIPER_DIR + "/Summary/",
-        plots_dir=VIPER_DIR + "/Summary/plots/"
+        plots_dir=VIPER_DIR + "/plots/"
     shell:
         "find analysis/ -type f -name \"*.png\" -exec cp -t {output.plots_dir} {{}} \;"
         " && cp report.html $(basename " + VIPER_DIR + ")_report.html"  
