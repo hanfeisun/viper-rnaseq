@@ -49,3 +49,4 @@ filter_mirna: "TRUE"
 # Varscan - default turned off 
 snp_scan_genome: "false"
 varscan_jar_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/varscan/VarScan.v2.3.9.jar
+gene_annotation: viper/static/humanhg19.annot.csv
