@@ -1,6 +1,7 @@
 # vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
 import sys
+import os
 
 VIPER_DIR=os.environ.get("VIPER_DIR")
 
@@ -8,9 +9,22 @@ if not VIPER_DIR:
     print("Execute the snakefile as: VIPER_DIR=/path/to/copy/dir_name snakemake -s copy_output.snakefile")
     sys.exit()
 
+def fusion_output(wildcards):
+    if os.path.isdir("analysis/STAR_Fusion"):
+        return VIPER_DIR + "/alignment/gene_fusions/"
+    else:
+        return ""    
+
 rule target:
     input:
-        VIPER_DIR + "/alignment/bam/", VIPER_DIR + "/alignment/bigwig/", VIPER_DIR + "/diffexp/", VIPER_DIR + "/expression/", VIPER_DIR + "/QC/",  VIPER_DIR + "/SNP/", VIPER_DIR + "/plots/"
+        VIPER_DIR + "/alignment/bam/", 
+        VIPER_DIR + "/alignment/bigwig/", 
+        fusion_output, 
+        VIPER_DIR + "/diffexp/", 
+        VIPER_DIR + "/expression/", 
+        VIPER_DIR + "/QC/",  
+        VIPER_DIR + "/SNP/", 
+        VIPER_DIR + "/plots/"
 
 rule copy_fastqc:
     output:
@@ -33,6 +47,12 @@ rule copy_alignment_bw:
     shell:
         "find analysis/bam2bw/ -type f -name \"*\.bw\" -exec cp -t {output.bw_dir} {{}} \;"
 
+
+rule copy_fusion_output:
+    output:
+        fusion_dir=VIPER_DIR + "/alignment/gene_fusions/"
+    shell:
+        "for file in $(find analysis/STAR_Fusion/ -type f -name \"*final.abridged\"); do out_file=$(basename $file); tr '\t' ',' <$file 1>{output.fusion_dir}/${{out_file}}.csv; done"
 
 rule copy_diffexp:
     output:
