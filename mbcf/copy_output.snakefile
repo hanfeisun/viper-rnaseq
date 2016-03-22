@@ -4,27 +4,57 @@ import sys
 import os
 
 VIPER_DIR=os.environ.get("VIPER_DIR")
+CFCE_RUN=os.environ.get("CFCE_RUN")
+
+out_file_list = []
 
 if not VIPER_DIR:
     print("Execute the snakefile as: VIPER_DIR=/path/to/copy/dir_name snakemake -s copy_output.snakefile")
     sys.exit()
 
-def fusion_output(wildcards):
+def fusion_output():
     if os.path.isdir("analysis/STAR_Fusion"):
         return VIPER_DIR + "/alignment/gene_fusions/"
     else:
         return ""    
 
-rule target:
-    input:
+
+if not CFCE_RUN or int(CFCE_RUN) != 1:
+    out_file_list = [
         VIPER_DIR + "/alignment/bam/", 
         VIPER_DIR + "/alignment/bigwig/", 
-        fusion_output, 
+        fusion_output(), 
         VIPER_DIR + "/diffexp/", 
         VIPER_DIR + "/expression/", 
         VIPER_DIR + "/QC/",  
         VIPER_DIR + "/SNP/", 
         VIPER_DIR + "/plots/"
+    ]
+else:
+    out_file_list = [
+        VIPER_DIR + "/analysis/",
+        VIPER_DIR + "/viper/"
+    ]
+
+rule target:
+    input:
+        expand("{filename}", filename=out_file_list)
+
+
+rule copy_cfce_analysis:
+    output:
+        analysis_dir=VIPER_DIR + "/analysis/"
+    shell:
+        "cp -rf analysis/* {output.analysis_dir}/"
+        " && cp config.yaml " + VIPER_DIR + "/"
+        " && cp metasheet.csv " + VIPER_DIR + "/"
+        " && cp report.html " + VIPER_DIR + "/$(basename " + VIPER_DIR + ")_report.html" 
+
+rule copy_cfce_viper:
+    output:
+        viper_dir=VIPER_DIR + "/viper/"
+    shell:
+        "cp -rf viper/* {output.viper_dir}/"
 
 rule copy_fastqc:
     output:
