@@ -23,13 +23,15 @@ if not CFCE_RUN or int(CFCE_RUN) != 1:
     out_file_list = [
         VIPER_DIR + "/alignment/bam/", 
         VIPER_DIR + "/alignment/bigwig/", 
-        fusion_output(), 
         VIPER_DIR + "/diffexp/", 
         VIPER_DIR + "/expression/", 
         VIPER_DIR + "/QC/",  
         VIPER_DIR + "/SNP/", 
         VIPER_DIR + "/plots/"
     ]
+    fusion_out = fusion_output()
+    if( fusion_out ):
+        out_file_list.append(fusion_out)
 else:
     out_file_list = [
         VIPER_DIR + "/analysis/",
