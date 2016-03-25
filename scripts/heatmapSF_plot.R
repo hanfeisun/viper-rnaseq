@@ -18,13 +18,13 @@ suppressMessages(library('dplyr'))
 suppressMessages(source('viper/scripts/supp_fns.R'))
 
 #enable stack trace
-options(error = function() traceback(2))
+#options(error = function() traceback(2))
 
 heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SFnumgenes,num_kmeans_clust, sf_plot_out,sf_txt_out) {
 
     #readin and process newdata
     newdata <- rpkmTable
-
+    
     #remove genes with no RPKM values or genes where not enough samples meet a minimum threshold
     newdata<-newdata[apply(newdata, 1, function(x) length(x[x>=RPKM_threshold])>min_num_samples_expressing_at_threshold),]
 
@@ -36,10 +36,10 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
         newdata <- newdata[ !grepl("MIR",rownames(newdata)), ]
         newdata <- newdata[ !grepl("SNO",rownames(newdata)), ]
     }
-
+    
     ## Fail safe to take all genes if numgenes param is greater than what passes filters
     if (as.numeric(SFnumgenes) > nrow(newdata)) {SFnumgenes = nrow(newdata)}
-    
+
     #Calculate CVs for all genes (rows)
     mean_rpkm_nolym <- apply(newdata,1,mean)
     var_rpkm_nolym <- apply(newdata,1,var)
@@ -54,7 +54,7 @@ heatmapSF_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     mi_nolym <- min(Exp_data)
     my.breaks_nolym<-c(-3,seq(-2.5,2.5,length.out=99),3)
     param_text <- paste(RPKM_threshold, min_num_samples_expressing_at_threshold, SFnumgenes, sep=",")
-
+    
     Exp_data = t(as.matrix(Exp_data))
     
     ha1 <- make_complexHeatmap_annotation(tmp_ann)
@@ -158,13 +158,15 @@ sf_plot_out=args[8]
 sf_txt_out=args[9]
 
 ## Process RPKM file
-rpkmTable <- read.table(rpkmFile, check.names=F, header=T, row.names=1, sep=",", stringsAsFactors=FALSE, dec=".")
+rpkmTable <- read.table(rpkmFile, check.names=F, header=T, sep=",", stringsAsFactors=FALSE, dec=".")
+rpkmTable = rpkmTable[!duplicated(rpkmTable[,1]),]
+rownames(rpkmTable) = rpkmTable[,1]
+rpkmTable = rpkmTable[,-1]
 for (n in names(rpkmTable)) {
     #CONVERT to numeric!
     rpkmTable[n] <- apply(rpkmTable[n], 1, as.numeric)
 }
 rpkmTable = na.omit(rpkmTable)
-
 ## PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 ## REMOVE comp_ columns
