@@ -24,6 +24,9 @@ pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expres
     
     #readin and process newdata
     newdata <- rpkmTable
+
+    ## We want to only work with the samples that are in the meta file, so we are only selecting the count columns that are in the meta file
+    newdata = newdata[,colnames(newdata) %in% rownames(tmp_ann)]    
     
     #remove genes with no RPKM values or
     newdata<-newdata[apply(newdata, 1, function(x) length(x[x>=RPKM_threshold])>min_num_samples_expressing_at_threshold),]
