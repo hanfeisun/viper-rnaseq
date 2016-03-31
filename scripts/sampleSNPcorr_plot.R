@@ -18,6 +18,10 @@ options(error = function() traceback(2))
 snp_corr_plot <- function(snpCorrMatrix, annotation, plot_out) {
     cordata <- snpCorrMatrix
 
+    ## We want to only work with the samples that are in the meta file, so we are only selecting the count columns that are in the meta file
+    cordata <- cordata[, rownames(annotation)]
+    cordata <- cordata[rownames(annotation),]
+    
     #save the spearman correlation as txt; save plots
     png(file = plot_out)
 
@@ -25,7 +29,7 @@ snp_corr_plot <- function(snpCorrMatrix, annotation, plot_out) {
     ma_nolym <- max(cordata)
     mi_nolym <- min(cordata)
     my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
-
+    
     #ha1 <- make_complexHeatmap_annotation(annotation)
     graph2 <-Heatmap(t(as.matrix(cordata)), name="scale",
                      col = colorRamp2(my.breaks_nolym,  bluered(101), transparency = 0),
@@ -62,6 +66,15 @@ snp_corr_plot_out=args[3]
 
 #READ in corr. file
 snpCorrMat <- read.table(snpCorrFile, header=TRUE, sep="\t", row.names=1)
+
+#NOTE: in the snpCorrMatrix, sample i.e. column and row names are in the
+#form SAMPLEXXX.snp.chr6 or SAMPLEXXX.snp.[something]
+#WE need to EXTRACT out SAMPLEXXX from this string -> sampleNames
+sampleNames <- sapply(colnames(snpCorrMat),
+                      function(x) substring(x, 1, regexpr('.snp',x) - 1))
+colnames(snpCorrMat) <- sampleNames
+rownames(snpCorrMat) <- sampleNames
+
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
