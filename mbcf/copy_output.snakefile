@@ -35,7 +35,8 @@ if not CFCE_RUN or int(CFCE_RUN) != 1:
 else:
     out_file_list = [
         VIPER_DIR + "/analysis/",
-        VIPER_DIR + "/viper/"
+        VIPER_DIR + "/viper/",
+        VIPER_DIR + "/data/"
     ]
 
 rule target:
@@ -47,16 +48,22 @@ rule copy_cfce_analysis:
     output:
         analysis_dir=VIPER_DIR + "/analysis/"
     shell:
-        "cp -rf analysis/* {output.analysis_dir}/"
-        " && cp config.yaml " + VIPER_DIR + "/"
-        " && cp metasheet.csv " + VIPER_DIR + "/"
-        " && cp report.html " + VIPER_DIR + "/$(basename " + VIPER_DIR + ")_report.html" 
+        "cp -rf --preserve=mode,timestamps analysis/* {output.analysis_dir}/"
+        " && cp --preserve=mode,timestamps config.yaml " + VIPER_DIR + "/"
+        " && cp --preserve=mode,timestamps metasheet.csv " + VIPER_DIR + "/"
+        " && cp --preserve=mode,timestamps report.html " + VIPER_DIR + "/$(basename " + VIPER_DIR + ")_report.html" 
 
 rule copy_cfce_viper:
     output:
         viper_dir=VIPER_DIR + "/viper/"
     shell:
-        "cp -rf viper/* {output.viper_dir}/"
+        "cp -rf --preserve=mode,timestamps viper/* {output.viper_dir}/"
+
+rule copy_cfce_data:
+    output:
+        data_dir=VIPER_DIR + "/data/"
+    shell:
+        "cp -rf --preserve=mode,timestamps data/* {output.data_dir}/"
 
 rule copy_fastqc:
     output:

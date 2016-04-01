@@ -18,20 +18,14 @@ else:
     strand_command="--outSAMstrandField intronMotif"
     rRNA_strand_command="--outSAMstrandField intronMotif"
 
+#LEN: read in comparisons
+metadata = pd.read_table(config['metasheet'], index_col=0, sep=',')
+comparisons = comparison=[c[5:] for c in metadata.columns if c.startswith("comp_")]
 
-file_info = defaultdict(list)
-ordered_sample_list = []
-run_fusion = False
-
-with open( config["metasheet"], "r" ) as meta_fh:
-    next(meta_fh)
-    for line in meta_fh:
-        info = line.strip().split(",")
-        file_info[info[0]] = config["samples"][info[0]]
-        if( len(file_info[info[0]]) == 2 ):
-            run_fusion = True
-        if info[0] not in ordered_sample_list:
-            ordered_sample_list.append(info[0])
+# Mahesh changing the metasheet match with config info to using pandas #
+file_info = { sampleName : config["samples"][sampleName] for sampleName in metadata.index }
+ordered_sample_list = metadata.index
+run_fusion= True if len(config["samples"][metadata.index[0]]) == 2 else False
 
 if( run_fusion ):
     if( config["stranded"] ):
@@ -63,10 +57,6 @@ def insert_size_output(wildcards):
 def rRNA_metrics(wildcards):
     if config["star_rRNA_index"] is not None:
         return "analysis/STAR_rRNA/STAR_rRNA_Align_Report.csv"
-
-#LEN: read in comparisons
-metadata = pd.read_table(config['metasheet'], index_col=0, sep=',')
-comparisons = comparison=[c[5:] for c in metadata.columns if c.startswith("comp_")]
 
 rule target:
     input:
@@ -318,7 +308,7 @@ rule run_STAR:
     input:
         get_fastq
     output:
-        bam="analysis/STAR/{sample}/{sample}.sorted.bam",
+        bam=protected("analysis/STAR/{sample}/{sample}.sorted.bam"),
         counts="analysis/STAR/{sample}/{sample}.counts.tab",
         log_file="analysis/STAR/{sample}/{sample}.Log.final.out"
     params:
@@ -341,7 +331,8 @@ rule run_STAR:
 rule generate_STAR_report:
     input:
         star_log_files=expand( "analysis/STAR/{sample}/{sample}.Log.final.out", sample=ordered_sample_list ),
-        star_gene_count_files=expand( "analysis/STAR/{sample}/{sample}.counts.tab", sample=ordered_sample_list )
+        star_gene_count_files=expand( "analysis/STAR/{sample}/{sample}.counts.tab", sample=ordered_sample_list ),
+        force_run_upon_meta_change = config['metasheet']
     output:
         csv="analysis/STAR/STAR_Align_Report.csv",
         png="analysis/STAR/STAR_Align_Report.png",
@@ -357,7 +348,7 @@ rule run_cufflinks:
     input:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
-        "analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking"
+        protected("analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking")
     threads: 4
     params:
         library_command=cuff_command
@@ -368,7 +359,8 @@ rule run_cufflinks:
 
 rule generate_cuff_matrix:
     input:
-        cuff_gene_fpkms=expand( "analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking", sample=ordered_sample_list )
+        cuff_gene_fpkms=expand( "analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking", sample=ordered_sample_list ),
+        force_run_upon_meta_change = config['metasheet']
     output:
         "analysis/cufflinks/Cuff_Gene_Counts.csv"
     run:
@@ -380,7 +372,7 @@ rule run_STAR_fusion:
     input:
         bam="analysis/STAR/{sample}/{sample}.sorted.bam" #just to make sure STAR output is available before STAR_Fusion
     output:
-        "analysis/STAR_Fusion/{sample}/{sample}.fusion_candidates.final"
+        protected("analysis/STAR_Fusion/{sample}/{sample}.fusion_candidates.final")
     log:
         "analysis/STAR_Fusion/{sample}/{sample}.star_fusion.log"
     shell:
@@ -396,7 +388,7 @@ rule read_distrib_qc:
     input:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
-        "analysis/RSeQC/read_distrib/{sample}.txt"
+        protected("analysis/RSeQC/read_distrib/{sample}.txt")
     shell:
         "{config[python2]} {config[rseqc_path]}/read_distribution.py"
         " --input-file={input}"
@@ -404,7 +396,8 @@ rule read_distrib_qc:
 
 rule read_distrib_qc_matrix:
     input:
-        read_distrib_files=expand( "analysis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list )
+        read_distrib_files=expand( "analysis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
+        force_run_upon_meta_change = config['metasheet']
     output:
         matrix="analysis/RSeQC/read_distrib/read_distrib.matrix.tab",
         png="analysis/RSeQC/read_distrib/read_distrib.png"
@@ -428,8 +421,8 @@ rule gene_body_cvg_qc:
     input:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
-        "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png",
-        "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r"
+        protected("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png"),
+        protected("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r")
     shell:
         "{config[python2]} {config[rseqc_path]}/geneBody_coverage.py -i {input} -r {config[bed_file]}"
         " -f png -o analysis/RSeQC/gene_body_cvg/{wildcards.sample}/{wildcards.sample}"
@@ -437,20 +430,21 @@ rule gene_body_cvg_qc:
 
 rule plot_gene_body_cvg:
     input:
-        expand("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r", sample=ordered_sample_list )
+        in_files=expand("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r", sample=ordered_sample_list ),
+        force_run_upon_meta_change = config['metasheet']
     output:
         rscript="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.r",
         png="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         png_curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png"
     shell:
-        "perl viper/scripts/plot_gene_body_cvg.pl --rfile {output.rscript} --png {output.png} --curves_png {output.png_curves} {input}"
+        "perl viper/scripts/plot_gene_body_cvg.pl --rfile {output.rscript} --png {output.png} --curves_png {output.png_curves} {input.in_files}"
         " && Rscript {output.rscript}"
 
 rule junction_saturation:
     input:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
-        "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf"
+        protected("analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf")
     shell:
         "{config[python2]} {config[rseqc_path]}/junction_saturation.py -i {input} -r {config[bed_file]}"
         " -o analysis/RSeQC/junction_saturation/{wildcards.sample}/{wildcards.sample}"
@@ -460,7 +454,7 @@ rule collect_insert_size:
     input:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
-        "analysis/RSeQC/insert_size/{sample}/{sample}.histogram.pdf"
+        protected("analysis/RSeQC/insert_size/{sample}/{sample}.histogram.pdf")
     shell:
         "java -jar {config[picard_path]}/CollectInsertSizeMetrics.jar"
         " H={output} I={input} O=analysis/RSeQC/insert_size/{wildcards.sample}/{wildcards.sample} R={config[ref_fasta]}"
@@ -470,7 +464,7 @@ rule run_rRNA_STAR:
     input:
         get_fastq
     output:
-        bam="analysis/STAR_rRNA/{sample}/{sample}.sorted.bam",
+        bam=protected("analysis/STAR_rRNA/{sample}/{sample}.sorted.bam"),
         log_file="analysis/STAR_rRNA/{sample}/{sample}.Log.final.out"
     params:
         stranded=rRNA_strand_command,
@@ -488,7 +482,8 @@ rule run_rRNA_STAR:
 
 rule generate_rRNA_STAR_report:
     input:
-        star_log_files=expand( "analysis/STAR_rRNA/{sample}/{sample}.Log.final.out", sample=ordered_sample_list )
+        star_log_files=expand( "analysis/STAR_rRNA/{sample}/{sample}.Log.final.out", sample=ordered_sample_list ),
+        force_run_upon_meta_change = config['metasheet']
     output:
         csv="analysis/STAR_rRNA/STAR_rRNA_Align_Report.csv",
         png="analysis/STAR_rRNA/STAR_rRNA_Align_Report.png"
@@ -512,7 +507,7 @@ rule bam_to_bigwig:
         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
         chrom_size="analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
     output:
-        "analysis/bam2bw/{sample}/{sample}.bw"
+        protected("analysis/bam2bw/{sample}/{sample}.bw")
     params:
         "analysis/bam2bw/{sample}/{sample}"
     shell:
@@ -554,7 +549,7 @@ rule pca_plot:
         annotFile=config['metasheet']
     output:
         pca_plot_out="analysis/plots/pca_plot.pdf",
-        png_dir = temp("analysis/plots/images/")
+        png_dir = "analysis/plots/images/"
     params:
         RPKM_threshold = config["RPKM_threshold"],
         min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
@@ -614,7 +609,8 @@ def get_samples(wildcards):
 ## Perform Limma and DEseq on comparisons
 rule limma_and_deseq:
     input:
-        counts = "analysis/STAR/STAR_Gene_Counts.csv"
+        counts = "analysis/STAR/STAR_Gene_Counts.csv",
+        force_run_upon_meta_change = config['metasheet']
     output:
         limma = "analysis/diffexp/{comparison}/{comparison}.limma.csv",
         deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
@@ -634,7 +630,8 @@ rule limma_and_deseq:
 
 rule fetch_DE_gene_list:
     input:
-        deseq_file_list=expand("analysis/diffexp/{comparison}/{comparison}.deseq.csv",comparison=comparisons)
+        deseq_file_list=expand("analysis/diffexp/{comparison}/{comparison}.deseq.csv",comparison=comparisons),
+        force_run_upon_meta_change = config['metasheet']
     output:
         csv="analysis/diffexp/de_summary.csv",
         png="analysis/diffexp/de_summary.png"
@@ -647,6 +644,7 @@ rule fetch_DE_gene_list:
 rule volcano_plot:
     input:
         deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+        force_run_upon_meta_change = config['metasheet']
     output:
         plot = "analysis/diffexp/{comparison}/{comparison}_volcano.pdf",
         png = "analysis/plots/images/{comparison}_volcano.png"
@@ -664,7 +662,7 @@ rule call_snps_chr6:
         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
         ref_fa=config["ref_fasta"],
     output:
-        "analysis/snp/{sample}/{sample}.snp.chr6.txt"
+        protected("analysis/snp/{sample}/{sample}.snp.chr6.txt")
     params:
         varscan_jar_path=config["varscan_jar_path"]
     shell:
@@ -674,7 +672,8 @@ rule call_snps_chr6:
 #calculate sample snps correlation using all samples
 rule sample_snps_corr_chr6:
     input:
-        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.chr6.txt", sample=ordered_sample_list)
+        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.chr6.txt", sample=ordered_sample_list),
+        force_run_upon_meta_change = config['metasheet']
     output:
         "analysis/snp/snp_corr.chr6.txt"
     run:
@@ -699,7 +698,7 @@ rule call_snps_genome:
         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
         ref_fa=config["ref_fasta"],
     output:
-        "analysis/snp/{sample}/{sample}.snp.genome.txt"
+        protected("analysis/snp/{sample}/{sample}.snp.genome.txt")
     params:
         varscan_jar_path=config["varscan_jar_path"]
     shell:
@@ -708,7 +707,8 @@ rule call_snps_genome:
 
 rule sample_snps_corr_genome:
     input:
-        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.genome.txt", sample=ordered_sample_list)
+        snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.genome.txt", sample=ordered_sample_list),
+        force_run_upon_meta_change = config['metasheet']
     output:
         "analysis/snp/snp_corr.genome.txt"
     run:
