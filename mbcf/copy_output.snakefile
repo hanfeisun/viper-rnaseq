@@ -63,7 +63,7 @@ rule copy_cfce_data:
     output:
         data_dir=VIPER_DIR + "/data/"
     shell:
-        "cp -rf --preserve=mode,timestamps data/* {output.data_dir}/"
+        "cp -rf --preserve=mode,timestamps --dereference data/* {output.data_dir}/"
 
 rule copy_fastqc:
     output:
