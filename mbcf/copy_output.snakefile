@@ -57,7 +57,7 @@ rule copy_cfce_viper:
     output:
         viper_dir=VIPER_DIR + "/viper/"
     shell:
-        "cp -rf --preserve=mode,timestamps viper/* {output.viper_dir}/"
+        "cp -rf --preserve=mode,timestamps --dereference viper/* {output.viper_dir}/"
 
 rule copy_cfce_data:
     output:
