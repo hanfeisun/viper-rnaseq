@@ -21,8 +21,6 @@ suppressMessages(source('viper/scripts/supp_fns.R'))
 options(error = function() traceback(2))
 
 pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out) {
-
-    print(pca_plot_out)
     
     #readin and process newdata
     newdata <- rpkmTable
@@ -98,8 +96,6 @@ RPKM_threshold=args[3]
 min_num_samples_expressing_at_threshold=args[4]
 filter_mirna = args[5]
 SSnumgenes=args[6]
-#metacols=args[7]
-#pca_png_files = args[8]
 pca_plot_out=args[7]
 
 #process RPKM file

@@ -312,6 +312,7 @@ rule generate_report:
     input:
     output:
         "report.html"
+    message: "Generating VIPER report"
     run:
         from snakemake.utils import report
         sphinx_str = get_sphinx_report()
@@ -330,7 +331,7 @@ rule run_STAR:
         prefix=lambda wildcards: "analysis/STAR/{sample}/{sample}".format(sample=wildcards.sample),
         readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample)
     threads: 8
-    message: "Running STAR Alignment on {input}"
+    message: "Running STAR Alignment on {wildcards.sample}"
     shell:
         "STAR --runMode alignReads --runThreadN {threads} --genomeDir {config[star_index]}"
 	" --sjdbGTFfile {config[gtf_file]}"
@@ -365,7 +366,7 @@ rule run_cufflinks:
     output:
         "analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking"
     threads: 4
-    message: "Running Cufflinks on {input}"
+    message: "Running Cufflinks on {wildcards.sample}"
     params:
         library_command=cuff_command
     shell:
@@ -391,7 +392,7 @@ rule run_STAR_fusion:
         "analysis/STAR_Fusion/{sample}/{sample}.fusion_candidates.final"
     log:
         "analysis/STAR_Fusion/{sample}/{sample}.star_fusion.log"
-    message: "Running STAR fusion on {input}"
+    message: "Running STAR fusion on {wildcards.sample}"
     shell:
         "STAR-Fusion --chimeric_junction analysis/STAR/{wildcards.sample}/{wildcards.sample}.Chimeric.out.junction "
         "--genome_lib_dir {config[genome_lib_dir]} --output_dir analysis/STAR_Fusion/{wildcards.sample} >& {log}"
@@ -406,7 +407,7 @@ rule read_distrib_qc:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/read_distrib/{sample}.txt"
-    message: "Running RseQC read distribution on {input}"
+    message: "Running RseQC read distribution on {wildcards.sample}"
     shell:
         "{config[python2]} {config[rseqc_path]}/read_distribution.py"
         " --input-file={input}"
@@ -429,7 +430,7 @@ rule down_sample:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/gene_body_cvg/downsample/{sample}.downsample.sorted.bam"
-    message: "Running RseQC downsample gene body coverage"
+    message: "Running RseQC downsample gene body coverage for {wildcards.sample}"
     shell:
         "java -jar {config[picard_path]}/DownsampleSam.jar INPUT={input} OUTPUT={output}"
         " PROBABILITY=0.1"
@@ -464,7 +465,7 @@ rule junction_saturation:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf"
-    message: "Determining junction saturation for {input}"
+    message: "Determining junction saturation for {wildcards.sample}"
     shell:
         "{config[python2]} {config[rseqc_path]}/junction_saturation.py -i {input} -r {config[bed_file]}"
         " -o analysis/RSeQC/junction_saturation/{wildcards.sample}/{wildcards.sample}"
@@ -475,7 +476,7 @@ rule collect_insert_size:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/insert_size/{sample}/{sample}.histogram.pdf"
-    message: "Collecting insert size for {input}"
+    message: "Collecting insert size for {wildcards.sample}"
     shell:
         "java -jar {config[picard_path]}/CollectInsertSizeMetrics.jar"
         " H={output} I={input} O=analysis/RSeQC/insert_size/{wildcards.sample}/{wildcards.sample} R={config[ref_fasta]}"
@@ -492,7 +493,7 @@ rule run_rRNA_STAR:
         prefix=lambda wildcards: "analysis/STAR_rRNA/{sample}/{sample}".format(sample=wildcards.sample),
         readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample)
     threads: 8
-    message: "Running rRNA STAR for {input}"
+    message: "Running rRNA STAR for {wildcards.sample}"
     shell:
         "STAR --runMode alignReads --runThreadN {threads} --genomeDir {config[star_rRNA_index]}"
         " --readFilesIn {input} --readFilesCommand zcat --outFileNamePrefix {params.prefix}."
@@ -533,7 +534,7 @@ rule bam_to_bigwig:
         "analysis/bam2bw/{sample}/{sample}.bw"
     params:
         "analysis/bam2bw/{sample}/{sample}"
-    message: "Converting bams to bigwigs"
+    message: "Converting {wildcards.sample} bam to bigwig"
     shell:
         "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {params}.bg"
         " && bedSort {params}.bg {params}.sorted.bg"
@@ -620,7 +621,7 @@ rule limma_and_deseq:
         s1=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 1)),
         s2=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 2)),
         gene_annotation = config['gene_annotation']
-    message: "Running differential expression analysis using limma and deseq"
+    message: "Running differential expression analysis using limma and deseq for {wildcards.comparison}"
 #    script:
 #        "scripts/DEseq.R"
 
@@ -646,7 +647,7 @@ rule volcano_plot:
     output:
         plot = "analysis/diffexp/{comparison}/{comparison}_volcano.pdf",
         png = "analysis/plots/images/{comparison}_volcano.png"
-    message: "Creating volcano plots for Differential Expressions"
+    message: "Creating volcano plots for Differential Expressions for {wildcards.comparison}"
     run:
         shell("Rscript viper/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")
 
