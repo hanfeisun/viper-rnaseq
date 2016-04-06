@@ -68,6 +68,8 @@ def rRNA_metrics(wildcards):
 metadata = pd.read_table(config['metasheet'], index_col=0, sep=',')
 comparisons = comparison=[c[5:] for c in metadata.columns if c.startswith("comp_")]
 
+metacols = [c for c in metadata.columns if c.lower()[:4] != 'comp']
+
 rule target:
     input:
         expand( "analysis/cufflinks/{K}/{K}.genes.fpkm_tracking", K=ordered_sample_list ),
@@ -76,6 +78,7 @@ rule target:
         "analysis/STAR/STAR_Gene_Counts.csv",
         "analysis/cufflinks/Cuff_Gene_Counts.csv",
         "analysis/plots/pca_plot.pdf",
+        expand("analysis/plots/images/pca_plot_{metacol}.png", metacol=metacols),
         "analysis/plots/heatmapSS_plot.pdf",
         "analysis/plots/heatmapSF_plot.pdf",
         expand( "analysis/RSeQC/read_distrib/{sample}.txt", sample=ordered_sample_list ),
@@ -93,6 +96,7 @@ rule target:
         fusion_output,
         insert_size_output,
         rRNA_metrics
+    message: "Compiling all output"
         
 #["analysis/plots/correlation_plot.pdf", "analysis/plots/correlation_table.csv", "analysis/plots/upvenn_plot.pdf", "analysis/plots/downvenn_plot.pdf"] if len(comparisons) >= 2 else []
 
@@ -326,6 +330,7 @@ rule run_STAR:
         prefix=lambda wildcards: "analysis/STAR/{sample}/{sample}".format(sample=wildcards.sample),
         readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample)
     threads: 8
+    message: "Running STAR Alignment on {input}"
     shell:
         "STAR --runMode alignReads --runThreadN {threads} --genomeDir {config[star_index]}"
 	" --sjdbGTFfile {config[gtf_file]}"
@@ -346,6 +351,7 @@ rule generate_STAR_report:
         csv="analysis/STAR/STAR_Align_Report.csv",
         png="analysis/STAR/STAR_Align_Report.png",
         gene_counts="analysis/STAR/STAR_Gene_Counts.csv"
+    message: "Generating STAR report"
     run:
         log_files = " -l ".join( input.star_log_files )
         count_files = " -f ".join( input.star_gene_count_files )
@@ -359,6 +365,7 @@ rule run_cufflinks:
     output:
         "analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking"
     threads: 4
+    message: "Running Cufflinks on {input}"
     params:
         library_command=cuff_command
     shell:
@@ -371,6 +378,7 @@ rule generate_cuff_matrix:
         cuff_gene_fpkms=expand( "analysis/cufflinks/{sample}/{sample}.genes.fpkm_tracking", sample=ordered_sample_list )
     output:
         "analysis/cufflinks/Cuff_Gene_Counts.csv"
+    message: "Generating expression matrix using cufflinks counts"
     run:
         fpkm_files= " -f ".join( input.cuff_gene_fpkms )
         shell( "perl viper/scripts/raw_and_fpkm_count_matrix.pl -c -f {fpkm_files} 1>{output}" )
@@ -383,6 +391,7 @@ rule run_STAR_fusion:
         "analysis/STAR_Fusion/{sample}/{sample}.fusion_candidates.final"
     log:
         "analysis/STAR_Fusion/{sample}/{sample}.star_fusion.log"
+    message: "Running STAR fusion on {input}"
     shell:
         "STAR-Fusion --chimeric_junction analysis/STAR/{wildcards.sample}/{wildcards.sample}.Chimeric.out.junction "
         "--genome_lib_dir {config[genome_lib_dir]} --output_dir analysis/STAR_Fusion/{wildcards.sample} >& {log}"
@@ -397,6 +406,7 @@ rule read_distrib_qc:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/read_distrib/{sample}.txt"
+    message: "Running RseQC read distribution on {input}"
     shell:
         "{config[python2]} {config[rseqc_path]}/read_distribution.py"
         " --input-file={input}"
@@ -408,17 +418,18 @@ rule read_distrib_qc_matrix:
     output:
         matrix="analysis/RSeQC/read_distrib/read_distrib.matrix.tab",
         png="analysis/RSeQC/read_distrib/read_distrib.png"
+    message: "Creating RseQC read distribution matrix"
     run:
         file_list_with_flag = " -f ".join( input.read_distrib_files )
         shell( "perl viper/scripts/read_distrib_matrix.pl -f {file_list_with_flag} 1>{output.matrix}" )
         shell( "Rscript viper/scripts/read_distrib.R {output.matrix} {output.png}" )
-
 
 rule down_sample:
     input:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/gene_body_cvg/downsample/{sample}.downsample.sorted.bam"
+    message: "Running RseQC downsample gene body coverage"
     shell:
         "java -jar {config[picard_path]}/DownsampleSam.jar INPUT={input} OUTPUT={output}"
         " PROBABILITY=0.1"
@@ -430,6 +441,7 @@ rule gene_body_cvg_qc:
     output:
         "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png",
         "analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r"
+    message: "Creating gene body coverage curves"
     shell:
         "{config[python2]} {config[rseqc_path]}/geneBody_coverage.py -i {input} -r {config[bed_file]}"
         " -f png -o analysis/RSeQC/gene_body_cvg/{wildcards.sample}/{wildcards.sample}"
@@ -442,6 +454,7 @@ rule plot_gene_body_cvg:
         rscript="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.r",
         png="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
         png_curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png"
+    message: "Plotting gene body coverage"
     shell:
         "perl viper/scripts/plot_gene_body_cvg.pl --rfile {output.rscript} --png {output.png} --curves_png {output.png_curves} {input}"
         " && Rscript {output.rscript}"
@@ -451,6 +464,7 @@ rule junction_saturation:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf"
+    message: "Determining junction saturation for {input}"
     shell:
         "{config[python2]} {config[rseqc_path]}/junction_saturation.py -i {input} -r {config[bed_file]}"
         " -o analysis/RSeQC/junction_saturation/{wildcards.sample}/{wildcards.sample}"
@@ -461,6 +475,7 @@ rule collect_insert_size:
         "analysis/STAR/{sample}/{sample}.sorted.bam"
     output:
         "analysis/RSeQC/insert_size/{sample}/{sample}.histogram.pdf"
+    message: "Collecting insert size for {input}"
     shell:
         "java -jar {config[picard_path]}/CollectInsertSizeMetrics.jar"
         " H={output} I={input} O=analysis/RSeQC/insert_size/{wildcards.sample}/{wildcards.sample} R={config[ref_fasta]}"
@@ -477,6 +492,7 @@ rule run_rRNA_STAR:
         prefix=lambda wildcards: "analysis/STAR_rRNA/{sample}/{sample}".format(sample=wildcards.sample),
         readgroup=lambda wildcards: "ID:{sample} PL:illumina LB:{sample} SM:{sample}".format(sample=wildcards.sample)
     threads: 8
+    message: "Running rRNA STAR for {input}"
     shell:
         "STAR --runMode alignReads --runThreadN {threads} --genomeDir {config[star_rRNA_index]}"
         " --readFilesIn {input} --readFilesCommand zcat --outFileNamePrefix {params.prefix}."
@@ -492,6 +508,7 @@ rule generate_rRNA_STAR_report:
     output:
         csv="analysis/STAR_rRNA/STAR_rRNA_Align_Report.csv",
         png="analysis/STAR_rRNA/STAR_rRNA_Align_Report.png"
+    message: "Generating STAR rRNA report"
     run:
         log_files = " -l ".join( input.star_log_files )
         shell( "perl viper/scripts/STAR_reports.pl -l {log_files} 1>{output.csv}" )
@@ -502,6 +519,7 @@ rule get_chrom_size:
         "analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
     params:
         config['reference']
+    message: "Fetching chromosome sizes"
     shell:
         "fetchChromSizes {params} 1>{output}"
         " && if [ -e /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/ERCC/input/ERCC92.chromInfo ]; then cat /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/ERCC/input/ERCC92.chromInfo 1>>{output}; fi"
@@ -515,55 +533,29 @@ rule bam_to_bigwig:
         "analysis/bam2bw/{sample}/{sample}.bw"
     params:
         "analysis/bam2bw/{sample}/{sample}"
+    message: "Converting bams to bigwigs"
     shell:
         "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {params}.bg"
         " && bedSort {params}.bg {params}.sorted.bg"
         " && bedGraphToBigWig {params}.sorted.bg {input.chrom_size} {output}"
-
-#LEN:
-# rule bam_to_bg:
-#     input:
-#         bam="analysis/STAR/{sample}/{sample}.sorted.bam",
-#         chrom_size="analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
-#     output:
-#         "analysis/bam2bw/{sample}/{sample}.bg"
-#     shell:
-#         "bedtools genomecov -bg -split -ibam {input.bam} -g {input.chrom_size} 1> {output}"
-
-# rule sort_bg:
-#     input:
-#         "analysis/bam2bw/{sample}/{sample}.bg"
-#     output:
-#         "analysis/bam2bw/{sample}/{sample}.sorted.bg"
-#     shell:
-#         "bedSort {input} {output}"
-
-# rule bg_to_bw:
-#     input:
-#         bg="analysis/bam2bw/{sample}/{sample}.sorted.bg",
-#         chrom_size="analysis/bam2bw/" + config['reference'] + ".Chromsizes.txt"
-#     output:
-#         "analysis/bam2bw/{sample}/{sample}.bw"
-#     shell:
-#         "bedGraphToBigWig {input.bg} {input.chrom_size} {output}"
-
 
 rule pca_plot:
     input:
         rpkmFile="analysis/cufflinks/Cuff_Gene_Counts.csv",
         annotFile=config['metasheet']
     output:
-        pca_plot_out="analysis/plots/pca_plot.pdf",
-        png_dir = temp("analysis/plots/images/")
+        expand("analysis/plots/images/pca_plot_{metacol}.png", metacol=metacols),
+        pca_plot_out="analysis/plots/pca_plot.pdf"
     params:
         RPKM_threshold = config["RPKM_threshold"],
         min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
         filter_mirna = config["filter_mirna"],
         SSnumgenes = config["SSnumgenes"]
+    message: "Generating PCA plots"
 #    shell:
 #        "scripts/pca_plot.R"
     run:
-        shell("Rscript viper/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.pca_plot_out} {output.png_dir}")
+        shell("Rscript viper/scripts/pca_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.pca_plot_out}")
 
 rule heatmapSS_plot:
     input:
@@ -577,6 +569,7 @@ rule heatmapSS_plot:
         min_num_samples_expressing_at_threshold = config["min_num_samples_expressing_at_threshold"],
         filter_mirna = config["filter_mirna"],
         SSnumgenes = config["SSnumgenes"]
+    message: "Generating Sample-Sample Heatmap"
     run:
         shell("Rscript viper/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
 
@@ -593,6 +586,7 @@ rule heatmapSF_plot:
         filter_mirna = config["filter_mirna"],
         SFnumgenes = config["SFnumgenes"],
         num_kmeans_clust = config["num_kmeans_clust"]
+    message: "Generating Sample-Feature heatmap"
     run:
         shell("Rscript viper/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SFnumgenes} {params.num_kmeans_clust} {output.sf_plot_out} {output.sf_txt_out}")
 
@@ -626,6 +620,7 @@ rule limma_and_deseq:
         s1=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 1)),
         s2=lambda wildcards: ",".join(get_comparison(wildcards.comparison, 2)),
         gene_annotation = config['gene_annotation']
+    message: "Running differential expression analysis using limma and deseq"
 #    script:
 #        "scripts/DEseq.R"
 
@@ -638,6 +633,7 @@ rule fetch_DE_gene_list:
     output:
         csv="analysis/diffexp/de_summary.csv",
         png="analysis/diffexp/de_summary.png"
+    message: "Creating Differential Expression summary"
     run:
         deseq_file_string = ' -f '.join(input.deseq_file_list)
         shell("perl viper/scripts/get_de_summary_table.pl -f {deseq_file_string} 1>{output.csv}")
@@ -650,6 +646,7 @@ rule volcano_plot:
     output:
         plot = "analysis/diffexp/{comparison}/{comparison}_volcano.pdf",
         png = "analysis/plots/images/{comparison}_volcano.png"
+    message: "Creating volcano plots for Differential Expressions"
     run:
         shell("Rscript viper/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")
 
@@ -667,6 +664,7 @@ rule call_snps_chr6:
         "analysis/snp/{sample}/{sample}.snp.chr6.txt"
     params:
         varscan_jar_path=config["varscan_jar_path"]
+    message: "Running varscan for snp analysis for ch6 fingerprint region"
     shell:
         "samtools mpileup -r \"chr6\" -f {input.ref_fa} {input.bam} | awk \'$4 != 0\' | "
         "java -jar {params.varscan_jar_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
@@ -677,6 +675,7 @@ rule sample_snps_corr_chr6:
         snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.chr6.txt", sample=ordered_sample_list)
     output:
         "analysis/snp/snp_corr.chr6.txt"
+    message: "Running snp correlations for chr6 fingerprint region"
     run:
         snps = " ".join(input.snps)
         shell("{config[python2]} viper/scripts/sampleSNPcorr.py {snps}> {output}")
@@ -687,6 +686,7 @@ rule snps_corr_plot_chr6:
         annotFile=config['metasheet'],
     output:
         snp_plot_out="analysis/plots/sampleSNPcorr_plot.chr6.png"
+    message: "Running snp analysis for chr6 fingerprint region"
     run:
         shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
 
@@ -702,6 +702,7 @@ rule call_snps_genome:
         "analysis/snp/{sample}/{sample}.snp.genome.txt"
     params:
         varscan_jar_path=config["varscan_jar_path"]
+    message: "Running varscan for snp analysis genome wide"
     shell:
         "samtools mpileup -f {input.ref_fa} {input.bam} | awk \'$4 != 0\' | "
         "java -jar {params.varscan_jar_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
@@ -711,6 +712,7 @@ rule sample_snps_corr_genome:
         snps = lambda wildcards: expand("analysis/snp/{sample}/{sample}.snp.genome.txt", sample=ordered_sample_list)
     output:
         "analysis/snp/snp_corr.genome.txt"
+    message: "Running snp analysis genome wide"
     run:
         snps = " ".join(input.snps)
         shell("{config[python2]} viper/scripts/sampleSNPcorr.py {snps}> {output}")
@@ -721,6 +723,7 @@ rule snps_corr_plot_genome:
         annotFile=config['metasheet'],
     output:
         snp_plot_out="analysis/plots/sampleSNPcorr_plot.genome.png"
+    message: "Creating snp plot genome wide"
     run:
         shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
 

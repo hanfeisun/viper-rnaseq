@@ -20,7 +20,9 @@ suppressMessages(source('viper/scripts/supp_fns.R'))
 #LEN:
 options(error = function() traceback(2))
 
-pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, plot_out,png_dir) {
+pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out) {
+
+    print(pca_plot_out)
     
     #readin and process newdata
     newdata <- rpkmTable
@@ -52,7 +54,7 @@ pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expres
     Exp_data <- newdata[order(cv_rpkm_nolym,decreasing=T)[1:SSnumgenes],]
 
     #SAVE plot
-    pdf(file = plot_out)
+    pdf(file = pca_plot_out)
     png_counter <- 1
     
     #Standard PCA analysis using all possible annotations
@@ -63,7 +65,8 @@ pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expres
             
             myColors = ClassColors[ann]
             myColors[which(is.na(myColors))] <- "black"
-            png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""), width = 8, height = 8, unit="in",res=300)
+            #png(file=paste(png_dir,"/pca_plot_",c,".png",sep=""), width = 8, height = 8, unit="in",res=300)
+            png(file=paste("analysis/plots/images/pca_plot_", c, ".png", sep=""), width = 8, height = 8, unit="in",res=300) 
             png_counter <- png_counter + 1
             pca_output <- make_pca_plots(t(Exp_data), threeD = FALSE, ClassColorings = myColors, pca_title = c, legend_title =  c)
 	    dev.off()
@@ -75,7 +78,8 @@ pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expres
     #GET percent variances
     pc_var <- signif(100.0 * summary(pca_output)[[6]][2,], digits = 3)
     #scree plot
-    png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""), width = 8, height = 8, unit="in",res=300)
+    #png(file=paste(png_dir,"/pca_plot_",png_counter,".png",sep=""), width = 8, height = 8, unit="in",res=300)
+    png(file="analysis/plots/images/pca_plot_scree.png", width = 8, height = 8, unit="in",res=300)
     barplot(pc_var, ylim=c(0,100),ylab="% variance")
     dev.off()
     barplot(pc_var, ylim=c(0,100),ylab="% variance")
@@ -94,8 +98,9 @@ RPKM_threshold=args[3]
 min_num_samples_expressing_at_threshold=args[4]
 filter_mirna = args[5]
 SSnumgenes=args[6]
+#metacols=args[7]
+#pca_png_files = args[8]
 pca_plot_out=args[7]
-png_dir=args[8]
 
 #process RPKM file
 # Mahesh adding check.names=F so that if there is any - or _ characters, they won't be turned to default '.'
@@ -123,4 +128,4 @@ rownames(tmp_ann) <- tmp_ann[,1]
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
 
-pca_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out,png_dir)
+pca_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out)
