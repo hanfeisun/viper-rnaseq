@@ -1,0 +1,21 @@
+# vim: syntax=yaml tabstop=4 expandtab
+
+#Reference files required
+star_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/STARIndex_with_ERCC/
+gtf_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/genes_with_ERCC.gtf
+bed_file: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Annotation/Genes/hg19_genes_with_ERCC.bed
+ref_fasta: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/UCSC/hg19/Sequence/WholeGenomeFasta/genome_with_ERCC.fa
+star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/Ensembl/GRCh38/Sequences/non_coding_RNA/STARIndex_rRNA/
+
+#Reference organism; possible value - hg19, mm9 etc.
+reference: hg19
+
+#STAR-Fusion
+#This is required only for PE data.
+genome_lib_dir: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/STAR_Fusion/Hg19_CTAT_resource_lib
+
+#software source paths required from user
+python2: /apps/python-2.7.9/bin/python
+rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/scripts
+picard_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/picard-tools-1.115  #This dependency will be added to conda in the near future; temp fix
+varscan_jar_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/varscan/VarScan.v2.3.9.jar
