@@ -19,19 +19,15 @@ else:
     rRNA_strand_command="--outSAMstrandField intronMotif"
 
 
-file_info = defaultdict(list)
-ordered_sample_list = []
-run_fusion = False
+metadata = pd.read_table(config['metasheet'], index_col=0, sep=',')
+comparisons = comparison=[c[5:] for c in metadata.columns if c.startswith("comp_")]
 
-with open( config["metasheet"], "r" ) as meta_fh:
-    next(meta_fh)
-    for line in meta_fh:
-        info = line.strip().split(",")
-        file_info[info[0]] = config["samples"][info[0]]
-        if( len(file_info[info[0]]) == 2 ):
-            run_fusion = True
-        if info[0] not in ordered_sample_list:
-            ordered_sample_list.append(info[0])
+metacols = [c for c in metadata.columns if c.lower()[:4] != 'comp']
+
+# Mahesh changing the metasheet match with config info to using pandas #
+file_info = { sampleName : config["samples"][sampleName] for sampleName in metadata.index }
+ordered_sample_list = metadata.index
+run_fusion= True if len(config["samples"][metadata.index[0]]) == 2 else False
 
 if( run_fusion ):
     if( config["stranded"] ):
@@ -64,11 +60,6 @@ def rRNA_metrics(wildcards):
     if config["star_rRNA_index"] is not None:
         return "analysis/STAR_rRNA/STAR_rRNA_Align_Report.csv"
 
-#LEN: read in comparisons
-metadata = pd.read_table(config['metasheet'], index_col=0, sep=',')
-comparisons = comparison=[c[5:] for c in metadata.columns if c.startswith("comp_")]
-
-metacols = [c for c in metadata.columns if c.lower()[:4] != 'comp']
 
 rule target:
     input:
