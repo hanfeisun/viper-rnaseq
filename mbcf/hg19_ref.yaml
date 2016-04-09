@@ -9,7 +9,7 @@ star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sap
 
 #Reference organism; possible value - hg19, mm9 etc.
 reference: hg19
-
+gene_annotation: viper/static/humanhg19.annot.csv
 #STAR-Fusion
 #This is required only for PE data.
 genome_lib_dir: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/human/Homo_sapiens/STAR_Fusion/Hg19_CTAT_resource_lib
