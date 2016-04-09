@@ -4,8 +4,20 @@
 import os
 from collections import defaultdict
 import pandas as pd
+import yaml
 
+#-----     CONFIG SET UP    ------#
 configfile: "config.yaml"
+
+with open("ref.yaml","r") as ref_file:
+    ref_info = yaml.safe_load(ref_file) 
+
+for k,v in ref_info.items():
+    config[k] = v
+
+config["samples"] = config["the_samples"]
+#----   END OF CONFIG SET UP -----#
+
 strand_command=""
 cuff_command=""
 rRNA_strand_command=""
