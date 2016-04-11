@@ -373,7 +373,7 @@ rule heatmapSS_plot:
         SSnumgenes = config["SSnumgenes"]
     message: "Generating Sample-Sample Heatmap"
     run:
-        shell("Rscript viper/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
+        shell("mkdir -p analysis/plots/images && Rscript viper/scripts/heatmapSS_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SSnumgenes} {output.ss_plot_out} {output.ss_txt_out}")
 
 rule heatmapSF_plot:
     input:
@@ -390,7 +390,7 @@ rule heatmapSF_plot:
         num_kmeans_clust = config["num_kmeans_clust"]
     message: "Generating Sample-Feature heatmap"
     run:
-        shell("Rscript viper/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SFnumgenes} {params.num_kmeans_clust} {output.sf_plot_out} {output.sf_txt_out}")
+        shell("mkdir -p analysis/plots/images && Rscript viper/scripts/heatmapSF_plot.R {input.rpkmFile} {input.annotFile} {params.RPKM_threshold} {params.min_num_samples_expressing_at_threshold} {params.filter_mirna} {params.SFnumgenes} {params.num_kmeans_clust} {output.sf_plot_out} {output.sf_txt_out}")
 
 #PART 2.2- diffexp w/ DEseq
 #based on tosh's coppRhead/Snakefile

@@ -121,7 +121,11 @@ for (col in colnames(tmp_ann)) {
 }
 
 rownames(tmp_ann) <- tmp_ann[,1]
+rowNames <- tmp_ann[,1]
+colNames <- colnames(tmp_ann)
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
-tmp_ann <- tmp_ann[samples,-1]
+tmp_ann <- as.data.frame(tmp_ann[samples,-1])
+rownames(tmp_ann) <- rowNames
+colnames(tmp_ann) <- colNames[2:length(colNames)]
 
 pca_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out)
