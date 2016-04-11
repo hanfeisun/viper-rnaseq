@@ -103,8 +103,7 @@ rule target:
         expand( "analysis/plots/sampleSNPcorr_plot.{region}.png", region=snp_regions),
         fusion_output,
         insert_size_output,
-        rRNA_metrics,
-        "report.html"
+        rRNA_metrics
     message: "Compiling all output"
         
 #["analysis/plots/correlation_plot.pdf", "analysis/plots/correlation_table.csv", "analysis/plots/upvenn_plot.pdf", "analysis/plots/downvenn_plot.pdf"] if len(comparisons) >= 2 else []
