@@ -5,7 +5,7 @@ library(edgeR)
 limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, limma_annot, deseq_annot, deseqSum_out, gene_annotation) {
     #READ in gene_annotation table--even though gene descriptions are quoted
     #in the annotations, we have to quote it again!
-    gene_annot <- read.table(gene_annotation, header=TRUE, sep=",", fill=TRUE, row.names=NULL)
+    gene_annot <- read.table(gene_annotation, header=TRUE, sep=",", quote="", fill=TRUE, row.names=NULL)
     #DROP--move to the annotation files
     #Quote the gene_descriptions--VERSION 1
     #gene_annot[,'Gene.Description'] <- sapply(gene_annot[,'Gene.Description'],
