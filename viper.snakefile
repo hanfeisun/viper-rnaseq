@@ -16,6 +16,9 @@ for k,v in ref_info.items():
     config[k] = v
 
 config["samples"] = config["the_samples"]
+
+for k in ["RPKM_threshold","min_num_samples_expressing_at_threshold","SSnumgenes","SFnumgenes","num_kmeans_clust","filter_mirna","snp_scan_genome"]:
+    config[k] = str(config[k])
 #----   END OF CONFIG SET UP -----#
 
 strand_command=""
