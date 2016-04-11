@@ -34,7 +34,7 @@ def get_sphinx_report():
         if "pca_plot_scree.png" not in pca_plot:
             pca_png_list.append(data_uri(pca_plot))
 
-    if(os.path.isfile("./analysis/plots/images/pca_plot_scree.png"):)
+    if(os.path.isfile("./analysis/plots/images/pca_plot_scree.png")):
         pca_png_list.append(data_uri("./analysis/plots/images/pca_plot_scree.png"))    
 
     for volcano_plot in glob.glob("./analysis/plots/images/*_volcano.png"):
