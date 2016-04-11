@@ -24,6 +24,9 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
 
     ## Readin and process newdata
     newdata <- rpkmTable
+
+    ## We want to only work with the samples that are in the meta file, so we are only selecting the count columns that are in the meta file
+    newdata = newdata[,colnames(newdata) %in% rownames(tmp_ann)]    
             
     ## Remove genes with no RPKM values or genes where not enough samples meet a minimum threshold
     newdata<-newdata[apply(newdata, 1, function(x) length(x[x>=RPKM_threshold])>min_num_samples_expressing_at_threshold),]
@@ -149,7 +152,11 @@ for (col in colnames(tmp_ann)) {
 }
 
 rownames(tmp_ann) <- tmp_ann[,1]
+rowNames <- tmp_ann[,1]
+colNames <- colnames(tmp_ann)
 samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
-tmp_ann <- tmp_ann[samples,-1]
+tmp_ann <- as.data.frame(tmp_ann[samples,-1])
+rownames(tmp_ann) <- rowNames
+colnames(tmp_ann) <- colNames[2:length(colNames)]
 
 heatmapSS_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, ss_plot_out,ss_txt_out)

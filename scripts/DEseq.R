@@ -5,7 +5,7 @@ library(edgeR)
 limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, limma_annot, deseq_annot, deseqSum_out, gene_annotation) {
     #READ in gene_annotation table--even though gene descriptions are quoted
     #in the annotations, we have to quote it again!
-    gene_annot <- read.table(gene_annotation, header=TRUE, sep=",", fill=TRUE, row.names=NULL)
+    gene_annot <- read.table(gene_annotation, header=TRUE, sep=",", quote="", fill=TRUE, row.names=NULL)
     #DROP--move to the annotation files
     #Quote the gene_descriptions--VERSION 1
     #gene_annot[,'Gene.Description'] <- sapply(gene_annot[,'Gene.Description'],
@@ -122,11 +122,12 @@ limma_and_deseq_f <- function(counts, s1,s2, limma, deseq, limma_annot, deseq_an
     #LEN: setting the first column name to 'id'
     deseq_result <- cbind(id=rownames(deseq_result), as.matrix(deseq_result))
     #LEN:  sort by padj. and remove padj = NA
-    deseq_result <-deseq_result[order(as.numeric(deseq_result[,"padj"]), na.last = NA),]
+    #deseq_result <-deseq_result[order(as.numeric(deseq_result[,"padj"]), na.last = NA),]
+    deseq_result <-deseq_result[order(as.numeric(deseq_result[,"padj"])),]
     #WRITE output deseq
     #MOVING to just csv files
     #write.table(deseq_result,deseq,sep='\t',col.names=T,row.names=F,quote=F)
-    write.table(deseq_result,deseq_out,sep=',',col.names=T,row.names=F,quote=F)
+    write.table(deseq_result,deseq,sep=',',col.names=T,row.names=F,quote=F)
 
     #ANNOTATE w/ local .csv biomart annotation file
     deseq_annotations <- merge(deseq_result, gene_annot, by= "id", all.x = TRUE, sort=FALSE)
