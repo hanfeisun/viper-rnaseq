@@ -19,7 +19,7 @@ min_num_samples_expressing_at_threshold: 4
 SSnumgenes: 250
 SFnumgenes: 1000
 
-num_kmeans_clust: 4
+num_kmeans_clust: '0,4'
 
 filter_mirna: "TRUE"
 
