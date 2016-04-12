@@ -65,7 +65,7 @@ def fusion_output(wildcards):
         for sample in file_info.keys():
             fusion_out_files.append( "analysis/STAR_Fusion/" + sample + "/" + sample + ".fusion_candidates.final" )
     return fusion_out_files
-
+2
 def insert_size_output(wildcards):
     insert_size_out_files = []
     if run_fusion:
@@ -458,6 +458,17 @@ rule volcano_plot:
     run:
         shell("Rscript viper/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")
 
+rule goterm_analysis:
+    input:
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+        force_run_upon_meta_change = config['metasheet']
+    output:
+        plot = "analysis/diffexp/{comparison}/{comparison}_goterm.pdf",
+        png = "analysis/plots/images/{comparison}_goterm.png"
+    message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
+    run:
+        shell("Rscript ")
+
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
 #for genome-wide
@@ -537,19 +548,6 @@ rule snps_corr_plot_genome:
     run:
         shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
 
-## Perform Correlation analysis between limma diff files
-#rule correlation_plot:
-#    input:
-#        diffiles = expand("analysis/diffexp/{comparison}/{comparison}.deseq.csv", comparison=comparisons),
-#        meta = config["metasheet"]
-#    output:
-#        correlation_plot = "analysis/plots/correlation_plot.pdf",
-#        correlation_table = "analysis/plots/correlation_table.csv",
-#        upvenn_plot = "analysis/plots/upvenn_plot.pdf",
-#        downvenn_plot = "analysis/plots/downvenn_plot.pdf"
-#    params:
-#        SFnumgenes = config["SFnumgenes"]
-#    script:
-#        "scripts/correlation_plot.R"
+
 
 
