@@ -78,7 +78,7 @@ rownames(snpCorrMat) <- sampleNames
 #PROCESS ANNOTATIONS
 tmp_ann <- read.delim(annotFile, sep=",", stringsAsFactors=FALSE)
 #REMOVE comp_ columns
-tmp_ann <- tmp_ann[ , -grep('comp_*', names(tmp_ann))]
+tmp_ann <- tmp_ann[ , !grepl('comp_*', names(tmp_ann))]
 
 #convert numerical annotations to numbers/floats
 for (col in colnames(tmp_ann)) {
