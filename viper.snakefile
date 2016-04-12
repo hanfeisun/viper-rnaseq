@@ -77,6 +77,11 @@ def rRNA_metrics(wildcards):
     if config["star_rRNA_index"] is not None:
         return "analysis/STAR_rRNA/STAR_rRNA_Align_Report.csv"
 
+def de_summary_out_png(wildcards):
+    file_list = []
+    if comparisons:
+        file_list.append("analysis/diffexp/de_summary.png")
+    return file_list
 
 rule target:
     input:
@@ -97,13 +102,14 @@ rule target:
         expand( "analysis/bam2bw/{sample}/{sample}.bw", sample=ordered_sample_list ),
         expand("analysis/diffexp/{comparison}/{comparison}.deseq.csv", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
-        "analysis/diffexp/de_summary.png",
+        de_summary_out_png,
         expand( "analysis/snp/{sample}/{sample}.snp.{region}.txt", sample=ordered_sample_list, region=snp_regions ),
         expand( "analysis/snp/snp_corr.{region}.txt", region=snp_regions ),
         expand( "analysis/plots/sampleSNPcorr_plot.{region}.png", region=snp_regions),
         fusion_output,
         insert_size_output,
-        rRNA_metrics
+        rRNA_metrics,
+        "report.html"
     message: "Compiling all output"
         
 #["analysis/plots/correlation_plot.pdf", "analysis/plots/correlation_table.csv", "analysis/plots/upvenn_plot.pdf", "analysis/plots/downvenn_plot.pdf"] if len(comparisons) >= 2 else []
@@ -111,6 +117,11 @@ rule target:
 
 rule generate_report:
     input:
+        "analysis/RSeQC/read_distrib/read_distrib.png","analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png",
+        rRNA_metrics, "analysis/plots/pca_plot.pdf", "analysis/plots/heatmapSS_plot.pdf", "analysis/plots/heatmapSF_plot.pdf",
+        expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
+        expand( "analysis/plots/sampleSNPcorr_plot.{region}.png", region=snp_regions),
+        force_run_upon_meta_change = config['metasheet']
     output:
         "report.html"
     message: "Generating VIPER report"
