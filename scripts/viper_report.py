@@ -16,6 +16,8 @@ def get_sphinx_report():
         'heatmapSS_plot': "analysis/plots/images/heatmapSS_plot.png",
         'heatmapSS_cluster': "analysis/plots/images/heatmapSS_cluster.png",
         'DEsummary_plot': "analysis/diffexp/de_summary.png",
+        'SNP_chr6' : "analysis/plots/sampleSNPcorr_plot.chr6.png",
+        'SNP_genome' : "analysis/plots/sampleSNPcorr_plot.genome.png"
     }
     copy_file_dict = {}
     for key in file_dict.keys():
@@ -208,6 +210,29 @@ Volcano Plots
 
     if 'volcano_png_list' in file_dict:
         report += "\n\n\t.. image:: " + "\n\n\t.. image:: ".join(file_dict['volcano_png_list'][:]) + "\n"
+
+    report += "\n"
+    report += """
+SNP Plots
+==========
+    
+"""
+    if 'SNP_chr6' in file_dict:
+        report += "\n"
+        report += """
+SNP - Chr6
+^^^^^^^^^^^
+"""  
+        report += "\n\n\t.. image:: " + file_dict['SNP_chr6'] + "\n"
+
+    if 'SNP_genome' in file_dict:
+        report += "\n" 
+        report += """
+SNP - Genome-wide
+^^^^^^^^^^^^^^^^^^
+"""
+        report += "\n\n\t.. image:: " + file_dict['SNP_genome'] + "\n"
+
 
     return report + "\n"
 
