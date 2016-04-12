@@ -65,7 +65,7 @@ def fusion_output(wildcards):
         for sample in file_info.keys():
             fusion_out_files.append( "analysis/STAR_Fusion/" + sample + "/" + sample + ".fusion_candidates.final" )
     return fusion_out_files
-2
+
 def insert_size_output(wildcards):
     insert_size_out_files = []
     if run_fusion:
@@ -478,7 +478,7 @@ rule goterm_analysis:
         png = "analysis/plots/images/{comparison}_goterm.png"
     message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
     run:
-        shell("Rscript ")
+        shell("Rscript viper/scripts/goterm_analysis.R")
 
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
