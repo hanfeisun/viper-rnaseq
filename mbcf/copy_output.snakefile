@@ -51,7 +51,7 @@ rule copy_cfce_analysis:
         "cp -rf --preserve=mode,timestamps analysis/* {output.analysis_dir}/"
         " && cp --preserve=mode,timestamps config.yaml " + VIPER_DIR + "/"
         " && cp --preserve=mode,timestamps metasheet.csv " + VIPER_DIR + "/"
-        " && cp --preserve=mode,timestamps viper/cfce/$(basename $(readlink -f ref.yaml))" + VIPER_DIR + "/ref.yaml"
+        " && cp --preserve=mode,timestamps viper/cfce/$(basename $(readlink -f ref.yaml))" + " " + VIPER_DIR + "/ref.yaml"
         " && cp --preserve=mode,timestamps report.html " + VIPER_DIR + "/$(basename " + VIPER_DIR + ")_report.html" 
 
 rule copy_cfce_viper:
