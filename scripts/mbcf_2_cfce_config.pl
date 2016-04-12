@@ -50,10 +50,10 @@ sub get_meta_info {
 			my $right_mate = $left_mate;
 			$right_mate =~ s/_R1_/_R2_/;
 			my $cur_dir = getcwd();
-			if( -f $cur_dir . '/concat_per_sample_fastq/' . $right_mate ) {
-				$$sample_info{ 'samples' }{  $sample } = [ $cur_dir . '/concat_per_sample_fastq/' . $left_mate, $cur_dir . '/concat_per_sample_fastq/' . $right_mate ];
+			if( -f './data/' . $right_mate ) {
+				$$sample_info{ 'samples' }{  $sample } = [ './data/' . $left_mate, './data/' . $right_mate ];
 			} else {
-				$$sample_info{ 'samples' }{ $sample } = [ $cur_dir . '/concat_per_sample_fastq/' . $left_mate ];
+				$$sample_info{ 'samples' }{ $sample } = [ './data/' . $left_mate ];
 			}
 		}
 	}
