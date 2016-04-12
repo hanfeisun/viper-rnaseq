@@ -1,9 +1,69 @@
 # vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
+import sys
+import os
+
+VIPER_DIR=os.environ.get("VIPER_DIR")
+CFCE_RUN=os.environ.get("CFCE_RUN")
+
+out_file_list = []
+
+if not VIPER_DIR:
+    print("Execute the snakefile as: VIPER_DIR=/path/to/copy/dir_name snakemake -s copy_output.snakefile")
+    sys.exit()
+
+def fusion_output():
+    if os.path.isdir("analysis/STAR_Fusion"):
+        return VIPER_DIR + "/alignment/gene_fusions/"
+    else:
+        return ""    
+
+
+if not CFCE_RUN or int(CFCE_RUN) != 1:
+    out_file_list = [
+        VIPER_DIR + "/alignment/bam/", 
+        VIPER_DIR + "/alignment/bigwig/", 
+        VIPER_DIR + "/diffexp/", 
+        VIPER_DIR + "/expression/", 
+        VIPER_DIR + "/QC/",  
+        VIPER_DIR + "/SNP/", 
+        VIPER_DIR + "/plots/"
+    ]
+    fusion_out = fusion_output()
+    if( fusion_out ):
+        out_file_list.append(fusion_out)
+else:
+    out_file_list = [
+        VIPER_DIR + "/analysis/",
+        VIPER_DIR + "/viper/",
+        VIPER_DIR + "/data/"
+    ]
 
 rule target:
     input:
-        "RNASeq/FastQC/", "RNASeq/Alignment/", "RNASeq/Expression/FPKM/Genes/", "RNASeq/Expression/FPKM/Transcripts/",  "RNASeq/Expression/Raw/", "RNASeq/Summary/"
+        expand("{filename}", filename=out_file_list)
+
+
+rule copy_cfce_analysis:
+    output:
+        analysis_dir=VIPER_DIR + "/analysis/"
+    shell:
+        "cp -rf --preserve=mode,timestamps analysis/* {output.analysis_dir}/"
+        " && cp --preserve=mode,timestamps config.yaml " + VIPER_DIR + "/"
+        " && cp --preserve=mode,timestamps metasheet.csv " + VIPER_DIR + "/"
+        " && cp --preserve=mode,timestamps report.html " + VIPER_DIR + "/$(basename " + VIPER_DIR + ")_report.html" 
+
+rule copy_cfce_viper:
+    output:
+        viper_dir=VIPER_DIR + "/viper/"
+    shell:
+        "cp -rf --preserve=mode,timestamps --dereference viper/* {output.viper_dir}/"
+
+rule copy_cfce_data:
+    output:
+        data_dir=VIPER_DIR + "/data/"
+    shell:
+        "cp -rf --preserve=mode,timestamps --dereference data/* {output.data_dir}/"
 
 rule copy_fastqc:
     output:
@@ -11,46 +71,61 @@ rule copy_fastqc:
     shell: 
         "find fastqc/before_filtering/ -name \"[0-9]*html\" -exec cp -t {output.fastqc_dir} {{}} \;"
 
-rule copy_alignment:
+rule copy_alignment_bam:
     output:
-        align_dir="RNASeq/Alignment/",
-        bam_dir="RNASeq/Alignment/bam/",
-        big_wig="RNASeq/Alignment/bigwig/"
+        bam_dir=VIPER_DIR + "/alignment/bam/"
     shell:
         "find analysis/STAR/ -type f -name \"*\.sorted\.ba*\" -exec cp -t {output.bam_dir} {{}} \;"
-        " && cp analysis/STAR/STAR_Gene_Counts.csv {output.align_dir}/Raw_Gene_Counts.csv"
-        " && cp analysis/STAR/STAR_Align_Report.csv {output.align_dir}/Alignment_Report.csv"
-        " && find analysis/bam2bw/ -type f -name \"*\.bw\" -exec cp -t {output.big_wig} {{}} \;"
+        " && cp analysis/STAR/STAR_Align_Report.csv " + VIPER_DIR + "/alignment/Alignment_Report.csv"
+        " && cp analysis/STAR/STAR_Align_Report.png " + VIPER_DIR + "/alignment/Alignment_Report.png"
 
 
-rule copy_fpkm_genes:
+rule copy_alignment_bw:
     output:
-        fpkm_gene_dir="RNASeq/Expression/FPKM/Genes/"
+        bw_dir=VIPER_DIR + "/alignment/bigwig/"
     shell:
-        "find analysis/cufflinks/ -type f -name \"*\.genes\.fpkm_tracking\" -exec cp -t {output.fpkm_gene_dir} {{}} \;"
-        " && cp analysis/cufflinks/Cuff_Gene_Counts.csv RNASeq/Expression/FPKM_Gene_Counts.csv"
+        "find analysis/bam2bw/ -type f -name \"*\.bw\" -exec cp -t {output.bw_dir} {{}} \;"
 
-rule copy_fpkm_transcripts:
-    output:
-        fpkm_trans_dir="RNASeq/Expression/FPKM/Transcripts/"
-    shell:
-        "find analysis/cufflinks/ -type f -name \"*\.isoforms\.fpkm_tracking\" -exec cp -t {output.fpkm_trans_dir} {{}} \;"
 
-rule copy_raw:
+rule copy_fusion_output:
     output:
-        raw_dir="RNASeq/Expression/Raw/"
+        fusion_dir=VIPER_DIR + "/alignment/gene_fusions/"
     shell:
-        "find analysis/STAR/ -type f -name \"*\.counts\.tab\" -exec cp -t {output.raw_dir} {{}} \;"
-        " && cp analysis/STAR/STAR_Gene_Counts.csv RNASeq/Expression/Raw_Gene_Counts.csv"
+        "for file in $(find analysis/STAR_Fusion/ -type f -name \"*final.abridged\"); do out_file=$(basename $file); tr '\t' ',' <$file 1>{output.fusion_dir}/${{out_file}}.csv; done"
+
+rule copy_diffexp:
+    output:
+        de_dir=VIPER_DIR + "/diffexp/"
+    shell:
+        "cp -rf analysis/diffexp/* {output.de_dir}"
+
+
+rule copy_cufflinks_exp:
+    output:
+        cuff_dir=VIPER_DIR + "/expression/"
+    shell:
+        "cp -rf analysis/cufflinks {output.cuff_dir}"
+        " && cp analysis/cufflinks/Cuff_Gene_Counts.csv {output.cuff_dir}/Normalized_FPKM_Gene_Counts.csv"
+        " && cp analysis/STAR/STAR_Gene_Counts.csv {output.cuff_dir}/Raw_Gene_Counts.csv"
+
+
+rule copy_RSeQC:
+    output:
+        qc_dir=VIPER_DIR + "/QC/"
+    shell:
+        "cp -rf analysis/RSeQC/* {output.qc_dir}"
+
+
+rule copy_snp:
+    output:
+        snp_dir=VIPER_DIR + "/SNP/"
+    shell:
+        "cp -rf analysis/snp/* {output.snp_dir}"
+
 
 rule copy_summary:
     output:
-        "RNASeq/Summary/"
+        plots_dir=VIPER_DIR + "/plots/"
     shell:
-        "cp analysis/STAR/STAR_Align_Report.png {output}/Alignment_Report.png"
-        " && cp analysis/STAR/STAR_Gene_Counts.csv {output}/Raw_Gene_Counts.csv"
-        " && cp analysis/cufflinks/Cuff_Gene_Counts.csv {output}/FPKM_Gene_Counts.csv"
-        " && cp analysis/RSeQC/read_distrib/read_distrib.png {output}/"
-        " && cp analysis/RSeQC/gene_body_cvg/geneBodyCoverage.heatMap.png {output}/"
-        " && cp analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png {output}/"
-        " && find . -mindepth 1 -maxdepth 1 -type f -name \"*csv\" -a ! -name \"\.*\" -exec cp -t {output} {{}} \;"
+        "find analysis/ -type f -name \"*.png\" -exec cp -t {output.plots_dir} {{}} \;"
+        " && cp report.html $(basename " + VIPER_DIR + ")_report.html"  
