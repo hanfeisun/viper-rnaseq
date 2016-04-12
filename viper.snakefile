@@ -253,7 +253,7 @@ rule gene_body_cvg_qc:
 
 rule plot_gene_body_cvg:
     input:
-        expand("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r", sample=ordered_sample_list ),
+        samples_list=expand("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r", sample=ordered_sample_list ),
         force_run_upon_meta_change = config['metasheet']
     output:
         rscript="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.r",
@@ -261,8 +261,8 @@ rule plot_gene_body_cvg:
         png_curves="analysis/RSeQC/gene_body_cvg/geneBodyCoverage.curves.png"
     message: "Plotting gene body coverage"
     shell:
-        "perl viper/scripts/plot_gene_body_cvg.pl --rfile {output.rscript} --png {output.png} --curves_png {output.png_curves} {input}"
-        " && Rscript {output.rscript}"
+        "perl viper/scripts/plot_gene_body_cvg.pl --rfile {output.rscript} --png {output.png} --curves_png {output.png_curves}"
+        " {input.samples_list} && Rscript {output.rscript}"
 
 rule junction_saturation:
     input:
