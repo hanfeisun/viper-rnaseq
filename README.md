@@ -116,13 +116,17 @@ conda update conda
     `  
     __NOTE:__ The last serires of digits (cfce-viper-XXXX) will be different for everyone! There should only be one thing in your folder at this though, so use tab completion to complete.
 
-3. Download all of the necessary packages. Most of the tools needed can be downloaded via Miniconda. Run the bash script from within the __PROJECT__ folder to download all of the packages.
-  
-	`
-	bash viper/build_env.bash
-   `
-    - This will take a while, While it is loading, begin reading the *_config_* and *_meta_* sections.
+3.  CREATING the viper conda environment.  Run the following from within your `PROJECT/viper` folder.
+    `conda create env
+    `
+    __NOTE:__ You only have to do this once. This may take a few minutes to download and setup the required packages.
 
+    - To activate the viper conda environment:
+    `
+    $ source activate viper
+    `
+    __NOTE: You only have to do this everytime you want to run viper__
+    
 4. For annotation purposes, __VIPER__ uses a static library to call from. Unzip this library using the following command:  
 
    `
