@@ -471,14 +471,14 @@ rule volcano_plot:
 
 rule goterm_analysis:
     input:
-        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+        deseq_file = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
         force_run_upon_meta_change = config['metasheet']
     output:
-        plot = "analysis/diffexp/{comparison}/{comparison}_goterm.pdf",
-        png = "analysis/plots/images/{comparison}_goterm.png"
+        plot_file = "analysis/diffexp/{comparison}/{comparison}_goterm.pdf",
+        png_file = "analysis/plots/images/{comparison}_goterm.png"
     message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
     run:
-        shell("Rscript viper/scripts/goterm_analysis.R")
+        shell("Rscript viper/scripts/goterm_analysis.R {input.deseq_file} {output.plot_file} {output.png_file}")
 
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
