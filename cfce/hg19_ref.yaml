@@ -1,19 +1,19 @@
 #Reference files required
 star_index: /data/static_libraries/STAR/humanhg19/
-gtf_file: /data/static_libraries/viper/ref_files/hg19/Hg19_CTAT_resource_lib/ref_annot.gtf
+gtf_file: ./ref_files/hg19/Hg19_CTAT_resource_lib/ref_annot.gtf
 bed_file: /data/static_libraries/RefGene/refseqGenesHg19.bed
 ref_fasta: /data/static_libraries/assembly/humanhg19/rawgenome/hg19.fasta
-star_rRNA_index: /data/static_libraries/viper/ref_files/hg19/humanhg38_ncrna/
+star_rRNA_index: ./ref_files/hg19/humanhg38_ncrna/
 
 #Reference organism; possible value - hg19, mm9 etc.
 reference: hg19
 gene_annotation: viper/static/humanhg19.annot.csv.bz2
 #STAR-Fusion
 #This is required only for PE data.
-genome_lib_dir: /data/static_libraries/viper/ref_files/hg19/Hg19_CTAT_resource_lib
+genome_lib_dir: ./ref_files/hg19/Hg19_CTAT_resource_lib
 
 #software source paths required from user
 python2: /usr/bin/python2.7
 resqc_path: /usr/local/bin
 picard_path: /home/viper/local/picard-tools-1.113
-varscan_jar_path: /home/viper/.conda/envs/viper/share/varscan-2.4.1-0/VarScan.jar
+varscan_jar_path: /home/viper/local/miniconda3/envs/viper/share/varscan-2.4.1-0/VarScan.jar
