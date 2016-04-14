@@ -21,4 +21,4 @@ rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/sc
 picard_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/picard-tools-1.115  #This dependency will be added to conda in the near future; temp fix 
 
 varscan_jar_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/varscan/VarScan.v2.3.9.jar
-gene_annotation: viper/static/mm9.annot.csv
+gene_annotation: viper/static/mm9.annot.csv.bz2
