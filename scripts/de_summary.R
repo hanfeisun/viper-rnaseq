@@ -4,6 +4,7 @@ library(reshape2)
 args <- commandArgs( trailingOnly = TRUE )
 dedata <- read.csv(args[1],header = TRUE)
 df <- dedata
+df[,1] <- as.character(df[,1])
 mdf <- melt(df)
 mdf$dir <- ifelse (grepl("up",mdf$variable),"UP","DOWN") 
 mdf$adjp <- ifelse (grepl("p1",mdf$variable),"Padj < 0.1",ifelse(grepl("p05",mdf$variable),"Padj < 0.05", "Padj < 0.01"))
