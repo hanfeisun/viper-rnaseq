@@ -109,6 +109,9 @@ rule target:
         fusion_output,
         insert_size_output,
         rRNA_metrics,
+        expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
+        expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
         "report.html"
     message: "Compiling all output"
         
@@ -474,11 +477,12 @@ rule goterm_analysis:
         deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
         force_run_upon_meta_change = config['metasheet']
     output:
-        plot = "analysis/diffexp/{comparison}/{comparison}_goterm.pdf",
+        csv = "analysis/diffexp/{comparison}/{comparison}.goterm.csv",
+        plot = "analysis/diffexp/{comparison}/{comparison}.goterm.pdf",
         png = "analysis/plots/images/{comparison}_goterm.png"
     message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
     run:
-        shell("Rscript ")
+        shell("Rscript viper/scripts/2goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
 
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
