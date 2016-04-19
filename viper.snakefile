@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import os
+import subprocess
 from collections import defaultdict
 import pandas as pd
 import yaml
@@ -21,6 +22,21 @@ config["samples"] = config["the_samples"]
 
 for k in ["RPKM_threshold","min_num_samples_expressing_at_threshold","SSnumgenes","SFnumgenes","num_kmeans_clust","filter_mirna","snp_scan_genome"]:
     config[k] = str(config[k])
+
+conda_path = subprocess.check_output('dirname $(which conda)', shell=True)
+conda_path.decode("utf-8").strip().replace('bin','pkgs')
+
+if not config["python2"]:
+    config["python2"] = conda_path + '/python-2.7.9-3/bin/python2.7'
+
+if not config["rseqc_path"]:
+    config["rseqc_path"] = conda_path + '/rseqc-2.6.2-0/bin'
+
+if not config["picard_path"]:
+    config["picard_path"] = conda_path + '/picard-1.126-3/bin/picard'
+
+if not config["varscan_path"]:
+    config["varscan_path"] = conda_path + '/varscan-2.4.1-0/bin/varscan'
 #----   END OF CONFIG SET UP -----#
 
 strand_command=""
@@ -246,7 +262,7 @@ rule down_sample:
         "analysis/RSeQC/gene_body_cvg/downsample/{sample}.downsample.sorted.bam"
     message: "Running RseQC downsample gene body coverage for {wildcards.sample}"
     shell:
-        "java -jar {config[picard_path]}/DownsampleSam.jar INPUT={input} OUTPUT={output}"
+        "{config[picard_path]} DownsampleSam INPUT={input} OUTPUT={output}"
         " PROBABILITY=0.1"
         " && samtools index {input}"
 
@@ -293,7 +309,7 @@ rule collect_insert_size:
         protected("analysis/RSeQC/insert_size/{sample}/{sample}.histogram.pdf")
     message: "Collecting insert size for {wildcards.sample}"
     shell:
-        "java -jar {config[picard_path]}/CollectInsertSizeMetrics.jar"
+        "{config[picard_path]} CollectInsertSizeMetrics"
         " H={output} I={input} O=analysis/RSeQC/insert_size/{wildcards.sample}/{wildcards.sample} R={config[ref_fasta]}"
 
 
@@ -493,11 +509,11 @@ rule call_snps_chr6:
     output:
         protected("analysis/snp/{sample}/{sample}.snp.chr6.txt")
     params:
-        varscan_jar_path=config["varscan_jar_path"]
+        varscan_path=config["varscan_path"]
     message: "Running varscan for snp analysis for ch6 fingerprint region"
     shell:
         "samtools mpileup -r \"chr6\" -f {input.ref_fa} {input.bam} | awk \'$4 != 0\' | "
-        "java -jar {params.varscan_jar_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
+        "{params.varscan_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
 
 #calculate sample snps correlation using all samples
 rule sample_snps_corr_chr6:
@@ -532,11 +548,11 @@ rule call_snps_genome:
     output:
         protected("analysis/snp/{sample}/{sample}.snp.genome.txt")
     params:
-        varscan_jar_path=config["varscan_jar_path"]
+        varscan_path=config["varscan_path"]
     message: "Running varscan for snp analysis genome wide"
     shell:
         "samtools mpileup -f {input.ref_fa} {input.bam} | awk \'$4 != 0\' | "
-        "java -jar {params.varscan_jar_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
+        "{params.varscan_path} pileup2snp - --min-coverage 20 --min-reads2 4 > {output}"
 
 rule sample_snps_corr_genome:
     input:
