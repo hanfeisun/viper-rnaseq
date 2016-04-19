@@ -67,7 +67,7 @@ heatmapSS_plot <- function(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_exp
     mi_nolym <- min(cordata)
     my.breaks_nolym<-c(mi_nolym,seq(mi_nolym + 0.01, ma_nolym - 0.01,length.out=99),ma_nolym)
     param_text <- paste(RPKM_threshold, min_num_samples_expressing_at_threshold, SSnumgenes, sep=",")
-
+    
     pdf(file = ss_plot_out)
 
     ha1 <- make_complexHeatmap_annotation(tmp_ann)
