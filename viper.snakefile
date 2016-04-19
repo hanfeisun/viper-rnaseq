@@ -65,7 +65,7 @@ def fusion_output(wildcards):
         for sample in file_info.keys():
             fusion_out_files.append( "analysis/STAR_Fusion/" + sample + "/" + sample + ".fusion_candidates.final" )
     return fusion_out_files
-
+2
 def insert_size_output(wildcards):
     insert_size_out_files = []
     if run_fusion:
@@ -109,6 +109,9 @@ rule target:
         fusion_output,
         insert_size_output,
         rRNA_metrics,
+        expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
+        expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
         "report.html"
     message: "Compiling all output"
         
@@ -471,14 +474,15 @@ rule volcano_plot:
 
 rule goterm_analysis:
     input:
-        deseq_file = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
         force_run_upon_meta_change = config['metasheet']
     output:
-        plot_file = "analysis/diffexp/{comparison}/{comparison}_goterm.pdf",
-        png_file = "analysis/plots/images/{comparison}_goterm.png"
+        csv = "analysis/diffexp/{comparison}/{comparison}.goterm.csv",
+        plot = "analysis/diffexp/{comparison}/{comparison}.goterm.pdf",
+        png = "analysis/plots/images/{comparison}_goterm.png"
     message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
     run:
-        shell("Rscript viper/scripts/goterm_analysis.R {input.deseq_file} {output.plot_file} {output.png_file}")
+        shell("Rscript viper/scripts/goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
 
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another

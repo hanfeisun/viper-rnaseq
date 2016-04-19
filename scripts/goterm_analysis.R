@@ -67,7 +67,7 @@ goterm_analysis_f <- function(deseq_file, goterm_csv,goterm_pdf,goterm_png) {
     mround <- function(x,base) {base*ceiling(x/base)}
 
     ## Make GOterm table labels
-    wr.lap = wrap.labels(df$Term[numgoterms:1], 25)
+    wr.lap = wrap.labels(df$Term[numgoterms:1], 35)
     
     ## Create title for plot
     temptitle = tail(unlist(strsplit(goterm_pdf, split="/")), n=1)
@@ -76,21 +76,23 @@ goterm_analysis_f <- function(deseq_file, goterm_csv,goterm_pdf,goterm_png) {
 
     ## Plot out in pdf
     pdf(goterm_pdf, width=11,height=8.5)
-    par(mar=c(5,8,2,1))
+    par(mar=c(5,10,2,1))
     
     barplot(df$logpval[numgoterms:1], names.arg = wr.lap,
+            width = 3, space = 0.2,
             main = title, horiz = TRUE, xlab = "-log(pvalue)",
-            xlim = c(0,mround(max(df$logpval[numgoterms:1]),5)), xpd = TRUE, las = 2, cex.names = 0.5)
+            xlim = c(0,mround(max(df$logpval[numgoterms:1]),5)), xpd = TRUE, las = 2, cex.names = 0.7)
 
     dev.off()
 
     ## Plot out in png
     png(goterm_png, width = 10, height = 8, unit="in",res=300)
-    par(mar=c(5,8,2,1))
+    par(mar=c(5,10,2,1))
 
     barplot(df$logpval[numgoterms:1], names.arg = wr.lap,
+            width = 3, space = 0.2,
             main = title, horiz = TRUE, xlab = "-log(pvalue)",
-            xlim = c(0,mround(max(df$logpval[numgoterms:1]),5)), xpd = TRUE, las = 2, cex.names = 0.5)
+            xlim = c(0,mround(max(df$logpval[numgoterms:1]),5)), xpd = TRUE, las = 2, cex.names = 0.7)
 
     dev.off()
 
