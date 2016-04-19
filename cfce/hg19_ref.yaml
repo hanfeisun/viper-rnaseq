@@ -16,4 +16,4 @@ genome_lib_dir: ./ref_files/hg19/Hg19_CTAT_resource_lib
 python2: /usr/bin/python2.7
 resqc_path: /home/viper/local/bin
 picard_path: /home/viper/local/picard-tools-1.113
-varscan_jar_path: /home/viper/local/miniconda3/envs/viper/share/varscan-2.4.1-0/VarScan.jar
+varscan_path: /home/viper/local/miniconda3/envs/viper/share/varscan-2.4.1-0/VarScan.jar
