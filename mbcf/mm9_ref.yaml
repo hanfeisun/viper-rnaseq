@@ -14,11 +14,10 @@ star_rRNA_index: /zfs/cores/mbcf/mbcf-storage/devel/umv/ref_files/mouse/Mus_musc
 
 #Reference organism; possible value - hg19, mm9 etc.
 reference: mm9
+gene_annotation: viper/static/mm9.annot.csv.bz2
 
 #software source paths required from user
-python2: /apps/python-2.7.9/bin/python
-rseqc_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/RSeQC/RSeQC-2.6.2/scripts 
-picard_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/picard-tools-1.115  #This dependency will be added to conda in the near future; temp fix 
-
-varscan_jar_path: /zfs/cores/mbcf/mbcf-storage/devel/umv/software/varscan/VarScan.v2.3.9.jar
-gene_annotation: viper/static/mm9.annot.csv.bz2
+python2:
+rseqc_path:
+picard_path:
+varscan_path:

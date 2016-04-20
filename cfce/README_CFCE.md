@@ -8,6 +8,9 @@ __VIPER__ is a comprehensive RNA-seq analysis tool built using snakemake which a
 
 In __VIPER__, there will be three distinct components in your __PROJECT__ folder that are kept purposefully separate to avoid confusion, accidental deletion or editing of essential components. The three components are the __DATA__, __VIPER__, and __ANALYSIS__. __DATA__ is where the user will store all of their data for analysis. Note that having __DATA__ in your __PROJECT__ folder is optional. You can start with a blank __PROJECT__ folder as well (more below.) __VIPER__ is the actual source of the code, you will never have to edit anything in here. __ANALYSIS__ will be the output of __VIPER__.
 
+__NOTE:__ the folder ref_files contain all of the reference files that viper
+needs.  You probably won't have to touch or do anything here.
+
 Although included in this README are step-by-step instructions, it is assumed that the user should have a basic understanding of a command line interface on mac or linux.
 
 
@@ -25,6 +28,7 @@ Although included in this README are step-by-step instructions, it is assumed th
 2. Run the following command to begin setup of your __VIPER__environment:
 
 	`viperSetup.sh`
+	__NOTE:__ if your data is mouse data, type instead: `viperSetup.sh mm9`
 	
 	- This will output the following:  
 
@@ -68,14 +72,12 @@ One final note is that the config is written as a [yaml](https://en.wikipedia.or
 
 Your config file has three main sections. __PATHS__, __PARAMS__, __SAMPLES__:
 
-##### PATHS:
-In this section, the user will normally need to specify the location of specific paths and packages. *__CFCE users should not need to touch this section__* If you have questions about the packages used or anything relating to the paths, refer to the full README.
+##### PARAMS:
 
-The only path you will need is the *metasheet* path. More details on this in the *__metasheet__* section. But if you name your *metasheet* with a specific name, you will need to change it in the config in this section:
+You will probably NOT need to specify path to the *metasheet* as this is already set for you. More details on this in the *__metasheet__* section. But if you name your *metasheet* with a specific name, you will need to change it in the config in this section:
 
 > metasheet: metasheet.csv
 
-##### PARAMS:
 
 This section holds parameters specific to your project design. *Leave quotes in there, these are purposefully there and should not be deleted*
 
@@ -191,6 +193,23 @@ When you close your terminal. Your __VIPER__ session will terminate. Note that i
 `source activate viper`
 
 This will resume your __VIPER__ environment and you should be good to go.
+
+## Running a MBCF VIPER run on CFCE:
+Situation: You've asked MBCF to analyze your data using the viper pipeline.  They have put the data and the results in the port directory (/mnt/cfce-stor1/data/port/XXX/VIPER_YYY).  You WANT to re-run viper (or some parts of viper) on a CFCE server (cfce1).
+
+STEP 1: make a project directory as described above (see Getting Started)
+STEP 2: copy the data from port:
+`PROJECT $ rsync -avz /mnt/port/XXX/VIPER_YYY .`
+NOTE: '$' symbolized the command-line prompt
+NOTE: this might take a while
+STEP 3: you might have to cd to PROJECT/VIPER_YYY.  
+STEP 4: SETUP PROJECT/VIPER_YYY to run on CFCE-
+`$ viperSetup.sh env`
+STEP 5: LOAD the viper environment
+`source viper_env.bash`
+`source activate viper`
+
+To run viper, see 'Running VIPER' above.
 
 ### APPENDIX A: Specific Replotting
 After you have run __VIPER__ in its entirety, you may want to go back and tweak your outputs. Maybe adding or subtracting metadata columns, differential expression columns, or maybe just doing a subset of your data. Below is a list of snakemake commands to run __VIPER__ to rerun some specifics for further downstream analysis tweaking.
