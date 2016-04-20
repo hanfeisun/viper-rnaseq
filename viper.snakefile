@@ -26,16 +26,16 @@ for k in ["RPKM_threshold","min_num_samples_expressing_at_threshold","SSnumgenes
 conda_path = subprocess.check_output('dirname $(which conda)', shell=True)
 conda_path = conda_path.decode("utf-8").strip().replace('bin','pkgs')
 
-if not config["python2"]:
+if not "python2" in config or not config["python2"]:
     config["python2"] = conda_path + '/python-2.7.9-3/bin/python2.7'
 
-if not config["rseqc_path"]:
+if not "rseqc_path" in config or not config["rseqc_path"]:
     config["rseqc_path"] = conda_path + '/rseqc-2.6.2-0/bin'
 
-if not config["picard_path"]:
+if not "picard_path" in config or not config["picard_path"]:
     config["picard_path"] = conda_path + '/picard-1.126-3/bin/picard'
 
-if not config["varscan_path"]:
+if not "varscan_path" in config or not config["varscan_path"]:
     config["varscan_path"] = conda_path + '/varscan-2.4.1-0/bin/varscan'
 #----   END OF CONFIG SET UP -----#
 
