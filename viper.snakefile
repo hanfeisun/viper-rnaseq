@@ -498,7 +498,7 @@ rule goterm_analysis:
         png = "analysis/plots/images/{comparison}_goterm.png"
     message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
     run:
-        shell("Rscript viper/scripts/2goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
+        shell("Rscript viper/scripts/goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
 
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
