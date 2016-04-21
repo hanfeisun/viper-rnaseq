@@ -500,6 +500,18 @@ rule goterm_analysis:
     run:
         shell("Rscript viper/scripts/goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
 
+rule kegg_analysis:
+    input:
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+        force_run_upon_meta_change = config['metasheet']
+    output:
+        csv = "analysis/diffexp/{comparison}/{comparison}.goterm.csv",
+        plot = "analysis/diffexp/{comparison}/{comparison}.goterm.pdf",
+        png = "analysis/plots/images/{comparison}_goterm.png"
+    message: "Creating Kegg Pathway Analysis for Differential Expressions for {wildcards.comparison}"
+    run:
+        shell("Rscript viper/scripts/kegg_pathway.R {input.deseq} {output.csv} {output.plot} {output.png}")
+
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
 #for genome-wide
