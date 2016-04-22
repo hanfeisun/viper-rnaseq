@@ -536,10 +536,11 @@ rule snps_corr_plot_chr6:
         snp_corr="analysis/snp/snp_corr.chr6.txt",
         annotFile=config['metasheet'],
     output:
-        snp_plot_out="analysis/plots/sampleSNPcorr_plot.chr6.png"
+        snp_plot_out="analysis/plots/sampleSNPcorr_plot.chr6.png",
+        snp_plot_pdf="analysis/plots/sampleSNPcorr_plot.chr6.pdf"
     message: "Running snp analysis for chr6 fingerprint region"
     run:
-        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
+        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out} {output.snp_plot_pdf}")
 
 #------------------------------------------------------------------------------
 # snp calling GENOME wide (hidden config.yaml flag- 'snp_scan_genome:True'
@@ -574,10 +575,11 @@ rule snps_corr_plot_genome:
         snp_corr="analysis/snp/snp_corr.genome.txt",
         annotFile=config['metasheet'],
     output:
-        snp_plot_out="analysis/plots/sampleSNPcorr_plot.genome.png"
+        snp_plot_out="analysis/plots/sampleSNPcorr_plot.genome.png",
+        snp_plot_pdf="analysis/plots/sampleSNPcorr_plot.genome.pdf"
     message: "Creating snp plot genome wide"
     run:
-        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
+        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out} {output.snp_plot_pdf}")
 
 
 
