@@ -1,0 +1,20 @@
+name: python2
+channels:
+- bioconda
+dependencies:
+- mkl=11.3.1=0
+- numpy=1.11.0=py27_0
+- openssl=1.0.1k=1
+- pip=8.1.1=py27_1
+- python=2.7.9=3
+- readline=6.2=2
+- rseqc=2.6.2=0
+- setuptools=20.3=py27_0
+- sqlite=3.9.2=0
+- system=5.8=2
+- tk=8.5.18=0
+- wheel=0.29.0=py27_0
+- zlib=1.2.8=0
+- pip:
+  - cython==0.23.4
+  - distribute==0.6.10
