@@ -1,6 +1,31 @@
+suppressMessages(library("AnnotationDbi"))
+suppressMessages(library("org.Hs.eg.db"))
+
+
 kegg_pathway_f<- function(deseq_file) {
 
-        detable = read.table(deseq_file, header=TRUE, sep=",", fill=TRUE)
+    detable = read.table(deseq_file, header=TRUE, sep=",", fill=TRUE)
+    rownames(detable) <- detable[,1]
+
+    ## Append ENSEMBL and ENTREZ IDs from loaded in db
+    if (reference == "hg19") {IDdb = org.Hs.eg.db}
+    #if (reference == "mm9") {IDdb = ##########}
+        
+    detable$ensembl = mapIds(IDdb,
+                        keys=row.names(detable),
+                        column="ENSEMBL",
+                        keytype="SYMBOL",
+                        multiVals="first")
+    detable$entrez = mapIds(IDdb,
+                        keys=row.names(detable),
+                        column="ENTREZID",
+                        keytype="SYMBOL",
+                        multiVals="first")
+    detable$description = mapIds(IDdb,
+                        keys=row.names(detable),
+                        column="GENENAME",
+                        keytype="SYMBOL",
+                        multiVals="first")
 
 
     }
