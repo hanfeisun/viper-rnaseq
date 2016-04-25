@@ -125,9 +125,9 @@ rule target:
         fusion_output,
         insert_size_output,
         rRNA_metrics,
-        expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
-        expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
-        expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
+        #expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
+        #expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
+        #expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
         "report.html"
     message: "Compiling all output"
         
