@@ -130,8 +130,7 @@ rule target:
         expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}.kegg.csv", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}.kegg.pdf", comparison=comparisons),
-        expand("analysis/plots/images/{comparison}_kegg.png", comparison=comparisons)
-
+        expand("analysis/plots/images/{comparison}_kegg.png", comparison=comparisons),
         "report.html"
     message: "Compiling all output"
         
