@@ -3,6 +3,15 @@ suppressMessages(library("org.Hs.eg.db"))
 ### NEED MOUSE DB
 suppressMessages(library("GOstats"))
 suppressMessages(library("edgeR"))
+suppressMessages(library("ggplot2"))
+suppressMessages(library("ggalt"))
+suppressMessages(library("scales"))
+
+deseq_file = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/diffexp/MCF7_PvTAMR/MCF7_PvTAMR.deseq.csv"
+goterm_csv = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/diffexp/MCF7_PvTAMR/MCF7_PvTAMR.goterm.csv"
+goterm_pdf = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/diffexp/MCF7_PvTAMR/MCF7_PvTAMR.goterm.pdf"
+goterm_png = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/plots/images/MCF7_PvTAMR_goterm.png"
+
 
 goterm_analysis_f <- function(deseq_file, goterm_csv,goterm_pdf,goterm_png) {
 
@@ -58,6 +67,40 @@ goterm_analysis_f <- function(deseq_file, goterm_csv,goterm_pdf,goterm_png) {
     write.table(df, file = goterm_csv, col.names=T, row.names=F, quote=F, sep=",")
     
     numgoterms = 20
+
+    ##### LOLLIPOP, AWAITING ggalt 0.3.0.0
+
+    #define limits of annotation label - note that since the function 'strwrap' tries to make breaks at word boundaries it is possible for the label to wrap over (go.term.height + 1) lines
+    #go.term.width = 60
+    #go.term.height = 2
+    #max.length = go.term.height*go.term.width
+
+    #trim white space and then determine which GO terms in the summary are long enough to be folded
+    #df$Term <- trimws(df$Term)
+    #to_fold <- which(lapply(df$Term, nchar) > go.term.width)
+
+    #df$Term[to_fold] <- sapply(df$Term[to_fold],function(x) ifelse(nchar(x)>max.length, substr(x,1,max.length),x) )
+    #df$Term[to_fold] <- sapply(df$Term[to_fold],function(x) paste(strwrap(x,width = go.term.width),collapse = "\n"))
+
+    # Use ggplt2 to make a custom 'lollipop' chart of the results
+    # Arial Narrow is a good font to put as many characters as possible into a small space
+    # Exact font sizes and faces can be tweaked futher
+    #pdf("/mnt/cfce-stor1/home/mgc31/code/viperproject/test.pdf")
+
+    #gg <- ggplot(df, aes(y=reorder(Term, logpval), x=logpval))
+    #gg <- gg + geom_lollipop(point.colour="steelblue", point.size=5, horizontal=TRUE)
+    #gg <- gg + labs(x="- Log(P-value)", y=NULL, title="GO Term analysis")
+    #gg <- gg + theme_minimal(base_family="Arial Narrow")
+    #gg <- gg + theme(panel.grid.major.y=element_blank())
+    #gg <- gg + theme(panel.grid.minor=element_blank())
+    #gg <- gg + theme(axis.text.y=element_text(debug = FALSE, size=14, lineheight = 0.9, margin=margin(0,-20,0,20)))
+    #gg <- gg + theme(axis.text.x=element_text(debug = FALSE, size=16, margin=margin(-10,0,20,0)))
+    #gg <- gg + theme(axis.title.x=element_text(debug = FALSE, size=18, margin=margin(0,0,20,0)))
+    #gg <- gg + theme(plot.title = element_text(size=28, margin = margin(10, 0, 20, 0)))
+    #gg <- gg + geom_vline(xintercept = 0)
+
+    #dev.off()
+
 
     # Core wrapping functions for barplot mapping
     wrap.it <- function(x, len) {sapply(x, function(y) paste(strwrap(y, len), collapse = "\n"), USE.NAMES = FALSE)}

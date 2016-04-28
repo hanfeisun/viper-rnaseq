@@ -4,16 +4,16 @@
 #BASED on makeclustering_all_samples_HWL.R by Henry Long
 
 # load required packages
-library("gplots")
-library("ComplexHeatmap")
-library("circlize")
-library("dendextend")
-library("viridis")
-library('dplyr')
+suppressMessages(library("gplots"))
+suppressMessages(library("ComplexHeatmap"))
+suppressMessages(library("circlize"))
+suppressMessages(library("dendextend"))
+suppressMessages(library("viridis"))
+suppressMessages(library('dplyr'))
 source('viper/scripts/supp_fns.R')
 
 #enable stack trace
-options(error = function() traceback(2))
+#options(error = function() traceback(2))
 
 snp_corr_plot <- function(snpCorrMatrix, annotation, plot_out) {
     cordata <- snpCorrMatrix
@@ -89,7 +89,7 @@ for (col in colnames(tmp_ann)) {
     }
 }
 
-rownames(tmp_ann) <- tmp_ann$SampleName
+rownames(tmp_ann) <- tmp_ann[,1]
 samples <- intersect(colnames(snpCorrMat), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
 #print(str(tmp_ann))

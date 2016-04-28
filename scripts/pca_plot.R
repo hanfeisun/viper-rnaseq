@@ -18,7 +18,7 @@ suppressMessages(source('viper/scripts/supp_fns.R'))
 
 #enable stack trace
 #LEN:
-options(error = function() traceback(2))
+#options(error = function() traceback(2))
 
 pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out) {
     
@@ -58,9 +58,8 @@ pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expres
     #Standard PCA analysis using all possible annotations
     for(c in colnames(annotation)) {
         ann <- as.matrix(annotation[, c])
-        if(length(sort(unique(na.omit(as.vector(ann))))) <7) {
+        #if(length(sort(unique(na.omit(as.vector(ann))))) <7) {
             ClassColors <- cmap(ann)
-            
             myColors = ClassColors[ann]
             myColors[which(is.na(myColors))] <- "black"
             #png(file=paste(png_dir,"/pca_plot_",c,".png",sep=""), width = 8, height = 8, unit="in",res=300)
@@ -70,7 +69,7 @@ pca_plot <- function(rpkmTable,annotation, RPKM_threshold,min_num_samples_expres
 	    dev.off()
 	    pca_output <- make_pca_plots(t(Exp_data), threeD = FALSE, ClassColorings = myColors, pca_title = c, legend_title =  c)
 		
-        }
+        #}
     }
 
     #GET percent variances
@@ -127,5 +126,6 @@ samples <- intersect(colnames(rpkmTable), rownames(tmp_ann))
 tmp_ann <- as.data.frame(tmp_ann[samples,-1])
 rownames(tmp_ann) <- rowNames
 colnames(tmp_ann) <- colNames[2:length(colNames)]
+
 
 pca_plot(rpkmTable,tmp_ann, RPKM_threshold,min_num_samples_expressing_at_threshold,filter_mirna,SSnumgenes, pca_plot_out)
