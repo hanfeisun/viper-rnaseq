@@ -119,7 +119,7 @@ for (col in colnames(tmp_ann)) {
     }
 }
 
-rownames(tmp_ann) <- tmp_ann$SampleName
+rownames(tmp_ann) <- tmp_ann[,1]
 samples <- intersect(colnames(snpCorrMat), rownames(tmp_ann))
 tmp_ann <- tmp_ann[samples,-1]
 #print(str(tmp_ann))
