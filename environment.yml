@@ -60,7 +60,7 @@ dependencies:
 - perl-set-intervaltree=0.10=3
 - perl-threaded=5.22.0=9
 - perl-uri=1.69=2
-- picard=1.126=3
+- picard=1.141=1
 - pip=8.1.1=py35_1
 - pixman=0.32.6=0
 - python=3.5.1=0

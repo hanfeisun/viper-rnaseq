@@ -23,8 +23,11 @@ config["samples"] = config["the_samples"]
 for k in ["RPKM_threshold","min_num_samples_expressing_at_threshold","SSnumgenes","SFnumgenes","num_kmeans_clust","filter_mirna","snp_scan_genome"]:
     config[k] = str(config[k])
 
-conda_path = subprocess.check_output('dirname $(which conda)', shell=True)
-conda_path = conda_path.decode("utf-8").strip().replace('bin','pkgs')
+conda_root = subprocess.check_output('conda info --root',shell=True).decode('utf-8').strip()
+#NEED to append 'pkgs' to the conda_root path to get to the bins
+conda_path = os.path.join(conda_root, 'pkgs')
+#NEED the following when invoking python2 (to set proper PYTHONPATH)
+python2_pythonpath = os.path.join(conda_root, 'envs', 'python2', 'lib', 'python2.7', 'site-packages')
 
 if not "python2" in config or not config["python2"]:
     config["python2"] = conda_path + '/python-2.7.9-3/bin/python2.7'
@@ -33,10 +36,12 @@ if not "rseqc_path" in config or not config["rseqc_path"]:
     config["rseqc_path"] = conda_path + '/rseqc-2.6.2-0/bin'
 
 if not "picard_path" in config or not config["picard_path"]:
-    config["picard_path"] = conda_path + '/picard-1.126-3/bin/picard'
+    #config["picard_path"] = conda_path + '/picard-1.141-1/bin/picard'
+    config["picard_path"] = 'picard' #subprocess.check_output('which picard',shell=True).decode('utf-8').strip()
 
 if not "varscan_path" in config or not config["varscan_path"]:
-    config["varscan_path"] = conda_path + '/varscan-2.4.1-0/bin/varscan'
+    #config["varscan_path"] = conda_path + '/varscan-2.4.1-0/bin/varscan'
+    config["varscan_path"] = 'varscan' #subprocess.check_output('which varscan',shell=True).decode('utf-8').strip()
 #----   END OF CONFIG SET UP -----#
 
 strand_command=""
@@ -240,8 +245,9 @@ rule read_distrib_qc:
     output:
         protected("analysis/RSeQC/read_distrib/{sample}.txt")
     message: "Running RseQC read distribution on {wildcards.sample}"
+    params: pypath="PYTHONPATH=%s" % python2_pythonpath
     shell:
-        "{config[python2]} {config[rseqc_path]}/read_distribution.py"
+        "{params.pypath} {config[python2]} {config[rseqc_path]}/read_distribution.py"
         " --input-file={input}"
         " --refgene={config[bed_file]} 1>{output}"
 
@@ -276,8 +282,9 @@ rule gene_body_cvg_qc:
         protected("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.curves.png"),
         protected("analysis/RSeQC/gene_body_cvg/{sample}/{sample}.geneBodyCoverage.r")
     message: "Creating gene body coverage curves"
+    params: pypath="PYTHONPATH=%s" % python2_pythonpath
     shell:
-        "{config[python2]} {config[rseqc_path]}/geneBody_coverage.py -i {input} -r {config[bed_file]}"
+        "{params.pypath} {config[python2]} {config[rseqc_path]}/geneBody_coverage.py -i {input} -r {config[bed_file]}"
         " -f png -o analysis/RSeQC/gene_body_cvg/{wildcards.sample}/{wildcards.sample}"
 
 
@@ -300,8 +307,9 @@ rule junction_saturation:
     output:
         protected("analysis/RSeQC/junction_saturation/{sample}/{sample}.junctionSaturation_plot.pdf")
     message: "Determining junction saturation for {wildcards.sample}"
+    params: pypath="PYTHONPATH=%s" % python2_pythonpath
     shell:
-        "{config[python2]} {config[rseqc_path]}/junction_saturation.py -i {input} -r {config[bed_file]}"
+        "{params.pypath} {config[python2]} {config[rseqc_path]}/junction_saturation.py -i {input} -r {config[bed_file]}"
         " -o analysis/RSeQC/junction_saturation/{wildcards.sample}/{wildcards.sample}"
 
 
@@ -488,6 +496,7 @@ rule volcano_plot:
     run:
         shell("Rscript viper/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")
 
+<<<<<<< HEAD
 rule goterm_analysis:
     input:
         deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
@@ -499,6 +508,19 @@ rule goterm_analysis:
     message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
     run:
         shell("Rscript viper/scripts/goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
+=======
+#rule goterm_analysis:
+#    input:
+#        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+#        force_run_upon_meta_change = config['metasheet']
+#    output:
+#        csv = "analysis/diffexp/{comparison}/{comparison}.goterm.csv",
+#        plot = "analysis/diffexp/{comparison}/{comparison}.goterm.pdf",
+#        png = "analysis/plots/images/{comparison}_goterm.png"
+#    message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
+#    run:
+#        shell("Rscript viper/scripts/2goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
+>>>>>>> develop
 
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
@@ -536,10 +558,11 @@ rule snps_corr_plot_chr6:
         snp_corr="analysis/snp/snp_corr.chr6.txt",
         annotFile=config['metasheet'],
     output:
-        snp_plot_out="analysis/plots/sampleSNPcorr_plot.chr6.png"
+        snp_plot_out="analysis/plots/sampleSNPcorr_plot.chr6.png",
+        snp_plot_pdf="analysis/plots/sampleSNPcorr_plot.chr6.pdf"
     message: "Running snp analysis for chr6 fingerprint region"
     run:
-        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
+        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out} {output.snp_plot_pdf}")
 
 #------------------------------------------------------------------------------
 # snp calling GENOME wide (hidden config.yaml flag- 'snp_scan_genome:True'
@@ -574,10 +597,11 @@ rule snps_corr_plot_genome:
         snp_corr="analysis/snp/snp_corr.genome.txt",
         annotFile=config['metasheet'],
     output:
-        snp_plot_out="analysis/plots/sampleSNPcorr_plot.genome.png"
+        snp_plot_out="analysis/plots/sampleSNPcorr_plot.genome.png",
+        snp_plot_pdf="analysis/plots/sampleSNPcorr_plot.genome.pdf"
     message: "Creating snp plot genome wide"
     run:
-        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out}")
+        shell("Rscript viper/scripts/sampleSNPcorr_plot.R {input.snp_corr} {input.annotFile} {output.snp_plot_out} {output.snp_plot_pdf}")
 
 
 
