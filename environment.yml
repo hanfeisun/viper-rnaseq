@@ -19,8 +19,10 @@ dependencies:
 - bioconductor-geneplotter=1.48.0=0
 - bioconductor-genomeinfodb=1.6.1=0
 - bioconductor-genomicranges=1.22.3=0
+- bioconductor-gostats=2.36.0=0
 - bioconductor-iranges=2.4.6=0
 - bioconductor-limma=3.26.7=1
+- bioconductor-org.hs.eg.db=3.2.3=0
 - bioconductor-s4vectors=0.8.7=0
 - bioconductor-summarizedexperiment=1.0.2=0
 - bioconductor-xvector=0.10.0=1
