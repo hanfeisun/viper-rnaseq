@@ -496,7 +496,6 @@ rule volcano_plot:
     run:
         shell("Rscript viper/scripts/volcano_plot.R {input.deseq} {output.plot} {output.png}")
 
-<<<<<<< HEAD
 rule goterm_analysis:
     input:
         deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
