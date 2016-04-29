@@ -37,11 +37,11 @@ if not "rseqc_path" in config or not config["rseqc_path"]:
 
 if not "picard_path" in config or not config["picard_path"]:
     #config["picard_path"] = conda_path + '/picard-1.141-1/bin/picard'
-    config["picard_path"] = subprocess.check_output('which picard',shell=True).decode('utf-8').strip()
+    config["picard_path"] = 'picard' #subprocess.check_output('which picard',shell=True).decode('utf-8').strip()
 
 if not "varscan_path" in config or not config["varscan_path"]:
     #config["varscan_path"] = conda_path + '/varscan-2.4.1-0/bin/varscan'
-    config["varscan_path"] = subprocess.check_output('which varscan',shell=True).decode('utf-8').strip()
+    config["varscan_path"] = 'varscan' #subprocess.check_output('which varscan',shell=True).decode('utf-8').strip()
 #----   END OF CONFIG SET UP -----#
 
 strand_command=""
