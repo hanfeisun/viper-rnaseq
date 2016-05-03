@@ -4,6 +4,7 @@ suppressMessages(library("org.Hs.eg.db"))
 suppressMessages(library("GOstats"))
 suppressMessages(library("edgeR"))
 suppressMessages(library("ggplot2"))
+suppressMessages(library("stringr"))
 suppressMessages(library("ggalt"))
 suppressMessages(library("scales"))
 
@@ -101,43 +102,20 @@ goterm_analysis_f <- function(deseq_file, goterm_csv,goterm_pdf,goterm_png) {
 
     #dev.off()
 
-
-    # Core wrapping functions for barplot mapping
-    wrap.it <- function(x, len) {sapply(x, function(y) paste(strwrap(y, len), collapse = "\n"), USE.NAMES = FALSE)}
-    wrap.labels <- function(x, len) {if (is.list(x)) {lapply(x, wrap.it, len)} else {wrap.it(x, len)}}
-
-    ## Function for rounding axes to upper 5 limit
-    mround <- function(x,base) {base*ceiling(x/base)}
-
-    ## Make GOterm table labels
-    wr.lap = wrap.labels(df$Term[numgoterms:1], 35)
     
+
     ## Create title for plot
     temptitle = tail(unlist(strsplit(goterm_pdf, split="/")), n=1)
     temptitle = head(unlist(strsplit(temptitle, split="[.]")), n=1)
     title = paste(temptitle, "_Top_", numgoterms, "_GOterms", sep="")
 
-    ## Plot out in pdf
-    pdf(goterm_pdf, width=11,height=8.5)
-    par(mar=c(5,10,2,1))
-    
-    barplot(df$logpval[numgoterms:1], names.arg = wr.lap,
-            width = 3, space = 0.2,
-            main = title, horiz = TRUE, xlab = "-log(pvalue)",
-            xlim = c(0,mround(max(df$logpval[numgoterms:1]),5)), xpd = TRUE, las = 2, cex.names = 0.7)
+    go_bar_plot <- ggplot(df[numgoterms:1,], aes(factor(Term, levels=unique(Term)), logpval)) + 
+      xlab("-log(Pvalue)") + ylab("Go term") +
+      geom_bar(stat = "identity", color="blue", fill="steel blue") + theme_bw(base_size = 12) +
+      scale_x_discrete(labels = function(x) str_wrap(x, width = 40, indent = 2),"\n") + coord_flip() + ggtitle(title)
 
-    dev.off()
-
-    ## Plot out in png
-    png(goterm_png, width = 10, height = 8, unit="in",res=300)
-    par(mar=c(5,10,2,1))
-
-    barplot(df$logpval[numgoterms:1], names.arg = wr.lap,
-            width = 3, space = 0.2,
-            main = title, horiz = TRUE, xlab = "-log(pvalue)",
-            xlim = c(0,mround(max(df$logpval[numgoterms:1]),5)), xpd = TRUE, las = 2, cex.names = 0.7)
-
-    dev.off()
+    ggsave(goterm_pdf, width=11, height=8.5, unit="in")
+    ggsave(goterm_png, width=10, height=8, unit="in")
 
 }
 
