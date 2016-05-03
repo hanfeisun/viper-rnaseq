@@ -8,11 +8,6 @@ suppressMessages(library("stringr"))
 suppressMessages(library("ggalt"))
 suppressMessages(library("scales"))
 
-deseq_file = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/diffexp/MCF7_PvTAMR/MCF7_PvTAMR.deseq.csv"
-goterm_csv = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/diffexp/MCF7_PvTAMR/MCF7_PvTAMR.goterm.csv"
-goterm_pdf = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/diffexp/MCF7_PvTAMR/MCF7_PvTAMR.goterm.pdf"
-goterm_png = "/mnt/cfce-stor1/home/mgc31/code/viperproject/analysis/plots/images/MCF7_PvTAMR_goterm.png"
-
 
 goterm_analysis_f <- function(deseq_file, goterm_csv,goterm_pdf,goterm_png) {
 
