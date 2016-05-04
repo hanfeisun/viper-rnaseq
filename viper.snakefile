@@ -130,9 +130,12 @@ rule target:
         fusion_output,
         insert_size_output,
         rRNA_metrics,
-        expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
-        expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
-        expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
+        #expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
+        #expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
+        #expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.kegg.txt", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.gsea.txt", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.gsea.pdf", comparison=comparisons),
         "report.html"
     message: "Compiling all output"
         
@@ -507,6 +510,24 @@ rule goterm_analysis:
     message: "Creating Goterm Analysis plots for Differential Expressions for {wildcards.comparison}"
     run:
         shell("Rscript viper/scripts/goterm_analysis.R {input.deseq} {output.csv} {output.plot} {output.png}")
+
+rule kegg_analysis:
+    input:
+        deseq = "analysis/diffexp/{comparison}/{comparison}.deseq.csv",
+        force_run_upon_meta_change = config['metasheet']
+    output:
+        kegg_table = "analysis/diffexp/{comparison}/{comparison}.kegg.txt",
+        gsea_table = "analysis/diffexp/{comparison}/{comparison}.gsea.txt",
+        gsea_pdf = "analysis/diffexp/{comparison}/{comparison}.gsea.pdf"
+    params:
+        kegg_dir = "analysis/diffexp/{comparison}/kegg_pathways/",
+        reference = "hg19",
+        temp_dir = "analysis/diffexp/{comparison}/temp/"
+    message: "Creating Kegg Pathway Analysis for Differential Expressions for {wildcards.comparison}"
+    run:
+        shell( "mkdir {params.temp_dir} ")
+        shell("Rscript viper/scripts/kegg_pathway.R {input.deseq} {params.kegg_dir} {params.reference} {params.temp_dir} {output.kegg_table} {output.gsea_table} {output.gsea_pdf} ")
+        shell( " rm -rf {params.temp_dir} ")
 
 #call snps from the samples
 #NOTE: lots of duplicated code below!--ONE SET for chr6 (default) and another
