@@ -105,8 +105,8 @@ goterm_analysis_f <- function(deseq_file, goterm_csv,goterm_pdf,goterm_png) {
     title = paste(temptitle, "_Top_", numgoterms, "_GOterms", sep="")
 
     go_bar_plot <- ggplot(df[numgoterms:1,], aes(factor(Term, levels=unique(Term)), logpval)) + 
-      xlab("-log(Pvalue)") + ylab("Go term") +
-      geom_bar(stat = "identity", color="blue", fill="steel blue") + theme_bw(base_size = 12) +
+      ylab("-log(Pvalue)") + xlab("Go term") +
+      geom_bar(stat = "identity", fill="pale green3") + theme_bw(base_size = 12) +
       scale_x_discrete(labels = function(x) str_wrap(x, width = 40, indent = 2),"\n") + coord_flip() + ggtitle(title)
 
     ggsave(goterm_pdf, width=11, height=8.5, unit="in")
