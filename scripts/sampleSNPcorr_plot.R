@@ -4,16 +4,16 @@
 #BASED on makeclustering_all_samples_HWL.R by Henry Long
 
 # load required packages
-library("gplots")
-library("ComplexHeatmap")
-library("circlize")
-library("dendextend")
-library("viridis")
-library('dplyr')
+suppressMessages(library("gplots"))
+suppressMessages(library("ComplexHeatmap"))
+suppressMessages(library("circlize"))
+suppressMessages(library("dendextend"))
+suppressMessages(library("viridis"))
+suppressMessages(library('dplyr'))
 source('viper/scripts/supp_fns.R')
 
 #enable stack trace
-options(error = function() traceback(2))
+#options(error = function() traceback(2))
 
 #NOTE: this fn is called twice, once to generate png and another to make pdf
 snp_corr_plot <- function(snpCorrMatrix, annotation, plot_out, isPNG) {
