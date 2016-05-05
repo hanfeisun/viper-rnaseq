@@ -104,6 +104,7 @@ dependencies:
 - r-futile.options=1.0.0=r3.2.2_0
 - r-gdata=2.17.0=r3.2.2_0a
 - r-getoptlong=0.1.0=r3.2.2_0
+- r-ggalt=0.1.1=r3.2.2_0
 - r-ggplot2=2.1.0=r3.2.2_0
 - r-globaloptions=0.0.8=r3.2.2_0
 - r-gplots=2.17.0=r3.2.2_0a
