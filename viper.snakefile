@@ -130,9 +130,9 @@ rule target:
         fusion_output,
         insert_size_output,
         rRNA_metrics,
-        #expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
-        #expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
-        #expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.goterm.csv", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.goterm.pdf", comparison=comparisons),
+        expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}.kegg.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}.gsea.txt", comparison=comparisons),
         expand("analysis/diffexp/{comparison}/{comparison}.gsea.pdf", comparison=comparisons),
@@ -148,12 +148,14 @@ rule generate_report:
         rRNA_metrics, "analysis/plots/pca_plot.pdf", "analysis/plots/heatmapSS_plot.pdf", "analysis/plots/heatmapSF_plot.pdf",
         expand("analysis/diffexp/{comparison}/{comparison}_volcano.pdf", comparison=comparisons),
         expand( "analysis/plots/sampleSNPcorr_plot.{region}.png", region=snp_regions),
+        expand("analysis/plots/images/{comparison}_goterm.png", comparison=comparisons),
+        expand("analysis/diffexp/{comparison}/{comparison}.gsea.txt", comparison=comparisons),
         force_run_upon_meta_change = config['metasheet']
     output:
         "report.html"
     message: "Generating VIPER report"
     run:
-        sphinx_str = get_sphinx_report()
+        sphinx_str = get_sphinx_report(comparisons)
         report(sphinx_str, output[0], metadata="Molecular Biology Core Facilities, DFCI", **{'Copyrights:':"./viper/mbcf.jpg"})
 
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 # vim: syntax=python tabstop=4 expandtab
+import os
+import glob
+from snakemake.report import data_uri
 
-def get_sphinx_report():
-    import os
-    import glob
-    from snakemake.report import data_uri
+def get_sphinx_report(comps):
     file_dict = {
         'align_report': "analysis/STAR/STAR_Align_Report.png",
         'rRNA_report': "analysis/STAR_rRNA/STAR_rRNA_Align_Report.png",
@@ -233,6 +233,38 @@ SNP - Genome-wide
 """
         report += "\n\n\t.. image:: " + file_dict['SNP_genome'] + "\n"
 
+    report += """
+Pathway-Analysis
+================
+
+Gene-Ontology Annotation
+========================
+"""
+    for comp in comps:
+        report += "\n" + comp + "\n"
+        report += "^" * len(comp) + "\n"
+        go_png = "analysis/diffexp/" + comp + "/" + comp + ".goterm.png"
+        if os.path.isfile(go_png):
+            report += "\n\n\t.. image:: " + data_uri(go_png) + "\n"
+        else:
+            report += "\nInsufficient data\n"
+
+    report += """
+KEGG-Pathway Analysis
+=====================
+"""
+    for comp in comps:
+        report += "\n" + comp + "\n"
+        report += "^" * len(comp) + "\n"
+        cur_path = "analysis/diffexp/" + comp + "/kegg_pathways/"
+        path_list =  glob.glob(cur_path + "*.png")
+        if not path_list:
+            report += "\nInsufficient data\n"
+        else:
+            report += "\n\n\t.. image:: " + data_uri(path_list[0]) + "\n"
+            token = ",".join([os.path.basename(file_path) for file_path in path_list[1:]]).replace(".png","")
+            if token:
+                report += "\n" + "More pathway plots such as, " + token + " - can be found at " + cur_path + ".\n"    
 
     return report + "\n"
 
